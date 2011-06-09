@@ -35,6 +35,7 @@ import org.xwiki.gwt.wysiwyg.client.plugin.line.LinePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.link.LinkPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.list.ListPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.macro.MacroPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.mutation.MutationPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.readonly.ReadOnlyPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.separator.SeparatorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.style.StylePluginFactory;
@@ -107,6 +108,7 @@ public final class WysiwygEditorFactory
         pfm.addPluginFactory(MacroPluginFactory.getInstance());
         pfm.addPluginFactory(EmbedPluginFactory.getInstance());
         pfm.addPluginFactory(StylePluginFactory.getInstance());
+        pfm.addPluginFactory(MutationPluginFactory.getInstance());
         // add additional PluginFactory for other plug-ins
     }
 
