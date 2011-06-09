@@ -47,6 +47,7 @@
   <modules>
     <module>gwt</module>
     <module>xwiki-gwt-dom</module>
+    <module>xwiki-gwt-dom-mutation</module>
     <module>xwiki-gwt-user</module>
     <module>xwiki-gwt-wysiwyg-plugin-api</module>
     <module>xwiki-gwt-wysiwyg-client</module>
