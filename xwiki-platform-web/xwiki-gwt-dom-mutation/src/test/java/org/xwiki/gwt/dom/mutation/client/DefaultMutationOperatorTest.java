@@ -88,8 +88,8 @@ public class DefaultMutationOperatorTest extends AbstractMutationTest
 
         Mutation mutation = new Mutation();
         mutation.setType(MutationType.INSERT);
-        mutation.setLocator("0/1");
-        mutation.setValue("<del title=\"bob\">2</del>");
+        mutation.setLocator("0");
+        mutation.setValue("1,<del title=\"bob\">2</del>");
 
         MutationOperator operator = new DefaultMutationOperator();
         operator.operate(mutation, getContainer());
@@ -106,8 +106,8 @@ public class DefaultMutationOperatorTest extends AbstractMutationTest
 
         Mutation mutation = new Mutation();
         mutation.setType(MutationType.INSERT);
-        mutation.setLocator("0/1/1");
-        mutation.setValue("c");
+        mutation.setLocator("0/1");
+        mutation.setValue("1,c");
 
         MutationOperator operator = new DefaultMutationOperator();
         operator.operate(mutation, getContainer());
