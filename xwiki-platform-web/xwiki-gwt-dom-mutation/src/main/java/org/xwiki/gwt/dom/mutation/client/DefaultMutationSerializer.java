@@ -32,6 +32,100 @@ import com.google.gwt.dom.client.Node;
 public class DefaultMutationSerializer implements MutationSerializer
 {
     /**
+     * Specifies how a text node is modified when a {@code DOM_CHARACTER_DATA_MODIFIED} event is fired. The range of
+     * text modified is assumed to be contiguous.
+     */
+    private static class CharacterDataModification
+    {
+        /**
+         * Where the modification starts.
+         */
+        private int start;
+
+        /**
+         * Where the modification ends.
+         */
+        private int end;
+
+        /**
+         * The string that replaces the text between the {@link #start} and {@link #end}.
+         */
+        private String replacement;
+
+        /**
+         * @return the index of the first character affected by the modification
+         */
+        public int getStart()
+        {
+            return start;
+        }
+
+        /**
+         * Sets the index of the first modified character.
+         * 
+         * @param start the index of the first modified character
+         */
+        public void setStart(int start)
+        {
+            this.start = start;
+        }
+
+        /**
+         * @return where the modification ends
+         */
+        public int getEnd()
+        {
+            return end;
+        }
+
+        /**
+         * Sets where the modification ends.
+         * 
+         * @param end the index of the first character that follows the modification
+         */
+        public void setEnd(int end)
+        {
+            this.end = end;
+        }
+
+        /**
+         * @return the string that replaced the text between {@link #start} and {@link #end}
+         */
+        public String getReplacement()
+        {
+            return replacement;
+        }
+
+        /**
+         * Sets the string that will replace the text between {@link #start} and {@link #end}.
+         * 
+         * @param replacement the string that replaces the text between {@link #start} and {@link #end}
+         */
+        public void setReplacement(String replacement)
+        {
+            this.replacement = replacement;
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            StringBuilder result = new StringBuilder().append(start);
+            if (start != end) {
+                result.append(',').append(end);
+            }
+            if (replacement != null && replacement.length() > 0) {
+                result.append(',').append(replacement);
+            }
+            return result.toString();
+        }
+    }
+
+    /**
      * {@inheritDoc}
      * 
      * @see MutationSerializer#serialize(MutationEvent, Node)
@@ -39,15 +133,16 @@ public class DefaultMutationSerializer implements MutationSerializer
     public Mutation serialize(MutationEvent event, Node root)
     {
         Mutation mutation = new Mutation();
+        Node target = Node.as(event.getEventTarget());
         switch (event.getMutationEventType()) {
             case DOM_NODE_INSERTED:
                 mutation.setType(MutationType.INSERT);
-                mutation.setValue(serialize(Node.as(event.getEventTarget())));
-                mutation.setLocator(getLocator(Node.as(event.getEventTarget()), root));
+                mutation.setValue(getNodeIndex(target) + "," + serialize(target));
+                mutation.setLocator(getLocator(target.getParentNode(), root));
                 break;
             case DOM_NODE_REMOVED:
                 mutation.setType(MutationType.REMOVE);
-                mutation.setLocator(getLocator(Node.as(event.getEventTarget()), root));
+                mutation.setLocator(getLocator(target, root));
                 break;
             case DOM_ATTR_MODIFIED:
                 switch (event.getAttrChange()) {
@@ -65,13 +160,20 @@ public class DefaultMutationSerializer implements MutationSerializer
                     default:
                         return null;
                 }
-                mutation.setLocator(getLocator(Node.as(event.getEventTarget()), event.getRelatedNode().getNodeName(),
-                    root));
+                mutation.setLocator(getLocator(target, event.getRelatedNode().getNodeName(), root));
                 break;
             case DOM_CHARACTER_DATA_MODIFIED:
-                mutation.setType(MutationType.MODIFY);
-                mutation.setValue(event.getNewValue());
-                mutation.setLocator(getLocator(Node.as(event.getEventTarget()), root));
+                CharacterDataModification modification =
+                    getCharacterDataModification(event.getPrevValue(), event.getNewValue());
+                if (modification.getReplacement().length() == 0) {
+                    mutation.setType(MutationType.REMOVE);
+                } else if (modification.getStart() == modification.getEnd()) {
+                    mutation.setType(MutationType.INSERT);
+                } else {
+                    mutation.setType(MutationType.MODIFY);
+                }
+                mutation.setValue(modification.toString());
+                mutation.setLocator(getLocator(target, root));
                 break;
             default:
                 return null;
@@ -142,5 +244,31 @@ public class DefaultMutationSerializer implements MutationSerializer
         Element container = node.getOwnerDocument().createDivElement();
         container.appendChild(nodeClone);
         return container.getInnerHTML();
+    }
+
+    /**
+     * @param oldValue the old character data
+     * @param newValue the new character data
+     * @return the modification that can be used to transform the old character data into the new character data
+     */
+    private CharacterDataModification getCharacterDataModification(String oldValue, String newValue)
+    {
+        int startOffset = 0;
+        while (startOffset < oldValue.length() && startOffset < newValue.length()
+            && oldValue.charAt(startOffset) == newValue.charAt(startOffset)) {
+            startOffset++;
+        }
+        int oldEndOffset = oldValue.length() - 1;
+        int newEndOffset = newValue.length() - 1;
+        while (startOffset <= oldEndOffset && startOffset <= newEndOffset
+            && oldValue.charAt(oldEndOffset) == newValue.charAt(newEndOffset)) {
+            oldEndOffset--;
+            newEndOffset--;
+        }
+        CharacterDataModification modification = new CharacterDataModification();
+        modification.setStart(startOffset);
+        modification.setEnd(oldEndOffset + 1);
+        modification.setReplacement(newValue.substring(startOffset, newEndOffset + 1));
+        return modification;
     }
 }

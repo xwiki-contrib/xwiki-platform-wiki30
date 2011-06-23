@@ -39,7 +39,6 @@ public class DefaultMutationSource implements MutationListener, MutationSource
     /**
      * The root of the subtree whose mutation events are caught.
      */
-    @SuppressWarnings("unused")
     private final Node source;
 
     /**
@@ -51,7 +50,6 @@ public class DefaultMutationSource implements MutationListener, MutationSource
     /**
      * The JavaScript object that catches all the mutation events.
      */
-    @SuppressWarnings("unused")
     private final JavaScriptObject catcher;
 
     /**

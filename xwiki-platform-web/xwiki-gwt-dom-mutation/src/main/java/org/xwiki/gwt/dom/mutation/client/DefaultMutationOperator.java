@@ -23,6 +23,7 @@ import org.xwiki.gwt.dom.mutation.client.Mutation.MutationType;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.Text;
 
 /**
  * Default {@link MutationOperator} implementation.
@@ -47,12 +48,6 @@ public class DefaultMutationOperator implements MutationOperator
          * which case {@link #targetNode} is the owner element.
          */
         private String attributeName;
-
-        /**
-         * The position where the new node is inserted. This field is used only with {@link MutationType#INSERT} in
-         * which case the {@link #targetNode} is the parent element.
-         */
-        private int childIndex = -1;
 
         /**
          * @return {@link #targetNode}
@@ -89,24 +84,6 @@ public class DefaultMutationOperator implements MutationOperator
         {
             this.attributeName = attributeName;
         }
-
-        /**
-         * @return {@link #childIndex}
-         */
-        public int getChildIndex()
-        {
-            return childIndex;
-        }
-
-        /**
-         * Sets the child index.
-         * 
-         * @param childIndex {@link #childIndex}
-         */
-        public void setChildIndex(int childIndex)
-        {
-            this.childIndex = childIndex;
-        }
     }
 
     /**
@@ -119,13 +96,25 @@ public class DefaultMutationOperator implements MutationOperator
         MutationTarget mutationTarget = getMutationTarget(mutation.getLocator(), root, mutation.getType());
         switch (mutation.getType()) {
             case INSERT:
-                insertNode(mutationTarget, mutation.getValue());
+                if (mutationTarget.getTargetNode().getNodeType() == Node.TEXT_NODE) {
+                    insertText(Text.as(mutationTarget.getTargetNode()), mutation.getValue());
+                } else {
+                    insertNode(mutationTarget, mutation.getValue());
+                }
                 break;
             case MODIFY:
-                mutationTarget.getTargetNode().setNodeValue(mutation.getValue());
+                if (mutationTarget.getTargetNode().getNodeType() == Node.TEXT_NODE) {
+                    replaceText(Text.as(mutationTarget.getTargetNode()), mutation.getValue());
+                } else {
+                    mutationTarget.getTargetNode().setNodeValue(mutation.getValue());
+                }
                 break;
             case REMOVE:
-                removeNode(mutationTarget.getTargetNode());
+                if (mutationTarget.getTargetNode().getNodeType() == Node.TEXT_NODE && mutation.getValue() != null) {
+                    deleteText(Text.as(mutationTarget.getTargetNode()), mutation.getValue());
+                } else {
+                    removeNode(mutationTarget.getTargetNode());
+                }
                 break;
             case RENAME:
                 // Unsupported right now.
@@ -153,12 +142,7 @@ public class DefaultMutationOperator implements MutationOperator
             }
             String pathEnd = path[path.length - 1];
             if (pathEnd.charAt(0) >= '0' && pathEnd.charAt(0) <= '9') {
-                if (mutationType == MutationType.INSERT) {
-                    mutationTarget.setTargetNode(targetNode);
-                    mutationTarget.setChildIndex(Integer.parseInt(pathEnd));
-                } else {
-                    mutationTarget.setTargetNode(targetNode.getChildNodes().getItem(Integer.parseInt(pathEnd)));
-                }
+                mutationTarget.setTargetNode(targetNode.getChildNodes().getItem(Integer.parseInt(pathEnd)));
             } else {
                 if (mutationType == MutationType.INSERT) {
                     mutationTarget.setTargetNode(targetNode);
@@ -197,9 +181,10 @@ public class DefaultMutationOperator implements MutationOperator
         if (mutationTarget.getAttributeName() != null) {
             targetElement.setAttribute(mutationTarget.getAttributeName(), value);
         } else {
+            String[] parts = value.split(String.valueOf(','), 2);
             Element container = Element.as(targetElement.cloneNode(false));
-            container.setInnerHTML(value);
-            insertNodeAt(targetElement, mutationTarget.getChildIndex(), container.getFirstChild());
+            container.setInnerHTML(parts[1]);
+            insertNodeAt(targetElement, Integer.parseInt(parts[0]), container.getFirstChild());
         }
     }
 
@@ -243,4 +228,45 @@ public class DefaultMutationOperator implements MutationOperator
     /*-{
         attrNode.ownerElement.removeAttributeNode(attrNode);
     }-*/;
+
+    /**
+     * Inserts the text specified in the mutation value.
+     * 
+     * @param textNode the text node where to insert the text
+     * @param mutationValue the mutation value specifying the offset where to insert the text and the text to be
+     *            inserted
+     */
+    private void insertText(Text textNode, String mutationValue)
+    {
+        String[] parts = mutationValue.split(String.valueOf(','), 2);
+        textNode.insertData(Integer.parseInt(parts[0]), parts[1]);
+    }
+
+    /**
+     * Replaces the text specified in the mutation value.
+     * 
+     * @param textNode the text node whose text is replaced
+     * @param mutationValue the mutation value specifying the text to be replaced
+     */
+    private void replaceText(Text textNode, String mutationValue)
+    {
+        String[] parts = mutationValue.split(String.valueOf(','), 3);
+        int startOffset = Integer.parseInt(parts[0]);
+        int endOffset = Integer.parseInt(parts[1]);
+        textNode.replaceData(startOffset, endOffset - startOffset, parts[2]);
+    }
+
+    /**
+     * Deletes the text specified in the mutation value.
+     * 
+     * @param textNode the text node whose text is deleted
+     * @param mutationValue the mutation value specifying the text to be deleted
+     */
+    private void deleteText(Text textNode, String mutationValue)
+    {
+        String[] parts = mutationValue.split(String.valueOf(','), 2);
+        int startOffset = Integer.parseInt(parts[0]);
+        int endOffset = Integer.parseInt(parts[1]);
+        textNode.deleteData(startOffset, endOffset - startOffset);
+    }
 }

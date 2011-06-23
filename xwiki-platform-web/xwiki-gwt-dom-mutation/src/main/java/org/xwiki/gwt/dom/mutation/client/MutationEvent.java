@@ -202,7 +202,9 @@ public class MutationEvent extends NativeEvent
      */
     public final native String getNewValue()
     /*-{
-        return this.newValue;
+        // The new value is always empty in Firefox for a DOMCharacterDataModified event. We return the value of the
+        // modified text node instead.
+        return this.type == 'DOMCharacterDataModified' && this.newValue == '' ? this.target.nodeValue : this.newValue;
     }-*/;
 
     /**
