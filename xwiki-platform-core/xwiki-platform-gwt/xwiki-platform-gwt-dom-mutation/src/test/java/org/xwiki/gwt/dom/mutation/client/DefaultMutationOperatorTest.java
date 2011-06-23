@@ -152,20 +152,49 @@ public class DefaultMutationOperatorTest extends AbstractMutationTest
     }
 
     /**
-     * Operates a {@link MutationType#MODIFY} mutation on a text node.
+     * Tests how a mutation that changes the value of a text node is operated.
+     * 
+     * @param text the text to be changed
+     * @param mutationType the type of text mutation
+     * @param mutationValue the mutation value, specifying which part of the text will be changed
+     * @param expectedText the expected text after the mutation is executed
      */
-    public void testChangeText()
+    private void testChangeText(String text, MutationType mutationType, String mutationValue, String expectedText)
     {
-        getContainer().setInnerHTML("<del>1<em>2</em>45</del>");
+        getContainer().appendChild(getContainer().getOwnerDocument().createTextNode(text));
 
         Mutation mutation = new Mutation();
-        mutation.setType(MutationType.MODIFY);
-        mutation.setLocator("0/2");
-        mutation.setValue("3");
+        mutation.setType(mutationType);
+        mutation.setLocator(String.valueOf('0'));
+        mutation.setValue(mutationValue);
 
         MutationOperator operator = new DefaultMutationOperator();
         operator.operate(mutation, getContainer());
 
-        assertEquals("<del>1<em>2</em>3</del>", getContainer().getInnerHTML());
+        assertEquals(expectedText, getContainer().getFirstChild().getNodeValue());
+    }
+
+    /**
+     * Tests how a mutation that inserts some characters is executed.
+     */
+    public void testInsertCharacters()
+    {
+        testChangeText("int", MutationType.INSERT, "2,ser", "insert");
+    }
+
+    /**
+     * Tests how a mutation that deletes some characters is executed.
+     */
+    public void testDeleteCharacters()
+    {
+        testChangeText("toucan", MutationType.REMOVE, "3,6", "tou");
+    }
+
+    /**
+     * Tests how a mutation that replaces some characters is executed.
+     */
+    public void testReplaceCharacters()
+    {
+        testChangeText("wiki", MutationType.MODIFY, "0,1,XW", "XWiki");
     }
 }
