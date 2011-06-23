@@ -68,6 +68,7 @@
             <exclude>**/test/**</exclude>
             <!-- To be removed when we release 3.0.1 -->
             <exclude>org/xwiki/wysiwyg/server/WysiwygEditorConfiguration</exclude>
+            <exclude>org/xwiki/gwt/dom/mutation/client/DefaultMutationOperator$MutationTarget</exclude>
           </excludes>
         </configuration>
       </plugin>
