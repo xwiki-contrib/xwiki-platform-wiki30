@@ -39,8 +39,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.FlushMode;
 import org.hibernate.ObjectNotFoundException;
@@ -53,6 +51,8 @@ import org.hibernate.connection.ConnectionProvider;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
@@ -110,7 +110,7 @@ import com.xpn.xwiki.web.Utils;
 @Component
 public class XWikiHibernateStore extends XWikiHibernateBaseStore implements XWikiStoreInterface
 {
-    private static final Log log = LogFactory.getLog(XWikiHibernateStore.class);
+    private static final Logger log = LoggerFactory.getLogger(XWikiHibernateStore.class);
 
     private Map<String, String[]> validTypesMap = new HashMap<String, String[]>();
 
@@ -536,15 +536,23 @@ public class XWikiHibernateStore extends XWikiHibernateBaseStore implements XWik
                 doc.setXObjectsToRemove(new ArrayList<BaseObject>());
             }
 
-            // We should only save the class if we are using the class table mode
             if (bclass != null) {
                 bclass.setDocumentReference(doc.getDocumentReference());
-                // Store this XWikiClass in the context so that we can use it in case of recursive
-                // usage of classes
+                // Store this XWikiClass in the context so that we can use it in case of recursive usage of classes
                 context.addBaseClass(bclass);
-                // update objects of the class
-                for (Iterator itf = bclass.getFieldList().iterator(); itf.hasNext();) {
-                    PropertyClass prop = (PropertyClass) itf.next();
+                // Update instances of the class, in case some properties changed their storage type
+
+                // In case the current document has both a class and instances of that class, we have to take care
+                // not to insert duplicate entities in the session
+                Map<Integer, BaseObject> localClassObjects = new HashMap<Integer, BaseObject>();
+                if (doc.hasElement(XWikiDocument.HAS_OBJECTS) && doc.getXObjects(doc.getDocumentReference()) != null) {
+                    for (BaseObject obj : doc.getXObjects(doc.getDocumentReference())) {
+                        if (obj != null) {
+                            localClassObjects.put(obj.getId(), obj);
+                        }
+                    }
+                }
+                for (PropertyClass prop : (Collection<PropertyClass>) bclass.getFieldList()) {
                     // migrate values of list properties
                     if (prop instanceof StaticListClass || prop instanceof DBListClass) {
                         ListClass lc = (ListClass) prop;
@@ -615,10 +623,40 @@ public class XWikiHibernateStore extends XWikiHibernateBaseStore implements XWik
                                 }
                             }
                         }
+                    } else {
+                        // General migration of properties
+                        Query q = session.createQuery("select p from BaseProperty as p, BaseObject as o"
+                            + " where o.className=? and p.id=o.id and p.name=? and p.classType <> ?");
+                        q.setString(0, bclass.getName());
+                        q.setString(1, prop.getName());
+                        q.setString(2, prop.newProperty().getClassType());
+                        @SuppressWarnings("unchecked")
+                        List<BaseProperty> brokenProperties = q.list();
+                        for (BaseProperty brokenProperty : brokenProperties) {
+                            BaseProperty newProperty = prop.fromString(brokenProperty.toText());
+                            BaseObject localObject = localClassObjects.get(brokenProperty.getId());
+                            if (localObject != null) {
+                                BaseProperty currentProperty = (BaseProperty) localObject.get(prop.getName());
+                                if (currentProperty != null) {
+                                    newProperty = prop.fromString(currentProperty.toText());
+                                    if (newProperty != null) {
+                                        localObject.put(prop.getName(), newProperty);
+                                    } else {
+                                        localObject.put(prop.getName(), brokenProperty);
+                                    }
+                                }
+                            }
+                            if (newProperty == null) {
+                                log.warn("Incompatible data migration when changing field {} of class {}",
+                                    prop.getName(), prop.getClassName());
+                                continue;
+                            }
+                            newProperty.setId(brokenProperty.getId());
+                            session.delete(brokenProperty);
+                            session.save(newProperty);
+                        }
                     }
                 }
-            } else {
-                // TODO: Remove existing class
             }
 
             if (doc.hasElement(XWikiDocument.HAS_OBJECTS)) {
