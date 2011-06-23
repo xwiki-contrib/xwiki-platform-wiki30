@@ -25,6 +25,7 @@ import org.xwiki.gwt.dom.mutation.client.MutationEvent.MutationEventType;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ImageElement;
+import com.google.gwt.dom.client.Text;
 
 /**
  * Integration tests to prove the mutation event can be replicated on the same HTML page.
@@ -147,6 +148,28 @@ public class ReplicationTest extends AbstractMutationTest
         replicate(EnumSet.of(MutationEventType.DOM_CHARACTER_DATA_MODIFIED));
         source.getLastChild().getLastChild().setNodeValue("3");
         assertEquals("1<em>2</em><del>3</del>", destination.getInnerHTML());
+    }
+
+    /**
+     * Tests if the action of typing a character is replicated correctly.
+     */
+    public void testReplicateInsertCharacter()
+    {
+        source.setInnerHTML("before<em>midle</em>after");
+        replicate(EnumSet.of(MutationEventType.DOM_CHARACTER_DATA_MODIFIED));
+        Text.as(source.getChild(1).getFirstChild()).insertData(3, "d");
+        assertEquals("before<em>middle</em>after", destination.getInnerHTML());
+    }
+
+    /**
+     * Tests if the action of deleting a few characters is replicated correctly.
+     */
+    public void testReplicateDeleteCharacters()
+    {
+        source.setInnerHTML("one, two, three");
+        replicate(EnumSet.of(MutationEventType.DOM_CHARACTER_DATA_MODIFIED));
+        Text.as(source.getFirstChild()).deleteData(5, 5);
+        assertEquals("one, three", destination.getInnerHTML());
     }
 
     /**
