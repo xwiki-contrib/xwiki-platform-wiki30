@@ -20,6 +20,7 @@
 package com.xpn.xwiki.internal.event;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Named;
@@ -109,6 +110,9 @@ public class XObjectEventGeneratorListener implements EventListener
             for (BaseObject xobject : xobjects) {
                 if (xobject != null) {
                     observation.notify(new XObjectAddedEvent(xobject.getReference()), doc, context);
+                    for (PropertyInterface property : (Collection<PropertyInterface>) xobject.getFieldList()) {
+                        observation.notify(new XObjectPropertyAddedEvent(property.getReference()), doc, context);
+                    }
                 }
             }
         }
@@ -127,6 +131,9 @@ public class XObjectEventGeneratorListener implements EventListener
             for (BaseObject xobject : xobjects) {
                 if (xobject != null) {
                     observation.notify(new XObjectDeletedEvent(xobject.getReference()), doc, context);
+                    for (PropertyInterface property : (Collection<PropertyInterface>) xobject.getFieldList()) {
+                        observation.notify(new XObjectPropertyDeletedEvent(property.getReference()), doc, context);
+                    }
                 }
             }
         }
@@ -152,7 +159,7 @@ public class XObjectEventGeneratorListener implements EventListener
                     if (ObjectDiff.ACTION_OBJECTADDED.equals(diff.getAction())) {
                         observation.notify(new XObjectAddedEvent(xobject.getReference()), doc, context);
                     } else {
-                        if (!modified) {
+                        if (!modified && xobject != null && xobjectOriginal != null) {
                             observation.notify(new XObjectUpdatedEvent(xobject.getReference()), doc, context);
                             modified = true;
                         }
