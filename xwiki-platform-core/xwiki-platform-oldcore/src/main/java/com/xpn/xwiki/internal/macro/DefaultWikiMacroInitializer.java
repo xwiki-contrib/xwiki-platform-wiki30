@@ -19,6 +19,7 @@
  */
 package com.xpn.xwiki.internal.macro;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,8 @@ import org.xwiki.rendering.macro.wikibridge.WikiMacroFactory;
 import org.xwiki.rendering.macro.wikibridge.WikiMacroInitializer;
 import org.xwiki.rendering.macro.wikibridge.WikiMacroManager;
 import org.xwiki.rendering.syntax.Syntax;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
@@ -189,24 +192,15 @@ public class DefaultWikiMacroInitializer implements WikiMacroInitializer, WikiMa
      * Search for all wiki macros in the current wiki.
      * 
      * @param xcontext the current request context
-     * @return a list of documents containing wiki macros, each item as a vector of 3 strings: space name, document
-     *         name, last author of the document
+     * @return a list of documents containing wiki macros,
+     *         each item as a List of 3 strings: space name, document name, last author of the document
      * @throws Exception if the database search fails
      */
     private List<Object[]> getWikiMacroDocumentData(XWikiContext xcontext) throws Exception
     {
-        // TODO: Use the query manager instead
-        String sql = "select doc.space, doc.name, doc.author from XWikiDocument doc, BaseObject obj where "
-            + "doc.fullName=obj.name and obj.className=?";
-        List<Object[]> wikiMacroDocumentData;
-        try {
-            wikiMacroDocumentData = xcontext.getWiki().getStore().search(sql, 0, 0, Arrays.asList(WIKI_MACRO_CLASS),
-                xcontext);
-        } catch (XWikiException ex) {
-            throw new Exception("Error while searching for macro documents", ex);
-        }
-
-        return wikiMacroDocumentData;
+        final QueryManager qm = xcontext.getWiki().getStore().getQueryManager();
+        final Query q = qm.getNamedQuery("getWikiMacroDocuments");
+        return (List<Object[]>) (List) q.execute();
     }
 
     /**

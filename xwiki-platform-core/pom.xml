@@ -81,7 +81,7 @@
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.1</version>
       </dependency>
       <!-- Jython engine -->
       <dependency>
@@ -94,13 +94,6 @@
         <groupId>jfree</groupId>
         <artifactId>jfreechart</artifactId>
         <version>1.0.13</version>
-      </dependency>
-      <!-- JFreeChart 1.0.13 has no POM file in the Maven Central Repository and thus we need to manually define
-           its own Maven dependency on JFree Common. Remove this dependency when it's fixed. -->
-      <dependency>
-        <groupId>jfree</groupId>
-        <artifactId>jcommon</artifactId>
-        <version>1.0.15</version>
       </dependency>
       <!-- Used on remote objervatoin and also by JBossCache (even if it does not really use it) -->
       <dependency>
@@ -345,8 +338,13 @@
               <excludes>
                 <exclude>**/internal/**</exclude>
                 <exclude>**/test/**</exclude>
-                <!-- To be removed when we release 3.1 -->
-                <exclude>com/xpn/xwiki/pref/api/XWikiPrefService</exclude>
+                <!-- To be removed when we release 3.2 -->
+                <exclude>com/xpn/xwiki/plugin/lucene/IndexRebuilder</exclude>
+                <exclude>org/xwiki/bridge/AttachmentNameFactory</exclude>
+                <exclude>org/xwiki/bridge/AttachmentNameSerializer</exclude>
+                <exclude>org/xwiki/bridge/DocumentNameFactory</exclude>
+                <exclude>org/xwiki/bridge/DocumentNameSerializer</exclude>
+                <exclude>com/xpn/xwiki/plugin/wikimanager/WikiManager</exclude>
               </excludes>
             </configuration>
           </plugin>

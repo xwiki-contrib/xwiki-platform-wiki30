@@ -99,6 +99,7 @@ var XWiki = (function (XWiki) {
           }
         }
       });
+      var allResults = allResultsNode.getElement();
       this.suggest = new XWiki.widgets.Suggest( this.searchInput, {
         parentContainer: $('searchSuggest'),
         className: 'searchSuggest horizontalLayout',
@@ -106,12 +107,15 @@ var XWiki = (function (XWiki) {
         align: "right",
         minchars: 3,    
         sources : this.sources,
-        insertBeforeSuggestions : new Element("div", {'class' : 'results'}).update(allResultsNode.getElement()),
+        insertBeforeSuggestions : new Element("div", {'class' : 'results'}).update( allResults ),
         displayValue:true,
         displayValueText: "in ",
         timeout: 0,
         width: 500,
-        align: "right"
+        align: "right",
+        unifiedLoader:true,
+        loaderNode: allResults.down("li"),
+        shownoresults:false
       });
     },
     
@@ -130,32 +134,37 @@ var XWiki = (function (XWiki) {
    } 
     
   });   
-    
+
+  function init(){
+    var sources = [
+    ## Iterate over the sources defined in the configuration document, and create a source array to be passed to the
+    ## search suggest contructor.
+    #set($sourceDocument = $xwiki.getDocument("XWiki.SearchSuggestConfig"))
+    #foreach($source in $sourceDocument.getObjects('XWiki.SearchSuggestSourceClass'))
+      #if($source.getProperty('activated').value == 1)
+      {
+        name : "$escapetool.javascript($source.display('name','view'))",
+        varname : 'input',
+        script : "#evaluate($source.getProperty('url').value)&query=$source.getProperty('query').value&nb=$source.getProperty('resultsNumber').value&",
+        icon : "#evaluate($source.getProperty('icon').value)",
+        highlight: #if($source.getProperty('highlight').value == 1) true #else false #end
+      },
+      #end
+    #end
+      null  // Don't handle last coma. This is going to be compated anyway.
+    ].compact()
+
+    new XWiki.SearchSuggest($('headerglobalsearchinput'), sources);
+    return true;
+  }
+
+  // When the document is loaded, install search suggestions
+  (XWiki.isInitialized && init())
+  || document.observe('xwiki:dom:loading', init);
+
   return XWiki;
 
 })(XWiki);
 
-document.observe("dom:loaded", function(){
 
-  var sources = [
-  ## Iterate over the sources defined in the configuration document, and create a source array to be passed to the
-  ## search suggest contructor.
-  #set($sourceDocument = $xwiki.getDocument("XWiki.SearchSuggestConfig"))
-  #foreach($source in $sourceDocument.getObjects('XWiki.SearchSuggestSourceClass'))
-    #if($source.getProperty('activated').value == 1)
-    {
-      name : "$escapetool.javascript($source.display('name','view'))",
-      varname : 'input',
-      script : "#evaluate($source.getProperty('url').value)&query=$source.getProperty('query').value&nb=$source.getProperty('resultsNumber').value&",
-      icon : "#evaluate($source.getProperty('icon').value)",
-      highlight: #if($source.getProperty('highlight').value == 1) true #else false #end
-    },
-    #end
-  #end
-    null  // Don't handle last coma. This is going to be compated anyway.
-  ].compact()
-
-  new XWiki.SearchSuggest($('headerglobalsearchinput'), sources);
-
-});
 

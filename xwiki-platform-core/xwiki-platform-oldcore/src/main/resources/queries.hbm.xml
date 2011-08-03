@@ -36,4 +36,14 @@
     select distinct doc.fullName from XWikiDocument as doc, BaseObject as obj
     where obj.name=doc.fullName and obj.className='XWiki.XWikiUsers'
   </query>
+  <query name="getWikiMacroDocuments">
+    select doc.space, doc.name, doc.author from XWikiDocument doc, BaseObject obj
+    where doc.fullName=obj.name
+      and obj.className='XWiki.WikiMacroClass'
+  </query>
+  <query name="getWatchlistJobDocuments">
+    SELECT doc.fullName FROM XWikiDocument as doc, BaseObject as obj
+    WHERE obj.name = doc.fullName
+      AND obj.className = 'XWiki.WatchListJob'
+  </query>
 </hibernate-mapping>

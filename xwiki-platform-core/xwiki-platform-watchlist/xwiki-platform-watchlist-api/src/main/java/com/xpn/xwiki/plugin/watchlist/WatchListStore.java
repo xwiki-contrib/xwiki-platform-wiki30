@@ -29,13 +29,15 @@ import java.util.Map;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.bridge.event.DocumentCreatedEvent;
 import org.xwiki.bridge.event.DocumentDeletedEvent;
 import org.xwiki.bridge.event.DocumentUpdatedEvent;
 import org.xwiki.observation.EventListener;
 import org.xwiki.observation.event.Event;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryException;
 import org.xwiki.rendering.syntax.Syntax;
 
 import com.xpn.xwiki.XWikiContext;
@@ -119,9 +121,9 @@ public class WatchListStore implements EventListener
     };
 
     /**
-     * Logger.
+     * Logging helper object.
      */
-    private static final Log LOG = LogFactory.getLog(WatchListStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WatchListStore.class);
 
     /**
      * XWiki Class used to store user subscriptions.
@@ -157,6 +159,11 @@ public class WatchListStore implements EventListener
      * Property of the watchlist class used to indicate what should be automatically watched.
      */
     private static final String WATCHLIST_CLASS_AUTOMATICWATCH = "automaticwatch";
+
+    /**
+     * XWiki Class used to store user.
+     */
+    private static final String USERS_CLASS = "XWiki.XWikiUsers";
 
     /**
      * Watchlist jobs document names in the wiki.
@@ -271,11 +278,12 @@ public class WatchListStore implements EventListener
         List<Object> queryParams = new ArrayList<Object>();
         queryParams.add(WATCHLIST_CLASS);
         queryParams.add(jobName);
+        queryParams.add(USERS_CLASS);
 
         List<String> subscribersForJob =
-            globalSearchDocuments(
-                ", BaseObject as obj, StringProperty as prop where doc.fullName=obj.name and obj.className=?"
-                    + " and obj.id=prop.id.id and prop.value=?", 0, 0, queryParams, context);
+            globalSearchDocuments(", BaseObject as obj, StringProperty as prop, BaseObject as userobj where"
+                + " doc.fullName=obj.name and obj.className=? and obj.id=prop.id.id and prop.value=?"
+                + " and doc.fullName=userobj.name and userobj.className=?", 0, 0, queryParams, context);
         subscribers.put(jobName, subscribersForJob);
     }
 
@@ -299,14 +307,13 @@ public class WatchListStore implements EventListener
      */
     public void init(XWikiContext context) throws XWikiException
     {
-        // Retreive jobs in the wiki, must be done first since initWatchListClass relies on them
-        jobDocumentNames =
-            context
-                .getWiki()
-                .getStore()
-                .searchDocumentsNames(
-                    ", BaseObject as obj where doc.fullName=obj.name and obj.className='"
-                        + WatchListJobManager.WATCHLIST_JOB_CLASS + "'", context);
+        try {
+            final Query q =
+                context.getWiki().getStore().getQueryManager().getNamedQuery("getWatchlistJobDocuments");
+            this.jobDocumentNames = (List<String>) (List) q.execute();
+        } catch (QueryException e) {
+            throw new XWikiException(0, 0, "Failed to run query for watchlist jobs.", e);
+        }
 
         initWatchListClass(context);
 
@@ -526,7 +533,7 @@ public class WatchListStore implements EventListener
     public BaseObject getWatchListObject(String user, XWikiContext context) throws XWikiException
     {
         XWikiDocument userDocument = context.getWiki().getDocument(user, context);
-        if (userDocument.isNew() || userDocument.getObject("XWiki.XWikiUsers") == null) {
+        if (userDocument.isNew() || userDocument.getObject(USERS_CLASS) == null) {
             throw new XWikiException(XWikiException.MODULE_XWIKI_PLUGINS, XWikiException.ERROR_XWIKI_UNKNOWN, "User ["
                 + user + "] does not exists");
         }
@@ -582,7 +589,7 @@ public class WatchListStore implements EventListener
                     wikiServers.add(context.getMainXWiki());
                 }
             } catch (Exception e) {
-                LOG.error("error getting list of wiki servers", e);
+                LOGGER.error("error getting list of wiki servers", e);
             }
         } else {
             wikiServers = new ArrayList<String>();
@@ -603,7 +610,7 @@ public class WatchListStore implements EventListener
                         results.add(wikiPrefix + it.next());
                     }
                 } catch (Exception e) {
-                    LOG.error("error getting list of documents in the wiki : " + wiki, e);
+                    LOGGER.error("error getting list of documents in the wiki : " + wiki, e);
                 }
             }
         } finally {
@@ -706,7 +713,7 @@ public class WatchListStore implements EventListener
      * @param context the XWiki context
      * @return the mode, if not set return the default one which is {@link AutomaticWatchMode#MAJOR}
      */
-    private AutomaticWatchMode getAutomaticWatchMode(String user, XWikiContext context)
+    public AutomaticWatchMode getAutomaticWatchMode(String user, XWikiContext context)
     {
         AutomaticWatchMode mode = null;
 
@@ -729,58 +736,12 @@ public class WatchListStore implements EventListener
                 try {
                     mode = AutomaticWatchMode.valueOf(value.toUpperCase());
                 } catch (Exception e) {
-                    LOG.warn("Invalid configuration in xwiki.plugin.watchlist.automaticwatch", e);
+                    LOGGER.warn("Invalid configuration in xwiki.plugin.watchlist.automaticwatch", e);
                 }
             }
         }
 
         return mode != null ? mode : AutomaticWatchMode.MAJOR;
-    }
-
-    /**
-     * Automatically watch modified document depending on the configuration.
-     * 
-     * @param event the observation event we check for a deleted document event
-     * @param currentDoc document version after event occurred
-     * @param context the XWiki context
-     */
-    private void documentModifiedHandler(Event event, XWikiDocument currentDoc, XWikiContext context)
-    {
-        // Does not auto-watch imported document, that's not the goal of this feature
-        if (!(event instanceof DocumentDeletedEvent)
-            && !currentDoc.getComment().equals(context.getMessageTool().get("core.importer.saveDocumentComment"))) {
-
-            boolean register = false;
-
-            String user = currentDoc.getContentAuthor();
-
-            AutomaticWatchMode mode = getAutomaticWatchMode(user, context);
-
-            switch (mode) {
-                case ALL:
-                    register = true;
-                    break;
-                case MAJOR:
-                    register = !currentDoc.isMinorEdit();
-                    break;
-                case NEW:
-                    register = event instanceof DocumentCreatedEvent;
-                    break;
-                default:
-                    break;
-            }
-
-            if (register) {
-                try {
-                    if (context.getWiki().exists(user, context)) {
-                        addWatchedElement(user, currentDoc.getPrefixedFullName(), ElementType.DOCUMENT, context);
-                    }
-                } catch (XWikiException e) {
-                    LOG.warn("Failed to watch document [" + currentDoc.getPrefixedFullName() + "] for user [" + user
-                        + "]", e);
-                }
-            }
-        }
     }
 
     /**
@@ -797,7 +758,6 @@ public class WatchListStore implements EventListener
 
         watchListJobObjectsEventHandler(originalDoc, currentDoc, context);
         watchListObjectsEventHandler(originalDoc, currentDoc, context);
-        documentModifiedHandler(event, currentDoc, context);
     }
 
     /**
