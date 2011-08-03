@@ -141,6 +141,9 @@ public class DefaultMutationSerializer implements MutationSerializer
                 mutation.setLocator(getLocator(target.getParentNode(), root));
                 break;
             case DOM_NODE_REMOVED:
+		CharacterDataModification modification1 =
+                    getCharacterDataModification(event.getPrevValue(), event.getNewValue());
+                mutation.setValue(modification1.toString());
                 mutation.setType(MutationType.REMOVE);
                 mutation.setLocator(getLocator(target, root));
                 break;
