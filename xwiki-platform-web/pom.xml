@@ -51,6 +51,7 @@
     <module>xwiki-gwt-user</module>
     <module>xwiki-gwt-wysiwyg-plugin-api</module>
     <module>xwiki-gwt-wysiwyg-plugin-mutation</module>
+    <module>xwiki-gwt-wysiwyg-plugin-rt</module>
     <module>xwiki-gwt-wysiwyg-client</module>
     <module>xwiki-gwt-wysiwyg-server</module>
     <module>xwiki-gwt-wysiwyg-war</module>
