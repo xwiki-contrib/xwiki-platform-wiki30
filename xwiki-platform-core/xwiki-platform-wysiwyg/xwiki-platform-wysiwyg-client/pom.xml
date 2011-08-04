@@ -49,6 +49,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-wysiwyg-plugin-rt</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <!-- SmartGWT is used only for its tree widget. -->
       <groupId>com.smartgwt</groupId>
       <artifactId>smartgwt</artifactId>
