@@ -21,7 +21,6 @@ package org.xwiki.gwt.wysiwyg.client.plugin.rt;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 import org.xwiki.gwt.dom.client.DOMUtils;
 import org.xwiki.gwt.dom.client.Range;
@@ -55,10 +54,12 @@ public class RealTimePlugin extends AbstractPlugin implements KeyPressHandler, C
         "submit"));
 
     /**
-     * The stack of operation calls created from rich text area commands, before the commands are executed. We need this
-     * stack because we don't want to broadcast nested commands (in case a command triggers other commands).
+     * The last operation call created from a rich text area command, before the command was executed. We don't support
+     * nested commands because we can't distinguish between the case when a command is canceled (onCommand is not
+     * called) and the case case when a command is nested (consecutive onBeforeCommand calls). We would have used a
+     * stack otherwise.
      */
-    private Stack<OperationCall> commandOperationCalls = new Stack<OperationCall>();
+    private OperationCall commandOperationCall;
 
     /**
      * {@inheritDoc}
@@ -92,11 +93,13 @@ public class RealTimePlugin extends AbstractPlugin implements KeyPressHandler, C
      */
     public boolean onBeforeCommand(CommandManager sender, Command command, String param)
     {
-        if (getTextArea().isAttached() && getTextArea().isEnabled()) {
+        commandOperationCall = null;
+        if (getTextArea().isAttached() && getTextArea().isEnabled() && !IGNORED_COMMANDS.contains(command)) {
             Selection selection = getTextArea().getDocument().getSelection();
             if (selection.getRangeCount() > 0) {
+                // We have to save the selection before the command is executed.
                 Range range = selection.getRangeAt(0);
-                commandOperationCalls.push(new OperationCall(command.toString(), param, getTarget(range)));
+                commandOperationCall = new OperationCall(command.toString(), param, getTarget(range));
             }
         }
         return false;
@@ -109,9 +112,8 @@ public class RealTimePlugin extends AbstractPlugin implements KeyPressHandler, C
      */
     public void onCommand(CommandManager sender, final Command command, final String param)
     {
-        OperationCall operationCall = commandOperationCalls.pop();
-        if (commandOperationCalls.isEmpty() && !IGNORED_COMMANDS.contains(command)) {
-            broadcast(operationCall);
+        if (commandOperationCall != null) {
+            broadcast(commandOperationCall);
         }
     }
 
@@ -181,7 +183,9 @@ public class RealTimePlugin extends AbstractPlugin implements KeyPressHandler, C
 
         JSONObject jsonOperationCall = new JSONObject();
         jsonOperationCall.put("operationId", new JSONString(operationCall.getOperationId()));
-        jsonOperationCall.put("value", new JSONString(operationCall.getValue()));
+        if (operationCall.getValue() != null) {
+            jsonOperationCall.put("value", new JSONString(operationCall.getValue()));
+        }
         jsonOperationCall.put("target", jsonTarget);
 
         Console.getInstance().log(jsonOperationCall.toString());
