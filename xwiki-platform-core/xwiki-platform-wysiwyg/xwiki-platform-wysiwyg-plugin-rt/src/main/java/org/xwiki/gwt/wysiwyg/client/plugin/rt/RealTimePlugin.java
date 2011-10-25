@@ -72,6 +72,8 @@ public class RealTimePlugin extends AbstractPlugin implements KeyPressHandler, C
 
         saveRegistration(textArea.addKeyPressHandler(this));
         getTextArea().getCommandManager().addCommandListener(this);
+
+        Console.getInstance().log("I am the RT plugin");
     }
 
     /**
