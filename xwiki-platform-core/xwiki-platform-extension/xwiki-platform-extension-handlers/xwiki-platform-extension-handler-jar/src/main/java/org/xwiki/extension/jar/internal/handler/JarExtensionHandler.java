@@ -56,16 +56,13 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
 
     private ComponentAnnotationLoader jarLoader;
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.xwiki.component.phase.Initializable#initialize()
-     */
+    @Override
     public void initialize() throws InitializationException
     {
         this.jarLoader = new ComponentAnnotationLoader();
     }
 
+    @Override
     public void install(LocalExtension localExtension, String namespace) throws InstallException
     {
         ExtensionURLClassLoader classLoader = this.jarExtensionClassLoader.getURLClassLoader(namespace, true);
@@ -81,6 +78,7 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
         loadComponents(localExtension.getFile(), classLoader);
     }
 
+    @Override
     public void uninstall(LocalExtension localExtension, String namespace) throws UninstallException
     {
         ExtensionURLClassLoader classLoader = this.jarExtensionClassLoader.getURLClassLoader(namespace, false);
@@ -99,7 +97,7 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             List<String>[] components = getDeclaredComponents(jarFile);
 
             if (components[0] == null) {
-                this.logger.debug(jarFile + " does not contains any component");
+                this.logger.debug("{} does not contains any component", jarFile);
                 return;
             }
 
@@ -139,7 +137,7 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             List<String>[] components = getDeclaredComponents(jarFile);
 
             if (components[0] == null) {
-                this.logger.debug(jarFile + " does not contains any component");
+                this.logger.debug("{} does not contains any component", jarFile);
                 return;
             }
 

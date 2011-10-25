@@ -79,7 +79,7 @@
      * XWikiAttachment, XWikiDocument, XWikiHibernateStore,
      * XWikiAttachmentStoreInterface, XWikiAttachmentVersioningStore,
      * XWikiAttachmentRecyclebinStore
-     --> 
+     -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-oldcore</artifactId>
@@ -94,7 +94,7 @@
     </dependency>
 
 
-   <!-- Testing Dependencies -->
+    <!-- Testing Dependencies -->
 
     <dependency>
       <groupId>org.xwiki.commons</groupId>

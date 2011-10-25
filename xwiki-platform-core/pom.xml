@@ -81,7 +81,7 @@
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>1.8.1</version>
+        <version>1.8.2</version>
       </dependency>
       <!-- Jython engine -->
       <dependency>
@@ -218,31 +218,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-jcl-log4j-isolation</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <searchTransitive>false</searchTransitive>
-                  <excludes>
-                    <!-- Ensure we don't depend on commons logging/log4j since we want all logging to be done through
-                         SLF4J -->
-                    <exclude>commons-logging:commons-logging</exclude>
-                    <exclude>log4j:log4j</exclude>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
     <!-- Needed to add support for the XAR packaging -->
     <extensions>
@@ -258,15 +233,11 @@
     <module>xwiki-platform-action</module>
     <module>xwiki-platform-activitystream</module>
     <module>xwiki-platform-administration</module>
-    <module>xwiki-platform-adwords</module>
-    <module>xwiki-platform-albatross</module>
-    <module>xwiki-platform-alexa</module>
     <module>xwiki-platform-annotations</module>
     <module>xwiki-platform-application-manager</module>
     <module>xwiki-platform-blog</module>
     <module>xwiki-platform-bridge</module>
     <module>xwiki-platform-cache</module>
-    <module>xwiki-platform-calendar</module>
     <module>xwiki-platform-captcha</module>
     <module>xwiki-platform-chart</module>
     <module>xwiki-platform-classloader</module>
@@ -276,12 +247,14 @@
     <module>xwiki-platform-containers</module>
     <module>xwiki-platform-crypto</module>
     <module>xwiki-platform-csrf</module>
+    <module>xwiki-platform-display</module>
     <module>xwiki-platform-eventstream</module>
     <module>xwiki-platform-extension</module>
     <module>xwiki-platform-formula</module>
     <module>xwiki-platform-gwt</module>
     <module>xwiki-platform-invitation</module>
     <module>xwiki-platform-ircbot</module>
+    <module>xwiki-platform-jira</module>
     <module>xwiki-platform-jodatime</module>
     <module>xwiki-platform-legacy</module>
     <module>xwiki-platform-mailsender</module>
@@ -291,19 +264,17 @@
     <module>xwiki-platform-office</module>
     <module>xwiki-platform-oldcore</module>
     <module>xwiki-platform-panels</module>
-    <module>xwiki-platform-photoalbum</module>
     <module>xwiki-platform-query</module>
     <module>xwiki-platform-refactoring</module>
     <module>xwiki-platform-rendering</module>
     <module>xwiki-platform-rest</module>
-    <module>xwiki-platform-s5</module>
     <module>xwiki-platform-scheduler</module>
     <module>xwiki-platform-search</module>
     <module>xwiki-platform-selenium</module>
+    <module>xwiki-platform-sheet</module>
     <module>xwiki-platform-skin</module>
     <module>xwiki-platform-statistics</module>
     <module>xwiki-platform-store</module>
-    <module>xwiki-platform-swizzle</module>
     <module>xwiki-platform-tag</module>
     <module>xwiki-platform-test</module>
     <module>xwiki-platform-toucan</module>
@@ -313,7 +284,7 @@
     <module>xwiki-platform-web</module>
     <module>xwiki-platform-webdav</module>
     <module>xwiki-platform-wiki-manager</module>
-    <module>xwiki-platform-workstream</module>
+    <module>xwiki-platform-workspace</module>
     <module>xwiki-platform-wysiwyg</module>
     <module>xwiki-platform-xml</module>
     <module>xwiki-platform-xmlrpc</module>
@@ -333,18 +304,49 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>clirr-maven-plugin</artifactId>
             <configuration>
-              <skip>${xwiki.clirr.skip}</skip>
-              <comparisonVersion>${clirr.previous.version}</comparisonVersion>
               <excludes>
                 <exclude>**/internal/**</exclude>
-                <exclude>**/test/**</exclude>
                 <!-- To be removed when we release 3.2 -->
+                <exclude>org/xwiki/gwt/dom/client/Style$IEFloatProperty</exclude>
+                <exclude>org/xwiki/gwt/wysiwyg/client/plugin/submit/IESubmitPlugin</exclude>
                 <exclude>com/xpn/xwiki/plugin/lucene/IndexRebuilder</exclude>
+                <exclude>com/xpn/xwiki/plugin/lucene/SearchResults</exclude>
+                <!-- LOGGER change -->
+                <exclude>com/xpn/xwiki/plugin/globalsearch/GlobalSearchPlugin</exclude>
+                <exclude>com/xpn/xwiki/plugin/globalsearch/GlobalSearchPluginApi</exclude>
+                <exclude>com/xpn/xwiki/plugin/tag/TagPlugin</exclude>
+                <exclude>com/xpn/xwiki/plugin/wikimanager/WikiManager</exclude>
+                <exclude>com/xpn/xwiki/plugin/wikimanager/WikiManagerPlugin</exclude>
+                <exclude>com/xpn/xwiki/plugin/wikimanager/WikiManagerPluginApi</exclude>
+                <exclude>com/xpn/xwiki/plugin/wikimanager/doc/Wiki</exclude>
+                <!-- New methods -->
+                <exclude>org/xwiki/bridge/DocumentAccessBridge</exclude>
+                <exclude>org/xwiki/container/ApplicationContext</exclude>
+                <exclude>org/xwiki/container/portlet/PortletApplicationContext</exclude>
+                <exclude>org/xwiki/container/servlet/ServletApplicationContext</exclude>
+                <exclude>org/xwiki/container/Request</exclude>
+                <exclude>org/xwiki/eventstream/Event</exclude>
+                <exclude>com/xpn/xwiki/plugin/activitystream/api/ActivityEvent</exclude>
+                <exclude>com/xpn/xwiki/plugin/activitystream/plugin/ActivityEvent</exclude>
+                <exclude>com/xpn/xwiki/user/api/XWikiRightService</exclude>
+                <!-- Moved to legacy -->
                 <exclude>org/xwiki/bridge/AttachmentNameFactory</exclude>
                 <exclude>org/xwiki/bridge/AttachmentNameSerializer</exclude>
                 <exclude>org/xwiki/bridge/DocumentNameFactory</exclude>
                 <exclude>org/xwiki/bridge/DocumentNameSerializer</exclude>
-                <exclude>com/xpn/xwiki/plugin/wikimanager/WikiManager</exclude>
+                <exclude>com/xpn/xwiki/api/Api</exclude>
+                <exclude>com/xpn/xwiki/api/Context</exclude>
+                <exclude>com/xpn/xwiki/api/Document</exclude>
+                <exclude>com/xpn/xwiki/api/StatsService</exclude>
+                <exclude>com/xpn/xwiki/api/StatsServiceCompatibilityAspect</exclude>
+                <exclude>com/xpn/xwiki/api/XWiki</exclude>
+                <exclude>com/xpn/xwiki/api/XWikiCompatibilityAspect</exclude>
+                <exclude>com/xpn/xwiki/cache/api/XWikiCache</exclude>
+                <exclude>com/xpn/xwiki/cache/api/XWikiCacheNeedsRefreshException</exclude>
+                <exclude>com/xpn/xwiki/cache/api/XWikiCacheService</exclude>
+                <exclude>compatibility/com/xpn/xwiki/api/ApiCompatibilityAspect</exclude>
+                <exclude>compatibility/com/xpn/xwiki/api/ContextCompatibilityAspect</exclude>
+                <exclude>compatibility/com/xpn/xwiki/api/DocumentCompatibilityAspect</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -366,7 +368,7 @@
               <productionMode>true</productionMode>
               <style>DETAILED</style>
               <!-- HACK: We inject the GWT arguments in the out parameter because we have no other option. -->
-              <out>target/www-test -port 54321 -codeServerPort 12345 -userAgents gecko1_8</out>
+              <out>target/www-test -port 54321 -codeServerPort 12345</out>
             </configuration>
           </plugin>
         </plugins>

@@ -16,29 +16,33 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
  */
 package com.xpn.xwiki.doc;
 
 import java.util.Date;
 
+import org.xwiki.model.reference.DocumentReference;
+
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
-import org.xwiki.model.reference.DocumentReference;
 
 /**
  * Filesystem based Archive of deleted attachment,
  * stored in {@link com.xpn.xwiki.store.FilesystemAttachmentRecycleBinStore}.
- * 
+ *
  * @version $Id$
  * @since 3.0M3
  */
 public class DeletedFilesystemAttachment extends DeletedAttachment
 {
-    /** The reference to the document which this attachment belongs to. */
+    /**
+     * The reference to the document which this attachment belongs to.
+     */
     private DocumentReference docReference;
 
-    /** The attachment which was deleted. */
+    /**
+     * The attachment which was deleted.
+     */
     private XWikiAttachment attachment;
 
     /**
@@ -51,14 +55,14 @@ public class DeletedFilesystemAttachment extends DeletedAttachment
 
     /**
      * A constructor with all the information about the deleted attachment.
-     * 
+     *
      * @param attachment Deleted attachment.
      * @param deleter User which deleted the attachment.
      * @param deleteDate Date of delete action.
      */
     public DeletedFilesystemAttachment(final XWikiAttachment attachment,
-                                       final String deleter,
-                                       final Date deleteDate)
+        final String deleter,
+        final Date deleteDate)
     {
         this.setDocId(attachment.getDocId());
         this.setDocName(attachment.getDoc().getFullName());
@@ -125,7 +129,9 @@ public class DeletedFilesystemAttachment extends DeletedAttachment
         return this.attachment;
     }
 
-    /** @return the DocumentReference to the document which this attachment is attached to. */
+    /**
+     * @return the DocumentReference to the document which this attachment is attached to.
+     */
     public DocumentReference getDocumentReference()
     {
         return this.docReference;
@@ -146,8 +152,7 @@ public class DeletedFilesystemAttachment extends DeletedAttachment
      *
      * @see com.xpn.xwiki.doc.DeletedAttachment#restoreAttachment(XWikiAttachment, XWikiContext)
      */
-    public XWikiAttachment restoreAttachment(final XWikiAttachment attachment,
-                                             final XWikiContext context)
+    public XWikiAttachment restoreAttachment(final XWikiAttachment attachment, final XWikiContext context)
         throws XWikiException
     {
         XWikiAttachment result = attachment;

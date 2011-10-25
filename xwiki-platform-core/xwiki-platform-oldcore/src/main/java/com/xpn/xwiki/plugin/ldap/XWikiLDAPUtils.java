@@ -16,9 +16,7 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
  */
-
 package com.xpn.xwiki.plugin.ldap;
 
 import java.text.MessageFormat;
@@ -29,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.cache.Cache;
 import org.xwiki.cache.CacheException;
 import org.xwiki.cache.CacheManager;
@@ -59,7 +57,7 @@ public class XWikiLDAPUtils
     /**
      * Logging tool.
      */
-    private static final Log LOG = LogFactory.getLog(XWikiLDAPUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XWikiLDAPUtils.class);
 
     /**
      * LDAP objectClass parameter.
@@ -343,7 +341,7 @@ public class XWikiLDAPUtils
 
         if (!isGroup) {
             if (id == null) {
-                LOG.error("Could not find attribute " + getUidAttributeName() + " for LDAP dn " + groupDN);
+                LOGGER.error("Could not find attribute " + getUidAttributeName() + " for LDAP dn " + groupDN);
             }
 
             if (!memberMap.containsKey(groupDN)) {
@@ -424,8 +422,8 @@ public class XWikiLDAPUtils
                 if (groupMembers == null) {
                     Map<String, String> members = new HashMap<String, String>();
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Retrieving Members of the group: " + groupDN);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Retrieving Members of the group: " + groupDN);
                     }
 
                     boolean isGroup = getGroupMembers(groupDN, members, new ArrayList<String>(), context);
@@ -435,17 +433,17 @@ public class XWikiLDAPUtils
                         cache.set(groupDN, groupMembers);
                     }
                 } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Found cache entry for group [" + groupDN + "]");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Found cache entry for group [" + groupDN + "]");
                     }
                 }
             }
         } catch (CacheException e) {
-            LOG.error("Unknown error with cache", e);
+            LOGGER.error("Unknown error with cache", e);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Found group [" + groupDN + "] members :" + groupMembers);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Found group [" + groupDN + "] members :" + groupMembers);
         }
 
         return groupMembers;
@@ -557,8 +555,8 @@ public class XWikiLDAPUtils
                 groupMembers = getGroupMembers(groupDN, context);
             } catch (Exception e) {
                 // Ignore exception to allow negative match for exclusion
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Unable to retrieve group members of group:" + groupDN, e);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Unable to retrieve group members of group:" + groupDN, e);
                 }
             }
 
@@ -567,8 +565,8 @@ public class XWikiLDAPUtils
                 // check if user is in the list
                 userDN = findInGroup(userName, groupMembers, context);
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found user dn in user group:" + userDN);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Found user dn in user group:" + userDN);
                 }
             }
         }
@@ -589,8 +587,8 @@ public class XWikiLDAPUtils
             XWikiLDAPConnection.escapeLDAPSearchFilter(this.uidAttributeName),
             XWikiLDAPConnection.escapeLDAPSearchFilter(uid)});
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Searching for the user in LDAP: user:" + uid + " base:" + this.baseDN + " query:" + filter
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Searching for the user in LDAP: user:" + uid + " base:" + this.baseDN + " query:" + filter
                 + " uid:" + this.uidAttributeName);
         }
 
@@ -635,7 +633,7 @@ public class XWikiLDAPUtils
 
         if (userProfile.isNew() || config.getLDAPParam("ldap_update_user", "0", context).equals("1")) {
 
-            LOG.debug("LDAP attributes will be used to update XWiki attributes.");
+            LOGGER.debug("LDAP attributes will be used to update XWiki attributes.");
 
             List<XWikiLDAPSearchAttribute> searchAttributeList = searchAttributeListIn;
 
@@ -647,26 +645,26 @@ public class XWikiLDAPUtils
             }
 
             if (searchAttributeList == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.error("Can't find any attributes for user [" + ldapDn + "]");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Can't find any attributes for user [" + ldapDn + "]");
                 }
             }
 
             if (userProfile.isNew()) {
-                LOG.debug("Creating new XWiki user based on LDAP attribues located at [" + ldapDn + "]");
+                LOGGER.debug("Creating new XWiki user based on LDAP attribues located at [" + ldapDn + "]");
 
                 createUserFromLDAP(userProfile, searchAttributeList, ldapDn, ldapUid, context);
 
-                LOG.debug("New XWiki user created: [" + userProfile.getDocumentReference() + "]");
+                LOGGER.debug("New XWiki user created: [" + userProfile.getDocumentReference() + "]");
 
             } else {
 
-                LOG.debug("Updating existing user with LDAP attribues located at " + ldapDn);
+                LOGGER.debug("Updating existing user with LDAP attribues located at " + ldapDn);
 
                 try {
                     updateUserFromLDAP(userProfile, searchAttributeList, ldapDn, ldapUid, context);
                 } catch (XWikiException e) {
-                    LOG.error("Failed to synchronise user's informations", e);
+                    LOGGER.error("Failed to synchronise user's informations", e);
                 }
             }
         }
@@ -684,17 +682,17 @@ public class XWikiLDAPUtils
     public void syncGroupsMembership(String xwikiUserName, String userDN, Map<String, Set<String>> groupMappings,
         XWikiContext context) throws XWikiException
     {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Updating group membership for the user: " + xwikiUserName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Updating group membership for the user: " + xwikiUserName);
         }
 
         Collection<String> xwikiUserGroupList =
             context.getWiki().getGroupService(context).getAllGroupsNamesForMember(xwikiUserName, 0, 0, context);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("The user belongs to following XWiki groups: ");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("The user belongs to following XWiki groups: ");
             for (String userGroupName : xwikiUserGroupList) {
-                LOG.debug(userGroupName);
+                LOGGER.debug(userGroupName);
             }
         }
 
@@ -754,8 +752,8 @@ public class XWikiLDAPUtils
 
         Map<String, String> userMappings = config.getUserMappings(null, context);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Start first synchronization of LDAP profile [" + searchAttributes
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Start first synchronization of LDAP profile [" + searchAttributes
                 + "] with new user profile based on mapping " + userMappings);
         }
 
@@ -808,8 +806,8 @@ public class XWikiLDAPUtils
 
         BaseObject userObj = userProfile.getXObject(userClass.getDocumentReference());
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Start synchronization of LDAP profile [" + searchAttributes
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Start synchronization of LDAP profile [" + searchAttributes
                 + "] with existing user profile based on mapping " + userMappings);
         }
 
@@ -855,8 +853,8 @@ public class XWikiLDAPUtils
     protected void addUserToXWikiGroup(String xwikiUserName, String groupName, XWikiContext context)
     {
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MessageFormat.format("Adding user {0} to xwiki group {1}", xwikiUserName, groupName));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(MessageFormat.format("Adding user {0} to xwiki group {1}", xwikiUserName, groupName));
             }
 
             BaseClass groupClass = context.getWiki().getGroupClass(context);
@@ -864,28 +862,30 @@ public class XWikiLDAPUtils
             // Get document representing group
             XWikiDocument groupDoc = context.getWiki().getDocument(groupName, context);
 
-            // Add a member object to document
-            BaseObject memberObj = groupDoc.newXObject(groupClass.getDocumentReference(), context);
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(XWIKI_GROUP_MEMBERFIELD, xwikiUserName);
-            groupClass.fromMap(map, memberObj);
+            synchronized (groupDoc) {
+                // Add a member object to document
+                BaseObject memberObj = groupDoc.newXObject(groupClass.getDocumentReference(), context);
+                Map<String, String> map = new HashMap<String, String>();
+                map.put(XWIKI_GROUP_MEMBERFIELD, xwikiUserName);
+                groupClass.fromMap(map, memberObj);
 
-            // If the document is new, set its content
-            if (groupDoc.isNew()) {
-                groupDoc.setSyntax(Syntax.XWIKI_2_0);
-                groupDoc.setContent("{{include document='XWiki.XWikiGroupSheet' /}}");
+                // If the document is new, set its content
+                if (groupDoc.isNew()) {
+                    groupDoc.setSyntax(Syntax.XWIKI_2_0);
+                    groupDoc.setContent("{{include document='XWiki.XWikiGroupSheet' /}}");
+                }
+
+                // Save modifications
+                context.getWiki().saveDocument(groupDoc, context);
             }
 
-            // Save modifications
-            context.getWiki().saveDocument(groupDoc, context);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MessageFormat.format("Finished adding user {0} to xwiki group {1}",
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(MessageFormat.format("Finished adding user {0} to xwiki group {1}",
                     xwikiUserName, groupName));
             }
 
         } catch (Exception e) {
-            LOG.error(MessageFormat.format("Failed to add a user [{0}] to a group [{1}]", xwikiUserName, groupName), e);
+            LOGGER.error(MessageFormat.format("Failed to add a user [{0}] to a group [{1}]", xwikiUserName, groupName), e);
         }
     }
 
@@ -905,15 +905,17 @@ public class XWikiLDAPUtils
             // Get the XWiki document holding the objects comprising the group membership list
             XWikiDocument groupDoc = context.getWiki().getDocument(groupName, context);
 
-            // Get and remove the specific group membership object for the user
-            BaseObject groupObj =
-                groupDoc.getXObject(groupClass.getDocumentReference(), XWIKI_GROUP_MEMBERFIELD, xwikiUserName);
-            groupDoc.removeXObject(groupObj);
+            synchronized (groupDoc) {
+                // Get and remove the specific group membership object for the user
+                BaseObject groupObj =
+                    groupDoc.getXObject(groupClass.getDocumentReference(), XWIKI_GROUP_MEMBERFIELD, xwikiUserName);
+                groupDoc.removeXObject(groupObj);
 
-            // Save modifications
-            context.getWiki().saveDocument(groupDoc, context);
+                // Save modifications
+                context.getWiki().saveDocument(groupDoc, context);
+            }
         } catch (Exception e) {
-            LOG.error("Failed to remove a user from a group " + xwikiUserName + " group: " + groupName, e);
+            LOGGER.error("Failed to remove a user from a group " + xwikiUserName + " group: " + groupName, e);
         }
     }
 

@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.suigeneris.jrcs.diff.delta.Chunk;
@@ -145,7 +145,8 @@ public class XWiki extends Api
      * Loads an Document from the database. Rights are checked before sending back the document.
      * 
      * @param fullName the full name of the XWiki document to be loaded
-     * @return a Document object or null if it is not accessible
+     * @return a Document object (if the document couldn't be found a new one is created in memory - but not saved,
+     *         you can check whether it's a new document or not by using {@link com.xpn.xwiki.api.Document#isNew()}
      * @throws XWikiException
      */
     public Document getDocument(String fullName) throws XWikiException
@@ -168,7 +169,8 @@ public class XWiki extends Api
      * Loads an Document from the database. Rights are checked before sending back the document.
      * 
      * @param reference the reference of the XWiki document to be loaded
-     * @return a Document object or null if it is not accessible
+     * @return a Document object (if the document couldn't be found a new one is created in memory - but not saved,
+     *         you can check whether it's a new document or not by using {@link com.xpn.xwiki.api.Document#isNew()}
      * @throws XWikiException
      * @since 2.3M1
      */
@@ -194,7 +196,8 @@ public class XWiki extends Api
      * the currently executing script before sending back the loaded document.
      * 
      * @param fullName the full name of the XWiki document to be loaded
-     * @return a Document object or null if it is not accessible
+     * @return a Document object (if the document couldn't be found a new one is created in memory - but not saved,
+     *         you can check whether it's a new document or not by using {@link com.xpn.xwiki.api.Document#isNew()}
      * @throws XWikiException
      * @since 2.3M2
      */
@@ -219,7 +222,8 @@ public class XWiki extends Api
      * the currently executing script before sending back the loaded document.
      * 
      * @param reference the reference of the XWiki document to be loaded
-     * @return a Document object or null if it is not accessible
+     * @return a Document object (if the document couldn't be found a new one is created in memory - but not saved,
+     *         you can check whether it's a new document or not by using {@link com.xpn.xwiki.api.Document#isNew()}
      * @throws XWikiException
      * @since 2.3M2
      */
@@ -399,7 +403,8 @@ public class XWiki extends Api
      * 
      * @param space Space to use in case no space is defined in the provided <code>fullname</code>
      * @param fullname the full name or relative name of the document to load
-     * @return a Document object or null if it is not accessible
+     * @return a Document object (if the document couldn't be found a new one is created in memory - but not saved,
+     *         you can check whether it's a new document or not by using {@link com.xpn.xwiki.api.Document#isNew()}
      * @throws XWikiException
      */
     public Document getDocument(String space, String fullname) throws XWikiException
@@ -895,7 +900,7 @@ public class XWiki extends Api
      * exist or is empty, the space preference "skin" is looked up If this parameter does not exist or is empty, the
      * XWiki preference "skin" is looked up If this parameter does not exist or is empty, the xwiki.cfg parameter
      * xwiki.defaultskin is looked up If this parameter does not exist or is empty, the xwiki.cfg parameter
-     * xwiki.defaultbaseskin is looked up If this parameter does not exist or is empty, the skin is "albatross"
+     * xwiki.defaultbaseskin is looked up If this parameter does not exist or is empty, the skin is "colibri"
      * 
      * @return The current skin for this request and user
      */
@@ -907,7 +912,7 @@ public class XWiki extends Api
     /**
      * API to retrieve the current skin for this request and user. Each skin has a skin it is based on. If not the base
      * skin is the xwiki.cfg parameter "xwiki.defaultbaseskin". If this parameter does not exist or is empty, the base
-     * skin is "albatross".
+     * skin is "colibri".
      * 
      * @return The current baseskin for this request and user
      */

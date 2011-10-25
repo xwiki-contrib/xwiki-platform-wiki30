@@ -16,9 +16,7 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
  */
-
 package com.xpn.xwiki.objects.classes;
 
 import java.util.ArrayList;
@@ -28,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ecs.xhtml.input;
 
 import com.xpn.xwiki.XWiki;
@@ -44,8 +40,6 @@ import com.xpn.xwiki.plugin.query.QueryPlugin;
 public class DBListClass extends ListClass
 {
     protected static final String DEFAULT_QUERY = "select doc.name from XWikiDocument doc where 1 = 0";
-
-    private static final Log LOG = LogFactory.getLog(DBListClass.class);
 
     private List<ListItem> cachedDBList;
 
@@ -203,7 +197,7 @@ public class DBListClass extends ListClass
                     if (hasClassname) {
                         sql =
                             "select distinct doc.fullName from XWikiDocument as doc, BaseObject as obj"
-                            + " where doc.fullName=obj.name and obj.className='" + classname + "'";
+                                + " where doc.fullName=obj.name and obj.className='" + classname + "'";
                     } else {
                         // If none of the 3 properties is specified, return a query that always
                         // returns no rows.
@@ -296,8 +290,9 @@ public class DBListClass extends ListClass
         try {
             sql = context.getWiki().parseContent(sql, context);
         } catch (Exception e) {
-            LOG.error("Failed to parse SQL script [" + sql + "]. Continuing with non-rendered script.", e);
+            LOGGER.error("Failed to parse SQL script [" + sql + "]. Continuing with non-rendered script.", e);
         }
+
         return sql;
     }
 
@@ -514,7 +509,7 @@ public class DBListClass extends ListClass
 
                 String script =
                     "\"" + path + "?xpage=suggest&amp;classname=" + classname + "&amp;fieldname=" + fieldname
-                    + "&amp;firCol=" + firstCol + "&amp;secCol=" + secondCol + "&amp;\"";
+                        + "&amp;firCol=" + firstCol + "&amp;secCol=" + secondCol + "&amp;\"";
                 String varname = "\"input\"";
                 String seps = "\"" + this.getSeparators() + "\"";
                 if (isMultiSelect()) {
