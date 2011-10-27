@@ -36,7 +36,6 @@
   <modules>
     <module>xwiki-platform-gwt-api</module>
     <module>xwiki-platform-gwt-dom</module>
-    <module>xwiki-platform-gwt-dom-mutation</module>
     <module>xwiki-platform-gwt-user</module>
   </modules>
   <dependencies>

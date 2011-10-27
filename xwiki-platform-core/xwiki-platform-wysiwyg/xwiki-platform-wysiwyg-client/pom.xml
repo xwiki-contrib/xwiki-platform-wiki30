@@ -44,14 +44,14 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-wysiwyg-plugin-mutation</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.xwiki.contrib.wiki30</groupId>
+      <artifactId>wiki30-realtime-wysiwyg-plugin-mutation</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-wysiwyg-plugin-rt</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.xwiki.contrib.wiki30</groupId>
+      <artifactId>wiki30-realtime-wysiwyg-plugin</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <!-- SmartGWT is used only for its tree widget. -->
