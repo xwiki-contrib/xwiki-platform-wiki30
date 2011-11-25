@@ -20,7 +20,6 @@
 package org.xwiki.extension.jar.internal.handler;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -35,11 +34,12 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.ComponentAnnotationLoader;
 import org.xwiki.component.annotation.ComponentDeclaration;
 import org.xwiki.component.descriptor.ComponentDescriptor;
-import org.xwiki.component.manager.ComponentManager;
+import org.xwiki.component.internal.multi.ComponentManagerManager;
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
 import org.xwiki.extension.InstallException;
 import org.xwiki.extension.LocalExtension;
+import org.xwiki.extension.LocalExtensionFile;
 import org.xwiki.extension.UninstallException;
 import org.xwiki.extension.handler.internal.AbstractExtensionHandler;
 
@@ -47,7 +47,7 @@ import org.xwiki.extension.handler.internal.AbstractExtensionHandler;
 public class JarExtensionHandler extends AbstractExtensionHandler implements Initializable
 {
     @Inject
-    private ComponentManager componentManager;
+    private ComponentManagerManager componentManagerManager;
 
     @Inject
     private JarExtensionClassLoader jarExtensionClassLoader;
@@ -70,13 +70,13 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
 
         // 1) load jar into classloader
         try {
-            classLoader.addURL(localExtension.getFile().toURI().toURL());
+            classLoader.addURL(new File(localExtension.getFile().getAbsolutePath()).toURI().toURL());
         } catch (MalformedURLException e) {
             throw new InstallException("Failed to load jar file", e);
         }
 
         // 2) load and register components
-        loadComponents(localExtension.getFile(), classLoader);
+        loadComponents(localExtension.getFile(), classLoader, namespace);
     }
 
     @Override
@@ -86,13 +86,14 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
 
         if (namespace == null || classLoader.getWiki().equals(namespace)) {
             // unregister components
-            unloadComponents(localExtension.getFile(), classLoader);
+            unloadComponents(localExtension.getFile(), classLoader, namespace);
 
             // TODO: find a way to unload the jar from the classloader
         }
     }
 
-    private void loadComponents(File jarFile, ExtensionURLClassLoader classLoader) throws InstallException
+    private void loadComponents(LocalExtensionFile jarFile, ExtensionURLClassLoader classLoader, String namespace)
+        throws InstallException
     {
         try {
             List<ComponentDeclaration> componentDeclarations = getDeclaredComponents(jarFile);
@@ -102,23 +103,23 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
                 return;
             }
 
-            this.jarLoader.initialize(this.componentManager, classLoader, componentDeclarations);
+            this.jarLoader.initialize(this.componentManagerManager.getComponentManager(namespace, true), classLoader,
+                componentDeclarations);
         } catch (Exception e) {
             throw new InstallException("Failed to load jar file components", e);
         }
     }
 
-    private List<ComponentDeclaration> getDeclaredComponents(File jarFile) throws IOException
+    private List<ComponentDeclaration> getDeclaredComponents(LocalExtensionFile jarFile) throws IOException
     {
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(jarFile));
+        ZipInputStream zis = new ZipInputStream(jarFile.openStream());
 
         List<ComponentDeclaration> componentDeclarations = null;
         List<ComponentDeclaration> componentOverrideDeclarations = null;
 
         try {
-            for (ZipEntry entry = zis.getNextEntry(); entry != null && (componentDeclarations == null
-                || componentOverrideDeclarations == null); entry = zis.getNextEntry())
-            {
+            for (ZipEntry entry = zis.getNextEntry(); entry != null
+                && (componentDeclarations == null || componentOverrideDeclarations == null); entry = zis.getNextEntry()) {
                 if (entry.getName().equals(ComponentAnnotationLoader.COMPONENT_LIST)) {
                     componentDeclarations = this.jarLoader.getDeclaredComponents(zis);
                 } else if (entry.getName().equals(ComponentAnnotationLoader.COMPONENT_OVERRIDE_LIST)) {
@@ -136,15 +137,16 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
                 componentDeclarations = new ArrayList<ComponentDeclaration>();
             }
             for (ComponentDeclaration componentOverrideDeclaration : componentOverrideDeclarations) {
-                componentDeclarations.add(
-                    new ComponentDeclaration(componentOverrideDeclaration.getImplementationClassName(), 0));
+                componentDeclarations.add(new ComponentDeclaration(componentOverrideDeclaration
+                    .getImplementationClassName(), 0));
             }
         }
 
         return componentDeclarations;
     }
 
-    private void unloadComponents(File jarFile, ExtensionURLClassLoader classLoader) throws UninstallException
+    private void unloadComponents(LocalExtensionFile jarFile, ExtensionURLClassLoader classLoader, String namespace)
+        throws UninstallException
     {
         try {
             List<ComponentDeclaration> componentDeclarations = getDeclaredComponents(jarFile);
@@ -157,14 +159,13 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             for (ComponentDeclaration componentDeclaration : componentDeclarations) {
                 try {
                     for (ComponentDescriptor componentDescriptor : this.jarLoader.getComponentsDescriptors(classLoader
-                        .loadClass(componentDeclaration.getImplementationClassName())))
-                    {
-                        this.componentManager.unregisterComponent(componentDescriptor.getRole(),
-                            componentDescriptor.getRoleHint());
+                        .loadClass(componentDeclaration.getImplementationClassName()))) {
+                        this.componentManagerManager.getComponentManager(namespace, false).unregisterComponent(
+                            componentDescriptor.getRole(), componentDescriptor.getRoleHint());
                     }
                 } catch (ClassNotFoundException e) {
-                    this.logger.error("Failed to load class [{}]", componentDeclaration.getImplementationClassName(),
-                        e);
+                    this.logger
+                        .error("Failed to load class [{}]", componentDeclaration.getImplementationClassName(), e);
                 }
             }
         } catch (Exception e) {

@@ -19,10 +19,10 @@
  */
 package org.xwiki.extension.wrap;
 
-import java.io.File;
 import java.util.Collection;
 
 import org.xwiki.extension.LocalExtension;
+import org.xwiki.extension.LocalExtensionFile;
 
 /**
  * Wrap a local extension.
@@ -40,13 +40,15 @@ public class WrappingLocalExtension<T extends LocalExtension> extends WrappingEx
         super(localExtension);
     }
 
-    // LocalExtension
+    // Extension
 
     @Override
-    public File getFile()
+    public LocalExtensionFile getFile()
     {
-        return getExtension().getFile();
+        return (LocalExtensionFile) super.getFile();
     }
+
+    // LocalExtension
 
     @Override
     public boolean isInstalled()

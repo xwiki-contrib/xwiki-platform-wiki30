@@ -4650,9 +4650,10 @@ public class XWiki implements EventListener
             WikiReference targetWikiReference = new WikiReference(targetWiki);
             for (String docname : list) {
                 DocumentReference sourceDocumentReference = this.currentMixedDocumentReferenceResolver.resolve(docname);
-                sourceDocumentReference.setWikiReference(sourceWikiReference);
-                DocumentReference targetDocumentReference = new DocumentReference(sourceDocumentReference.clone());
-                targetDocumentReference.setWikiReference(targetWikiReference);
+                sourceDocumentReference = sourceDocumentReference.replaceParent(
+                    sourceDocumentReference.getWikiReference(), sourceWikiReference);
+                DocumentReference targetDocumentReference = sourceDocumentReference.replaceParent(
+                    sourceWikiReference, targetWikiReference);
                 copyDocument(sourceDocumentReference, targetDocumentReference, language, context);
                 nb++;
             }
@@ -7051,9 +7052,11 @@ public class XWiki implements EventListener
             }
         }
 
+        // Special treatment for deleted objects
+        rolledbackDoc.addXObjectsToRemoveFromVersion(tdoc);
+
         // now we save the final document..
-        String username = context.getUser();
-        rolledbackDoc.setAuthor(username);
+        rolledbackDoc.setAuthorReference(context.getUserReference());
         rolledbackDoc.setRCSVersion(tdoc.getRCSVersion());
         rolledbackDoc.setVersion(tdoc.getVersion());
         rolledbackDoc.setContentDirty(true);

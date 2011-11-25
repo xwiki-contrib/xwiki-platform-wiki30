@@ -204,7 +204,6 @@ XWiki.widgets.LiveTable = Class.create({
           }
 
           self.recvReqNo = res.reqNo;
-          self.loadingStatus.addClassName("hidden");
 
           if (self.tagCloud && res.matchingtags) {
             self.tagCloud.updateTagCloud(res.tags, res.matchingtags);
@@ -1085,7 +1084,7 @@ var LiveTableTagCloud = Class.create({
                 self.table.showRows(1, self.table.limit);
             });
          }
-         if (this.selectedTags[tagLabel] != undefined) {
+         if (typeof this.selectedTags[tagLabel] == "object") {
             tag.addClassName("selected");
          }
          var self = this;
