@@ -19,6 +19,8 @@
  */
 package org.xwiki.extension.repository.internal;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,8 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.component.manager.ComponentLookupException;
+import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
 import org.xwiki.extension.Extension;
@@ -46,6 +52,7 @@ import org.xwiki.extension.LocalExtension;
 import org.xwiki.extension.ResolveException;
 import org.xwiki.extension.UninstallException;
 import org.xwiki.extension.internal.VersionManager;
+import org.xwiki.extension.repository.AbstractExtensionRepository;
 import org.xwiki.extension.repository.CoreExtensionRepository;
 import org.xwiki.extension.repository.ExtensionRepositoryId;
 import org.xwiki.extension.repository.LocalExtensionRepository;
@@ -59,7 +66,8 @@ import org.xwiki.extension.repository.LocalExtensionRepositoryException;
 @Component
 @Singleton
 // TODO: make it threadsafe bulletproofs
-public class DefaultLocalExtensionRepository implements LocalExtensionRepository, Initializable
+public class DefaultLocalExtensionRepository extends AbstractExtensionRepository implements LocalExtensionRepository,
+    Initializable
 {
     /**
      * Used to get repository path.
@@ -85,10 +93,8 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
     @Inject
     private Logger logger;
 
-    /**
-     * The repository identifier.
-     */
-    private ExtensionRepositoryId repositoryId;
+    @Inject
+    private ComponentManager componentManager;
 
     /**
      * Used to manipulate filesystem repository storage.
@@ -120,9 +126,13 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
     @Override
     public void initialize() throws InitializationException
     {
-        this.storage = new ExtensionStorage(this, this.configuration.getLocalRepository());
+        try {
+            this.storage = new ExtensionStorage(this, this.configuration.getLocalRepository(), this.componentManager);
+        } catch (ComponentLookupException e) {
+            throw new InitializationException("Failed to intialize local extension storage", e);
+        }
 
-        this.repositoryId = new ExtensionRepositoryId("local", "xwiki", this.storage.getRootFolder().toURI());
+        setId(new ExtensionRepositoryId("local", "xwiki", this.storage.getRootFolder().toURI()));
 
         this.storage.loadExtensions();
 
@@ -320,7 +330,7 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
         } else {
             int index = 0;
             while (index < versions.size()
-                && versionManager.compareVersions(localExtension.getId().getVersion(), versions.get(index).getId()
+                && this.versionManager.compareVersions(localExtension.getId().getVersion(), versions.get(index).getId()
                     .getVersion()) > 0) {
                 ++index;
             }
@@ -408,9 +418,6 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
         }
 
         DefaultInstalledExtension installedExtension = installedExtensionsForFeature.get(namespace);
-        if (installedExtension == null) {
-            return null;
-        }
 
         return installedExtension;
     }
@@ -435,12 +442,6 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
         return this.extensions.containsKey(extensionId);
     }
 
-    @Override
-    public ExtensionRepositoryId getId()
-    {
-        return this.repositoryId;
-    }
-
     // LocalRepository
 
     @Override
@@ -452,7 +453,7 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
     @Override
     public List<LocalExtension> getInstalledExtensions(String namespace)
     {
-        List<LocalExtension> result = new ArrayList<LocalExtension>(extensions.size());
+        List<LocalExtension> result = new ArrayList<LocalExtension>(this.extensions.size());
         for (LocalExtension localExtension : this.extensions.values()) {
             if (localExtension.isInstalled(namespace)) {
                 result.add(localExtension);
@@ -518,7 +519,17 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
                 localExtension = createExtension(extension);
 
                 // Store extension in the local repository
-                extension.download(localExtension.getFile());
+                FileOutputStream fos = FileUtils.openOutputStream(localExtension.getFile().getFile());
+                try {
+                    InputStream is = extension.getFile().openStream();
+                    try {
+                        IOUtils.copy(is, fos);
+                    } finally {
+                        is.close();
+                    }
+                } finally {
+                    fos.close();
+                }
                 this.storage.saveDescriptor(localExtension);
 
                 // Cache extension
@@ -614,7 +625,8 @@ public class DefaultLocalExtensionRepository implements LocalExtensionRepository
         if (installedExtensionsByFeature != null) {
             result = new HashMap<String, Collection<LocalExtension>>();
             for (DefaultInstalledExtension installedExtension : installedExtensionsByFeature.values()) {
-                if (namespaces == null || namespaces.contains(installedExtension.getNamespace())) {
+                if ((namespaces == null || namespaces.contains(installedExtension.getNamespace())) &&
+                    !installedExtension.getBackwardDependencies().isEmpty()) {
                     result.put(installedExtension.getNamespace(), Collections
                         .<LocalExtension> unmodifiableCollection(installedExtension.getBackwardDependencies()));
                 }

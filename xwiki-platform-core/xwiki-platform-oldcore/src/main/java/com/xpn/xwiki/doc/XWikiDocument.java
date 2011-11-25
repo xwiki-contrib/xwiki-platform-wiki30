@@ -88,6 +88,7 @@ import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.ObjectPropertyReference;
 import org.xwiki.model.reference.ObjectReference;
 import org.xwiki.model.reference.ObjectReferenceResolver;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.Block.Axes;
@@ -501,23 +502,12 @@ public class XWikiDocument implements DocumentModelBridge
         EntityReference contextReference = null;
         if (!StringUtils.isEmpty(space)) {
             contextReference = new EntityReference(space, EntityType.SPACE);
-            if (!StringUtils.isEmpty(wiki)) {
-                contextReference.setParent(new WikiReference(wiki));
-            }
-        } else if (!StringUtils.isEmpty(wiki)) {
-            contextReference = new WikiReference(wiki);
         }
 
-        DocumentReference reference;
-        if (contextReference != null) {
-            reference = this.currentDocumentReferenceResolver.resolve(name, contextReference);
-            // Replace the resolved wiki by the passed wiki if not empty/null
-            if (!StringUtils.isEmpty(wiki)) {
-                reference.setWikiReference(new WikiReference(wiki));
-            }
-        } else {
-            // Both the wiki and space params are empty/null, thus don't use a context reference.
-            reference = this.currentDocumentReferenceResolver.resolve(name);
+        DocumentReference reference = this.currentDocumentReferenceResolver.resolve(name, contextReference);
+
+        if (!StringUtils.isEmpty(wiki)) {
+            reference = reference.replaceParent(reference.getWikiReference(), new WikiReference(wiki));
         }
 
         init(reference);
@@ -610,7 +600,9 @@ public class XWikiDocument implements DocumentModelBridge
     public void setSpace(String space)
     {
         if (space != null) {
-            getDocumentReference().getLastSpaceReference().setName(space);
+            DocumentReference reference = getDocumentReference();
+            this.documentReference = new DocumentReference(new EntityReference(reference,
+                new SpaceReference(space, reference.getLastSpaceReference().getParent())));
 
             // Clean the absolute parent reference cache to rebuild it next time getParentReference is called.
             this.parentReferenceCache = null;
@@ -931,7 +923,10 @@ public class XWikiDocument implements DocumentModelBridge
     public void setName(String name)
     {
         if (name != null) {
-            getDocumentReference().setName(name);
+            DocumentReference reference = getDocumentReference();
+            // TODO: ensure that other parameters are copied properly
+            this.documentReference = new DocumentReference(name, new SpaceReference(reference.getParent()),
+                reference.getLocale());
 
             // Clean the absolute parent reference cache to rebuild it next time getParentReference is called.
             this.parentReferenceCache = null;
@@ -2368,9 +2363,9 @@ public class XWikiDocument implements DocumentModelBridge
         BaseClass tbclass = templatedoc.getXClass();
         if (tbclass != null) {
             if (bclass == null) {
-                setXClass((BaseClass) tbclass.clone());
+                setXClass(tbclass.clone());
             } else {
-                getXClass().merge((BaseClass) tbclass.clone());
+                getXClass().merge(tbclass.clone());
             }
         }
         setContentDirty(true);
@@ -2459,7 +2454,7 @@ public class XWikiDocument implements DocumentModelBridge
             for (BaseObject otherObject : tobjects) {
                 if (otherObject != null) {
                     if (keepsIdentity) {
-                        addXObject((BaseObject) otherObject.clone());
+                        addXObject(otherObject.clone());
                     } else {
                         BaseObject newObject = otherObject.duplicate(getDocumentReference());
                         setXObject(newObject.getNumber(), newObject);
@@ -3300,7 +3295,7 @@ public class XWikiDocument implements DocumentModelBridge
         setValidationScript(document.getValidationScript());
         setLanguage(document.getLanguage());
         setTranslation(document.getTranslation());
-        setXClass((BaseClass) document.getXClass().clone());
+        setXClass(document.getXClass().clone());
         setXClassXML(document.getXClassXML());
         setComment(document.getComment());
         setMinorEdit(document.isMinorEdit());
@@ -3366,7 +3361,7 @@ public class XWikiDocument implements DocumentModelBridge
             doc.setValidationScript(getValidationScript());
             doc.setLanguage(getLanguage());
             doc.setTranslation(getTranslation());
-            doc.setXClass((BaseClass) getXClass().clone());
+            doc.setXClass(getXClass().clone());
             doc.setXClassXML(getXClassXML());
             doc.setComment(getComment());
             doc.setMinorEdit(isMinorEdit());
@@ -4635,7 +4630,7 @@ public class XWikiDocument implements DocumentModelBridge
                 String newname = entry.getValue();
                 BaseProperty origprop = (BaseProperty) bobject.safeget(origname);
                 if (origprop != null) {
-                    BaseProperty prop = (BaseProperty) origprop.clone();
+                    BaseProperty prop = origprop.clone();
                     bobject.removeField(origname);
                     prop.setName(newname);
                     bobject.addField(newname, prop);
@@ -4662,6 +4657,32 @@ public class XWikiDocument implements DocumentModelBridge
     {
         getXObjectsToRemove().add(object);
         setContentDirty(true);
+    }
+
+    /**
+     * Automatically add objects present in the old version, but not in the current document, to the list of objects
+     * marked for removal from the database.
+     * 
+     * @param previousVersion the version of the document present in the database
+     * @since 3.3M2
+     */
+    public void addXObjectsToRemoveFromVersion(XWikiDocument previousVersion)
+    {
+        if (previousVersion == null) {
+            return;
+        }
+        for (List<BaseObject> objects : previousVersion.getXObjects().values()) {
+            for (BaseObject originalObj : objects) {
+                if (originalObj != null) {
+                    BaseObject newObj = getXObject(originalObj.getXClassReference(), originalObj.getNumber());
+                    if (newObj == null) {
+                        // The object was deleted.
+                        getXObjectsToRemove().add(originalObj);
+                        setContentDirty(true);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -5159,10 +5180,15 @@ public class XWikiDocument implements DocumentModelBridge
     public void setDatabase(String database)
     {
         if (database != null) {
-            getDocumentReference().getWikiReference().setName(database);
+            DocumentReference reference = getDocumentReference();
+            WikiReference wiki = reference.getWikiReference();
+            WikiReference newWiki = new WikiReference(database);
+            if( !newWiki.equals(wiki) ) {
+                this.documentReference = reference.replaceParent(wiki, newWiki);
 
-            // Clean the absolute parent reference cache to rebuild it next time getParentReference is called.
-            this.parentReferenceCache = null;
+                // Clean the absolute parent reference cache to rebuild it next time getParentReference is called.
+                this.parentReferenceCache = null;
+            }
         }
     }
 
@@ -5959,7 +5985,7 @@ public class XWikiDocument implements DocumentModelBridge
     {
         String editModeProperty = "defaultEditMode";
         DocumentReference editModeClass =
-            currentReferenceDocumentReferenceResolver.resolve(XWikiConstant.EDIT_MODE_CLASS);
+            this.currentReferenceDocumentReferenceResolver.resolve(XWikiConstant.EDIT_MODE_CLASS);
         // check if the current document has any edit mode class object attached to it, and read the edit mode from it
         BaseObject editModeObject = this.getXObject(editModeClass);
         if (editModeObject != null) {
@@ -6609,7 +6635,7 @@ public class XWikiDocument implements DocumentModelBridge
         // in the vector
         objects.set(objectPosition, null);
         // Schedule the object for removal from the storage
-        addObjectsToRemove(object);
+        addXObjectToRemove(object);
 
         return true;
     }

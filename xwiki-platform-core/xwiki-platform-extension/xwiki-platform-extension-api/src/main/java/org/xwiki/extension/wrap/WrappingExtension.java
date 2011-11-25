@@ -19,14 +19,15 @@
  */
 package org.xwiki.extension.wrap;
 
-import java.io.File;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.xwiki.extension.Extension;
+import org.xwiki.extension.ExtensionAuthor;
 import org.xwiki.extension.ExtensionDependency;
-import org.xwiki.extension.ExtensionException;
+import org.xwiki.extension.ExtensionFile;
 import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.ExtensionLicense;
 import org.xwiki.extension.repository.ExtensionRepository;
@@ -39,6 +40,11 @@ import org.xwiki.extension.repository.ExtensionRepository;
  */
 public class WrappingExtension<T extends Extension> implements Extension
 {
+    /**
+     * The format of the {@link #toString} output.
+     */
+    private static final MessageFormat TOSTRING_FORMAT = new MessageFormat("{0} ({1})");
+
     /**
      * @see #getExtension()
      */
@@ -55,7 +61,7 @@ public class WrappingExtension<T extends Extension> implements Extension
     /**
      * @return the wrapped extension
      */
-    public T getExtension()
+    protected T getExtension()
     {
         return this.extension;
     }
@@ -111,7 +117,7 @@ public class WrappingExtension<T extends Extension> implements Extension
     }
 
     @Override
-    public List<String> getAuthors()
+    public List<ExtensionAuthor> getAuthors()
     {
         return getExtension().getAuthors();
     }
@@ -123,9 +129,9 @@ public class WrappingExtension<T extends Extension> implements Extension
     }
 
     @Override
-    public void download(File file) throws ExtensionException
+    public ExtensionFile getFile()
     {
-        getExtension().download(file);
+        return getExtension().getFile();
     }
 
     @Override
@@ -144,5 +150,11 @@ public class WrappingExtension<T extends Extension> implements Extension
     public Object getProperty(String key)
     {
         return getExtension().getProperty(key);
+    }
+
+    @Override
+    public String toString()
+    {
+        return TOSTRING_FORMAT.format(new Object[] {getName(), getId()});
     }
 }
