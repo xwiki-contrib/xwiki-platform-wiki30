@@ -5,7 +5,7 @@
 <language></language>
 <defaultLanguage>en</defaultLanguage>
 <translation>0</translation>
-<parent></parent>
+<parent>XWiki.AdminSheet</parent>
 <creator>xwiki:XWiki.Admin</creator>
 <author>xwiki:XWiki.Admin</author>
 <customClass></customClass>
@@ -160,6 +160,19 @@ xHK69dZf45Of/OTPybOUL8vlF1eXoSul+MXQZf0/5jXQOJ2yhBwAAAAASUVORK5CYII=
 <content>{{include document="ExtensionManagerMacros" /}}
 
 {{velocity}}
+## Ajax call for a single extension
+#if ($request.extensionid &amp;&amp; $request.extensionversion &amp;&amp; $request.ajax)
+  #set ($actions = [])
+  #if ($request.actionshowdetails)
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""showdetails"" value=""Show details"" class=""button visibilityAction""/&gt;&lt;/span&gt;"))
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""hidedetails"" value=""Hide details"" class=""button visibilityAction""/&gt;&lt;/span&gt;"))
+  #end
+  #if ($hasProgramming)
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionuninstall"" value=""Uninstall"" class=""button""/&gt;&lt;/span&gt;"))
+  #end
+  #displayExtension($extensionManager.resolve($request.extensionid, $request.extensionversion) $actions)
+#else
+##
 (% class="full column" %)(((
 #if ($request.actionuninstall)
   = Uninstall
@@ -167,7 +180,7 @@ xHK69dZf45Of/OTPybOUL8vlF1eXoSul+MXQZf0/5jXQOJ2yhBwAAAAASUVORK5CYII=
   #if (!$request.extensionid || !$request.extensionversion)
     {{error}}You have to provide both extension id and version.{{/error}}
   #elseif ($request.confirm)
-    #set($uninstallJob = $extensionManager.uninstall($request.extensionid, $request.extensionversion))
+    #set($uninstallJob = $extensionManager.uninstall($request.extensionid, null))
     #set($lasterror = $extensionManager.lastError)
     #if ($lasterror)
       {{error}}
@@ -200,6 +213,9 @@ xHK69dZf45Of/OTPybOUL8vlF1eXoSul+MXQZf0/5jXQOJ2yhBwAAAAASUVORK5CYII=
           &lt;input name="actionuninstall" type="hidden" /&gt;
           &lt;p&gt;
             &lt;span class="buttonwrapper"&gt;&lt;input type="submit" value="Apply" name="confirm" class="button"/&gt;&lt;/span&gt;
+            #if ("$!{request.xback}" != '')
+              &lt;span class="buttonwrapper"&gt;&lt;a href="${request.xback}" class="secondary button"&gt;Cancel&lt;/a&gt;&lt;/span&gt;
+            #end
           &lt;/p&gt;
         &lt;/div&gt;
       &lt;/form&gt;
@@ -221,15 +237,16 @@ xHK69dZf45Of/OTPybOUL8vlF1eXoSul+MXQZf0/5jXQOJ2yhBwAAAAASUVORK5CYII=
 #else
   #if ($extensions.size() &gt; 1)
     #set ($hasPagination = true)
-    #set ($paginationParams = {'totalItems': $extensions.size()})
+    #set ($paginationParams = {'totalItems': $extensions.size(), 'url': $doc.getURL($xcontext.action, $request.getQueryString().replaceAll('(^|&amp;)firstIndex=[^&amp;]++&amp;?', '$1'))})
     {{html}}#pagination($paginationParams){{/html}}
     #set ($extensions = $extensions.subList($paginationParams.firstItem, $mathtool.min($extensions.size(), $mathtool.add($paginationParams.firstItem, $paginationParams.itemsPerPage))))
   #end
   #set ($actions = [])
+  #computeXBack()
   #if ($request.actionshowdetails)
-    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;a href=""$doc.getURL($xcontext.action, $request.getQueryString().replaceAll('(^|&amp;)actionshowdetails=[^=]++', ''))"" class=""button""&gt;Back to list&lt;/a&gt;&lt;/span&gt;"))
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;a href=""${xback}"" class=""button""&gt;Back to list&lt;/a&gt;&lt;/span&gt;"))
   #else
-    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionshowdetails"" value=""Show details"" class=""button""/&gt;&lt;/span&gt;"))
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionshowdetails"" value=""Show details"" class=""button""/&gt;&lt;/span&gt;&lt;input type=""hidden"" name=""xback"" value=""${xback}"" /&gt;"))
   #end
   #if ($hasProgramming)
     #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionuninstall"" value=""Uninstall"" class=""button""/&gt;&lt;/span&gt;"))
@@ -244,4 +261,5 @@ xHK69dZf45Of/OTPybOUL8vlF1eXoSul+MXQZf0/5jXQOJ2yhBwAAAAASUVORK5CYII=
 #end
 #end
 )))
+#end
 {{/velocity}}</content></xwikidoc>

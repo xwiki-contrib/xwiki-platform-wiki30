@@ -15,7 +15,7 @@
 <date>1320656877000</date>
 <contentUpdateDate>1320656877000</contentUpdateDate>
 <version>1.1</version>
-<title>AppWithinMinutes Home</title>
+<title>$msg.get('platform.appwithinminutes.homePageTitle')</title>
 <template></template>
 <defaultTemplate></defaultTemplate>
 <validationScript></validationScript>
@@ -24,64 +24,25 @@
 <syntaxId>xwiki/2.0</syntaxId>
 <hidden>false</hidden>
 <content>{{velocity}}
-#if($request.method.equalsIgnoreCase('post') &amp;&amp; "$!request.className" != '')
-  #if("$!request.targetPageName" != '')
-    ## Generate LiveTable
-    #set($targetPage = $xwiki.getDocument($request.targetPageName))
-    $response.sendRedirect($xwiki.getURL($request.targetPageName, 'edit', "editor=inline&amp;template=AppWithinMinutes.LiveTableTemplate&amp;AppWithinMinutes.LiveTableClass_0_class=$escapetool.url($request.className)&amp;title=$escapetool.url($targetPage.name)"));
-  #else
-    ## Create/Edit Class
-    $response.sendRedirect($xwiki.getURL($request.className, 'edit', 'editor=inline&amp;sheet=AppWithinMinutes.ClassEditSheet'))
-  #end
-#else
-{{warning}}
-These features are experimental, use them at your own risk.
-{{/warning}}
+$msg.get('platform.appwithinminutes.description')
 
-= Create/Edit Class =
+(% class="buttonwrapper" %)[[$msg.get('platform.appwithinminutes.createAppButtonLabel')&gt;&gt;CreateApplication||class="button"]]
 
-{{html}}
-&lt;form action="" method="post" class="xform half"&gt;
-  &lt;dl&gt;
-    &lt;dt&gt;
-      &lt;label for="className"&gt;Class name&lt;/label&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      &lt;input type="text" id="className" name="className"/&gt;
-    &lt;/dd&gt;
-  &lt;/dl&gt;
-  &lt;p&gt;
-    &lt;span class="buttonwrapper"&gt;
-      &lt;input type="submit" value="Create / Edit" class="button"/&gt;
-    &lt;/span&gt;
-  &lt;/p&gt;
-&lt;/form&gt;
-{{/html}}
-
-= Generate LiveTable =
-
-{{html}}
-&lt;form action="" method="post" class="xform half"&gt;
-  &lt;dl&gt;
-    &lt;dt&gt;
-      &lt;label for="xclassName"&gt;Class name&lt;/label&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      &lt;input type="text" id="xclassName" name="className"/&gt;
-    &lt;/dd&gt;
-    &lt;dt&gt;
-      &lt;label for="targetPageName"&gt;Target page name&lt;/label&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      &lt;input type="text" id="targetPageName" name="targetPageName"/&gt;
-    &lt;/dd&gt;
-  &lt;/dl&gt;
-  &lt;p&gt;
-    &lt;span class="buttonwrapper"&gt;
-      &lt;input type="submit" value="Generate" class="button"/&gt;
-    &lt;/span&gt;
-  &lt;/p&gt;
-&lt;/form&gt;
-{{/html}}
-#end
+= $msg.get('platform.appwithinminutes.appsLiveTableHeading') =##
+#set($columnsProperties = {
+  'doc.space': {'type': 'text', 'link': 'view', 'size': 10, 'filterable': true, 'sortable': true},
+  'doc.author': {'type': 'text', 'link': 'author', 'size': 10, 'filterable': true, 'sortable': true},
+  'doc.date': {'type': 'text', 'size': 10, 'filterable': true, 'sortable': true}
+})
+#set($options = {
+  'className': 'AppWithinMinutes.LiveTableClass',
+  'translationPrefix': 'platform.appwithinminutes.appsLiveTable.',
+  'tagCloud': true,
+  'rowCount': 15,
+  'maxPages': 10,
+  'selectedColumn': 'doc.space',
+  'defaultOrder': 'asc'
+})
+#set($columns = ['doc.space', 'doc.author', 'doc.date'])
+#livetable('livetable' $columns $columnsProperties $options)
 {{/velocity}}</content></xwikidoc>
