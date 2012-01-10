@@ -24,6 +24,7 @@
   <inherits name='org.xwiki.gwt.wysiwyg.Plugin' />
   <inherits name='org.xwiki.gwt.wysiwyg.MutationPlugin' />
   <inherits name="com.smartgwt.SmartGwtNoScript" />
+  <inherits name="org.xwiki.gwt.wysiwyg.RealTimePlugin"/>
 
   <stylesheet src="stylesheets/Wysiwyg.css" />
   <entry-point class="org.xwiki.gwt.wysiwyg.client.Wysiwyg" />
