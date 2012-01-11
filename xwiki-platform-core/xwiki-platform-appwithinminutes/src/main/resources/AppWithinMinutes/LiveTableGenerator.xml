@@ -24,58 +24,63 @@
 <syntaxId>xwiki/2.0</syntaxId>
 <hidden>false</hidden>
 <content>{{velocity output="false" filter="none"}}
-#macro(prepareTranslations)
-${escapetool.h}set(${escapetool.d}originalMsg = ${escapetool.d}msg)
-${escapetool.h}set(${escapetool.d}msg = {##
-##
-## Inject translations for the selected class fields.
-#foreach($field in $xclass.getProperties())
-#if($columns.contains($field.name))
-  '${shortName}.livetable.${field.name}': '$escapetool.javascript($field.prettyName)',
-#end
-#end
-##
-## Inject translations for the generic columns.
-#set($genericColumns = {
-'doc.title': 'Title',
-'doc.name': 'Name',
-'doc.space': 'Space',
-'doc.fullname': 'Full name',
-'doc.author': 'Last Author',
-'doc.creator': 'Creator',
-'doc.date': 'Update date',
-'doc.creationDate': 'Creation date',
-'_avatar': 'Avatar',
-'_images': 'Images',
-'_attachments': 'Attachments',
-'_actions': 'Actions'
-})
-#foreach($entry in $genericColumns.entrySet())
-#if($columns.contains($entry.key))
-  '${shortName}.livetable.${entry.key}': '$escapetool.javascript($entry.value)',
-#end
-#end
-##
-## Inject translations for the Actions column
-#if ($columns.contains('_actions'))
-#set($actionNames = {'edit': 'Edit', 'delete': 'Delete'})
-#foreach($entry in $actionNames.entrySet())
-  '${shortName}.livetable._actions.${entry.key}': '$escapetool.javascript($entry.value)',
-#end
-#end
-##
-## Copy the live table and pagination translations.
-#foreach($key in ['results', 'resultsmacros', 'filters.title', 'loading', 'tags.help', 'tags.help.cancel', 'environmentCannotLoadTableMessage', 'pagesize.label', 'tools', 'tools.excel'])
-  'xe.livetable.${key}': ${escapetool.d}originalMsg.get('xe.livetable.${key}'),
-#end
-#foreach($key in ['page', 'page.title', 'page.previous', 'page.prev.title', 'page.next', 'page.next.title', 'results.none', 'results.one', 'results.single', 'results.many'])
-#if($velocityCount &gt; 1)
-,
-#end
-  'xe.pagination.${key}': ${escapetool.d}originalMsg.get('xe.pagination.${key}')##
+#macro(escapeApostrophe $string)
+$string.replace("'", "''")##
 #end
 
+#macro(prepareTranslations)
+${escapetool.h}set(${escapetool.d}originalMsg = ${escapetool.d}msg)
+${escapetool.h}set(${escapetool.d}msg = ${escapetool.d}services.dynamicMessageToolFactory.createDynamicMessageTool(${escapetool.d}msg, {
+##
+## Inject translations for the selected columns.
+#set($genericColumns = {
+'doc.title': '$msg.get(''platform.appwithinminutes.liveTableEditorDocTitleColumnName'')',
+'doc.name': '$msg.get(''platform.appwithinminutes.liveTableEditorDocNameColumnName'')',
+'doc.space': '$msg.get(''platform.appwithinminutes.liveTableEditorDocSpaceColumnName'')',
+'doc.fullname': '$msg.get(''platform.appwithinminutes.liveTableEditorDocFullNameColumnName'')',
+'doc.author': '$msg.get(''platform.appwithinminutes.liveTableEditorDocAuthorColumnName'')',
+'doc.creator': '$msg.get(''platform.appwithinminutes.liveTableEditorDocCreatorColumnName'')',
+'doc.date': '$msg.get(''platform.appwithinminutes.liveTableEditorDocDateColumnName'')',
+'doc.creationDate': '$msg.get(''platform.appwithinminutes.liveTableEditorDocCreationDateColumnName'')',
+'_avatar': '$msg.get(''platform.appwithinminutes.liveTableEditorAvatarColumnName'')',
+'_images': '$msg.get(''platform.appwithinminutes.liveTableEditorImagesColumnName'')',
+'_attachments': '$msg.get(''platform.appwithinminutes.liveTableEditorAttachmentsColumnName'')',
+'_actions': '$msg.get(''platform.appwithinminutes.liveTableEditorActionsColumnName'')'
 })
+#foreach($column in $columns)
+## Default on the specified column name.
+#set($translatedColumnName = $column)
+#set($wrapper = "'")
+## Check if the column is based on a class field.
+#set($field = $xclass.get($column))
+#if($field)
+#set($translatedColumnName = "#escapeApostrophe($field.prettyName)")
+#if($field.type.endsWith('ListClass'))
+## Inject translations for the list values.
+#foreach($entry in $field.mapValues.entrySet())
+  '#escapeApostrophe("${className}_${column}_$entry.key")': '#escapeApostrophe($entry.value.value)',
+#end
+#end
+#elseif($genericColumns.containsKey($column))
+## A generic column.
+## Don't escape the apostrophes because we simply copy the translation.
+#set($translatedColumnName = $genericColumns.get($column))
+#set($wrapper = '')
+## The Actions column is a bit special.
+#if($column == '_actions')
+#set($actionNames = {'edit': '$msg.get(''platform.appwithinminutes.appLiveTableEditEntryActionName'')', 'delete': '$msg.get(''platform.appwithinminutes.appLiveTableDeleteEntryActionName'')'})
+#foreach($entry in $actionNames.entrySet())
+  '${shortName}.livetable._actions.${entry.key}': $entry.value,
+#end
+#end## Actions column
+#end## Generic column
+  '${shortName}.livetable.$column': $wrapper$translatedColumnName$wrapper##
+#if($velocityCount &lt; $columns.size())
+,
+#end
+#end## Selected columns
+
+}))
 #end
 
 #macro(prepareColumnProperties)
@@ -94,11 +99,15 @@ ${escapetool.h}set(${escapetool.d}columnsProperties = {##
 #set($type = 'list')
 #end
 $separator
-  '$escapetool.javascript($column)': {'type': '$type', 'size': 10, 'filterable': true, 'sortable': true, 'html': $isHTML}##
+  '$column': {'type': '$type', 'size': 10, 'filterable': true, 'sortable': true, 'html': $isHTML}##
 #set($separator = ',')
 #elseif($genericColumns.contains($column))
+#set($link = 'view')
+#if($column == 'doc.creator' || $column == 'doc.author')
+#set($link = 'author')
+#end
 $separator
-  '$column': {'type': 'text', 'link': 'view', 'size': #if($column == 'doc.title')20#{else}10#end, 'filterable': true, 'sortable': true}##
+  '$column': {'type': 'text', 'link': '$link', 'size': #if($column == 'doc.title')20#{else}10#end, 'filterable': true, 'sortable': true}##
 #set($separator = ',')
 #elseif($specialColumns.contains($column))
 $separator
@@ -110,14 +119,25 @@ $separator
 })
 #end
 
+#macro(maybeGenerateLiveTable)
+#set($liveTableObj = $doc.getObject('AppWithinMinutes.LiveTableClass'))
+#if($liveTableObj)
+#set($columns = $liveTableObj.getProperty('columns').value.trim())
+#if("$!columns" != '')
+#set($columns = $columns.split('\s+'))
+#generateLiveTable()
+#end
+#end
+#end
+
 #macro(generateLiveTable)
 {{{##
+{{include document="AppWithinMinutes.DynamicMessageTool" context="new" /}}
+
 {{velocity}}
-#set($liveTableObj = $doc.getObject('AppWithinMinutes.LiveTableClass'))
 #set($className = $liveTableObj.getProperty('class').value)
 #set($classDoc = $xwiki.getDocument($className))
 #set($xclass = $classDoc.getxWikiClass())
-#set($columns = $liveTableObj.getProperty('columns').value.split('\s+'))
 #set($shortName = $classDoc.name.replaceAll("Class", "").toLowerCase())
 #prepareTranslations()
 #prepareColumnProperties()
@@ -156,6 +176,6 @@ ${escapetool.h}set(${escapetool.d}msg = ${escapetool.d}originalMsg)
 #if($request.collist)
   #outputLiveTableResults()
 #else
-  #generateLiveTable()
+  #maybeGenerateLiveTable()
 #end
 {{/velocity}}</content></xwikidoc>

@@ -280,8 +280,10 @@ function prettyNameChanged()
   #error($msg.get("workspacemanager.error.notinvirtualmode"))
 #end
 ############################################################################################
-## WORKSPACE TEMPLATE AUTOMATIC INSTALLATION
-#includeTopic('WorkspaceManager.Install')
+## WORKSPACE INSTALLATION STATUS CHECK
+#if ("$!{services.wikimanager.getWikiTemplateDocument('workspacetemplate')}" == '')
+  #warning($msg.get('workspacemanager.template.install.notYetComplete', ['WorkspaceManager.Install']))
+#end
 ############################################################################################
 ## MACROS
 #macro(getRequestList $paramlist $paramname)
@@ -322,7 +324,7 @@ function prettyNameChanged()
   #if ("$!ALIASSUFFIX" != '')
     #set ($alias = "${alias}.${ALIASSUFFIX}")
   #else
-    #set ($usePath = $xwiki.xWiki.Param('xwiki.virtual.usepath', '0'))
+    #set ($usePath = $xwiki.xWiki.Param('xwiki.virtual.usepath', '1'))
     #if ($usePath == '0')
       #set ($serverURL = $xcontext.getURLFactory().getServerURL($xcontext.context))
       #set ($alias = "${alias}.$serverURL.host")
@@ -333,6 +335,8 @@ function prettyNameChanged()
 ##
 #set($members = [])
 #getRequestList($members 'members')
+## Remove any duplicate members (like the owner in some cases).
+#set ($discard = $members.remove($wikidocument.owner))
 #############################################################################
 ##
 #if ($action &amp;&amp; $action == "create")

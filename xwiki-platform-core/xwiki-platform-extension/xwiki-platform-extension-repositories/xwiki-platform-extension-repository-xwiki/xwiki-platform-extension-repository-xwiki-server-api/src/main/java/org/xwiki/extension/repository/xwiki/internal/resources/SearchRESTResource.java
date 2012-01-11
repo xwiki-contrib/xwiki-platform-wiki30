@@ -39,24 +39,40 @@ import org.xwiki.query.QueryException;
 @Path(Resources.SEARCH)
 public class SearchRESTResource extends AbstractExtensionRESTResource
 {
+    private static final String WHERE = "extension.id like :pattern or extension.name like :pattern"
+        + " or extension.summary like :pattern or extension.description like :pattern";
+
     /**
      * @since 3.3M2
      */
     @GET
     public ExtensionsSearchResult search(@QueryParam(Resources.QPARAM_SEARCH_QUERY) @DefaultValue("") String pattern,
         @QueryParam(Resources.QPARAM_LIST_START) @DefaultValue("0") int offset,
-        @QueryParam(Resources.QPARAM_LIST_NUMBER) @DefaultValue("-1") int number) throws QueryException
+        @QueryParam(Resources.QPARAM_LIST_NUMBER) @DefaultValue("-1") int number,
+        @QueryParam(Resources.QPARAM_LIST_REQUIRETOTALHITS) @DefaultValue("true") boolean requireTotalHits)
+        throws QueryException
     {
-        String where =
-            "extension.id like :pattern or extension.name like :pattern or extension.description like :pattern";
-
-        Query query = createExtensionsQuery(null, where, offset, number);
-
-        query.bindValue("pattern", '%' + pattern + '%');
-
         ExtensionsSearchResult result = this.objectFactory.createExtensionsSearchResult();
 
-        getExtensions(result.getExtensions(), query);
+        result.setOffset(offset);
+
+        if (requireTotalHits) {
+            Query query = createExtensionsCountQuery(null, WHERE);
+
+            query.bindValue("pattern", '%' + pattern + '%');
+
+            result.setTotalHits((int) getExtensionsCountResult(query));
+        } else {
+            result.setTotalHits(-1);
+        }
+
+        if (number != 0 && (result.getTotalHits() == -1 || offset < result.getTotalHits())) {
+            Query query = createExtensionsQuery(null, WHERE, offset, number);
+
+            query.bindValue("pattern", '%' + pattern + '%');
+
+            getExtensions(result.getExtensions(), query);
+        }
 
         return result;
     }

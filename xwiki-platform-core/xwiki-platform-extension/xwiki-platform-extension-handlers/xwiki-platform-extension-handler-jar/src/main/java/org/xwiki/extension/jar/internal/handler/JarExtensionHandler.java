@@ -22,6 +22,7 @@ package org.xwiki.extension.jar.internal.handler;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -34,9 +35,13 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.component.annotation.ComponentAnnotationLoader;
 import org.xwiki.component.annotation.ComponentDeclaration;
 import org.xwiki.component.descriptor.ComponentDescriptor;
+import org.xwiki.component.internal.StackingComponentEventManager;
 import org.xwiki.component.internal.multi.ComponentManagerManager;
+import org.xwiki.component.manager.ComponentEventManager;
+import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
+import org.xwiki.extension.ExtensionException;
 import org.xwiki.extension.InstallException;
 import org.xwiki.extension.LocalExtension;
 import org.xwiki.extension.LocalExtensionFile;
@@ -64,13 +69,24 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
     }
 
     @Override
+    public void initialize(LocalExtension localExtension, String namespace) throws ExtensionException
+    {
+        install(localExtension, namespace);
+    }
+
+    private static URL getExtensionURL(LocalExtension localExtension) throws MalformedURLException
+    {
+        return new File(localExtension.getFile().getAbsolutePath()).toURI().toURL();
+    }
+
+    @Override
     public void install(LocalExtension localExtension, String namespace) throws InstallException
     {
         ExtensionURLClassLoader classLoader = this.jarExtensionClassLoader.getURLClassLoader(namespace, true);
 
         // 1) load jar into classloader
         try {
-            classLoader.addURL(new File(localExtension.getFile().getAbsolutePath()).toURI().toURL());
+            classLoader.addURL(getExtensionURL(localExtension));
         } catch (MalformedURLException e) {
             throw new InstallException("Failed to load jar file", e);
         }
@@ -88,7 +104,8 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             // unregister components
             unloadComponents(localExtension.getFile(), classLoader, namespace);
 
-            // TODO: find a way to unload the jar from the classloader
+            // The ClassLoader(s) will be replaced and reloaded at the end of the job
+            // @see org.xwiki.extension.jar.internal.handler.JarExtensionJobFinishedListener
         }
     }
 
@@ -99,12 +116,34 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             List<ComponentDeclaration> componentDeclarations = getDeclaredComponents(jarFile);
 
             if (componentDeclarations == null) {
-                this.logger.debug("[{}] does not contain any component", jarFile);
+                this.logger.debug("[{}] does not contain any component", jarFile.getName());
                 return;
             }
 
-            this.jarLoader.initialize(this.componentManagerManager.getComponentManager(namespace, true), classLoader,
-                componentDeclarations);
+            ComponentManager componentManager = this.componentManagerManager.getComponentManager(namespace, true);
+
+            ComponentEventManager componentEventManager = componentManager.getComponentEventManager();
+
+            // Make sure to send events only when the extension is fully ready
+            StackingComponentEventManager stackingComponentEventManager = null;
+            try {
+                if (componentEventManager instanceof StackingComponentEventManager) {
+                    stackingComponentEventManager = (StackingComponentEventManager) componentEventManager;
+                } else {
+                    stackingComponentEventManager = new StackingComponentEventManager();
+                    componentManager.setComponentEventManager(stackingComponentEventManager);
+                }
+
+                this.jarLoader.initialize(componentManager, classLoader, componentDeclarations);
+            } finally {
+                if (stackingComponentEventManager != null) {
+                    if (componentEventManager != stackingComponentEventManager) {
+                        componentManager.setComponentEventManager(componentEventManager);
+                    }
+                    stackingComponentEventManager.shouldStack(false);
+                    stackingComponentEventManager.flushEvents();
+                }
+            }
         } catch (Exception e) {
             throw new InstallException("Failed to load jar file components", e);
         }
@@ -152,7 +191,7 @@ public class JarExtensionHandler extends AbstractExtensionHandler implements Ini
             List<ComponentDeclaration> componentDeclarations = getDeclaredComponents(jarFile);
 
             if (componentDeclarations == null) {
-                this.logger.debug("[{}] does not contain any component", jarFile);
+                this.logger.debug("[{}] does not contain any component", jarFile.getName());
                 return;
             }
 

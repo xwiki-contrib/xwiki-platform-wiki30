@@ -52,6 +52,7 @@ import org.xwiki.extension.DefaultExtensionDependency;
 import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.ExtensionLicense;
 import org.xwiki.extension.ExtensionLicenseManager;
+import org.xwiki.extension.version.internal.DefaultVersionConstraint;
 import org.xwiki.properties.ConverterManager;
 
 import com.google.common.base.Predicates;
@@ -137,7 +138,7 @@ public class DefaultCoreExtensionScanner implements CoreExtensionScanner
                         + mavenModel.getArtifactId(), version), packagingToType(mavenModel.getPackaging()));
 
                 coreExtension.setName(mavenModel.getName());
-                coreExtension.setDescription(mavenModel.getDescription());
+                coreExtension.setSummary(mavenModel.getDescription());
                 for (Developer developer : mavenModel.getDevelopers()) {
                     URL authorURL = null;
                     if (developer.getUrl() != null) {
@@ -177,19 +178,21 @@ public class DefaultCoreExtensionScanner implements CoreExtensionScanner
                             .getScope().equals("runtime"))) {
                         coreExtension.addDependency(new DefaultExtensionDependency(resolveGroupId(
                             mavenDependency.getGroupId(), mavenModel, true)
-                            + ':' + mavenDependency.getArtifactId(), resolveVersion(mavenDependency.getVersion(),
-                            mavenModel, true)));
+                            + ':' + mavenDependency.getArtifactId(), new DefaultVersionConstraint(resolveVersion(
+                            mavenDependency.getVersion(), mavenModel, true))));
                     }
 
                     if (mavenDependency.getGroupId().equals("${project.groupId}")) {
                         mavenDependency.setGroupId(groupId);
                     }
+
                     if (mavenDependency.getVersion() == null) {
                         mavenDependency.setVersion(UNKNOWN);
                     } else if (mavenDependency.getVersion().equals("${project.version}")
                         || mavenDependency.getVersion().equals("${pom.version}")) {
                         mavenDependency.setVersion(version);
                     }
+
                     dependencies.add(mavenDependency);
                 }
 
@@ -251,7 +254,7 @@ public class DefaultCoreExtensionScanner implements CoreExtensionScanner
 
                 DefaultCoreExtension coreExtension = (DefaultCoreExtension) coreArtefactId[1];
                 if (artefact != null) {
-                    if (coreExtension.getId().getVersion().charAt(0) == '$') {
+                    if (coreExtension.getId().getVersion().getValue().charAt(0) == '$') {
                         coreExtension.setId(new ExtensionId(coreExtension.getId().getId(), (String) artefact[0]));
                         coreExtension.setGuessed(true);
                     }

@@ -29,9 +29,9 @@ import org.xwiki.extension.job.InstallRequest;
 import org.xwiki.extension.job.Job;
 import org.xwiki.extension.job.JobException;
 import org.xwiki.extension.job.JobManager;
-import org.xwiki.extension.job.JobStatus;
 import org.xwiki.extension.job.Request;
 import org.xwiki.extension.job.UninstallRequest;
+import org.xwiki.extension.job.event.status.JobStatus;
 
 /**
  * Default implementation of {@link JobManager}.
@@ -51,7 +51,7 @@ public class DefaultJobManager implements JobManager
     /**
      * @see #getCurrentJob()
      */
-    private Job currentJob;
+    private volatile Job currentJob;
 
     @Override
     public Job getCurrentJob()
@@ -84,6 +84,7 @@ public class DefaultJobManager implements JobManager
             throw new JobException("Failed to lookup any Task for role hint [" + taskId + "]", e);
         }
 
+        // TODO: make non-blocker
         this.currentJob.start(request);
 
         return this.currentJob;

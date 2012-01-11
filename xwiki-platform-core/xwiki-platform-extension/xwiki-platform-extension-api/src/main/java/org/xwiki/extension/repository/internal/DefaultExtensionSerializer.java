@@ -56,6 +56,7 @@ import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.ExtensionLicense;
 import org.xwiki.extension.ExtensionLicenseManager;
 import org.xwiki.extension.InvalidExtensionException;
+import org.xwiki.extension.version.internal.DefaultVersionConstraint;
 
 /**
  * Local repository storage serialization tool.
@@ -251,7 +252,7 @@ public class DefaultExtensionSerializer implements ExtensionSerializer
                     Node dependencyVersionNode = getNode(dependency, ELEMENT_VERSION);
 
                     localExtension.addDependency(new DefaultExtensionDependency(dependencyIdNode.getTextContent(),
-                        dependencyVersionNode.getTextContent()));
+                        new DefaultVersionConstraint(dependencyVersionNode.getTextContent())));
                 }
             }
         }
@@ -309,7 +310,7 @@ public class DefaultExtensionSerializer implements ExtensionSerializer
         document.appendChild(extensionElement);
 
         addElement(document, extensionElement, ELEMENT_ID, extension.getId().getId());
-        addElement(document, extensionElement, ELEMENT_VERSION, extension.getId().getVersion());
+        addElement(document, extensionElement, ELEMENT_VERSION, extension.getId().getVersion().getValue());
         addElement(document, extensionElement, ELEMENT_TYPE, extension.getType());
         addElement(document, extensionElement, ELEMENT_DEPENDENCY, String.valueOf(extension.isDependency()));
         addElement(document, extensionElement, ELEMENT_NAME, extension.getName());
@@ -377,18 +378,18 @@ public class DefaultExtensionSerializer implements ExtensionSerializer
     {
         List<ExtensionAuthor> authors = extension.getAuthors();
         if (!authors.isEmpty()) {
-            Element dependenciesElement = document.createElement(ELEMENT_AUTHORS);
-            parentElement.appendChild(dependenciesElement);
+            Element authorsElement = document.createElement(ELEMENT_AUTHORS);
+            parentElement.appendChild(authorsElement);
 
             for (ExtensionAuthor author : authors) {
-                Element dependencyElement = document.createElement(ELEMENT_AAUTHOR);
-                dependenciesElement.appendChild(dependencyElement);
+                Element authorElement = document.createElement(ELEMENT_AAUTHOR);
+                authorsElement.appendChild(authorElement);
 
-                addElement(document, dependencyElement, ELEMENT_AANAME, author.getName());
+                addElement(document, authorElement, ELEMENT_AANAME, author.getName());
 
                 URL authorURL = author.getURL();
                 if (authorURL != null) {
-                    addElement(document, dependencyElement, ELEMENT_AAURL, authorURL.toString());
+                    addElement(document, authorElement, ELEMENT_AAURL, authorURL.toString());
                 }
             }
         }
@@ -405,7 +406,7 @@ public class DefaultExtensionSerializer implements ExtensionSerializer
                 dependenciesElement.appendChild(dependencyElement);
 
                 addElement(document, dependencyElement, ELEMENT_ID, dependency.getId());
-                addElement(document, dependencyElement, ELEMENT_VERSION, dependency.getVersion());
+                addElement(document, dependencyElement, ELEMENT_VERSION, dependency.getVersionConstraint().getValue());
             }
         }
     }
