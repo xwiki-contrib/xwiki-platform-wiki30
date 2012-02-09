@@ -305,12 +305,13 @@ span.wikicreatelink a:after {
 
 .edit_section a {
   background: transparent url("$xwiki.getSkinFile('icons/xwiki/edit-section.png')") no-repeat left top;
-  line-height: 999px;
+  height: 20px;
   margin: 0;
   overflow: hidden;
   padding: 0;
   position: absolute;
   right: 0;
+  text-indent: -1000em;
   top: 0;
   visibility:visible;
   width: 20px;
@@ -418,8 +419,9 @@ th.avatar {
   width: 168px;
 }
 
-.globalsearch input.button {
-  background-color: transparent;
+.globalsearch input.button , .globalsearch input.button:hover{
+  background-color: $theme.pageContentBackgroundColor;
+  background-image: none;
   border: 0;
   height: 16px;
   margin: 0 2px 0 -18px;
@@ -494,6 +496,7 @@ th.avatar {
 
 #mainContentArea, #mainEditArea  {
   background: $theme.pageContentBackgroundColor;
+  overflow: auto;
   padding: 10px 25px;
 }
 
@@ -1048,6 +1051,7 @@ div#xwikiobjects input[type="checkbox"], div#xwikiclassproperties input[type="ch
 
 .actionmenu .hasIcon {
   background: no-repeat 0px 3px;
+  padding: 0;
 }
 
 .tme-extensible {
@@ -1502,6 +1506,11 @@ input.button:hover, .buttonwrapper a:hover{
 
 input.secondary:hover, .buttonwrapper a.secondary:hover {
   box-shadow: 0px 2px 2px $theme.borderColor;
+}
+
+*:disabled, input.disabled, .buttonwrapper a.disabled {
+  opacity: .5;
+  cursor: default;
 }
 
 /* @group VERTICAL MENU */
@@ -2130,6 +2139,15 @@ div.panellayoutcontainer-1col, div.panellayoutcontainer-2col, div.panellayoutcon
   vertical-align: middle;
 }
 
+.hasIcon {
+  background: none no-repeat scroll 0 0 transparent;
+  padding-left: 20px;
+}
+
+.iconRSS {
+  background-image: url("$xwiki.getSkinFile('icons/silk/feed.png')");
+}
+
 /* @group MACROS */
 /* --------------------------------------------------------------
   * Different classes for specific macro usage
@@ -2269,20 +2287,6 @@ but still maintain the 300 px width when used as a Macro from the WYSIWYG Editor
 #contentcolumn #admin-page-content {
   background-color: $theme.pageContentBackgroundColor;
   padding: 0;
-}
-
-/* Overwrites usersandgroups.css */
-#tdAddNewUserOrGroup .buttonwrapper  a{
-  background-image: none;
-  display: inline;
-  font-size: .8em;
-  height: auto;
-  width: auto;
-}
-
-/* Overwrites usersandgroups.css */
-#tdAddNewUserOrGroup .buttonwrapper  a:hover {
-  color: $theme.buttonSecondaryTextColor;
 }
 
 #addNewMember table {

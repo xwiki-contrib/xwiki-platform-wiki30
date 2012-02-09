@@ -19,7 +19,7 @@
  */
 package org.xwiki.extension.job;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.xwiki.extension.ExtensionId;
 
@@ -33,12 +33,12 @@ public interface ExtensionRequest extends Request
     /**
      * @return the extension on which to apply the task.
      */
-    List<ExtensionId> getExtensions();
+    Collection<ExtensionId> getExtensions();
 
     /**
      * @return the namespaces on which to apply the task.
      */
-    List<String> getNamespaces();
+    Collection<String> getNamespaces();
 
     /**
      * @return indicate if the request is applied on specific namespace or all of them

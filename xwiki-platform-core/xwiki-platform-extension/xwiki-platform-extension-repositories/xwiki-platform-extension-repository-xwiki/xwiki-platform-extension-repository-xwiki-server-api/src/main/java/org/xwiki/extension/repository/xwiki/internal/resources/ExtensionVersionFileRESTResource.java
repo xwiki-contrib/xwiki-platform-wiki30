@@ -21,6 +21,7 @@ package org.xwiki.extension.repository.xwiki.internal.resources;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -37,6 +39,15 @@ import javax.ws.rs.core.Response.Status;
 import org.restlet.data.MediaType;
 import org.restlet.representation.InputRepresentation;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.extension.Extension;
+import org.xwiki.extension.ExtensionFile;
+import org.xwiki.extension.ExtensionId;
+import org.xwiki.extension.ResolveException;
+import org.xwiki.extension.internal.reference.ExtensionResourceReference;
+import org.xwiki.extension.repository.ExtensionRepository;
+import org.xwiki.extension.repository.ExtensionRepositoryFactory;
+import org.xwiki.extension.repository.ExtensionRepositoryId;
+import org.xwiki.extension.repository.ExtensionRepositoryManager;
 import org.xwiki.extension.repository.xwiki.Resources;
 import org.xwiki.model.reference.AttachmentReference;
 import org.xwiki.model.reference.AttachmentReferenceResolver;
@@ -61,10 +72,35 @@ public class ExtensionVersionFileRESTResource extends AbstractExtensionRESTResou
     @Inject
     private AttachmentReferenceResolver<String> attachmentResolver;
 
+    @Inject
+    private ExtensionRepositoryManager extensionRepositoryManager;
+
     @GET
     public Response downloadExtension(@PathParam(Resources.PPARAM_EXTENSIONID) String extensionId,
-        @PathParam(Resources.PPARAM_EXTENSIONVERSION) String extensionVersion) throws XWikiException, QueryException,
-        URISyntaxException, IOException
+        @PathParam(Resources.PPARAM_EXTENSIONVERSION) String extensionVersion,
+        @QueryParam(ExtensionResourceReference.PARAM_REPOSITORYID) String repositoryId,
+        @QueryParam(ExtensionResourceReference.PARAM_REPOSITORYTYPE) String repositoryType,
+        @QueryParam(ExtensionResourceReference.PARAM_REPOSITORYURI) String repositoryURI) throws XWikiException,
+        QueryException, URISyntaxException, IOException, ResolveException
+    {
+        ResponseBuilder response;
+
+        if (repositoryId != null) {
+            response =
+                downloadRemoteExtension(new ExtensionResourceReference(extensionId, extensionVersion, repositoryId));
+        } else if (repositoryType != null && repositoryURI != null) {
+            response =
+                downloadRemoteExtension(new ExtensionResourceReference(extensionId, extensionVersion, repositoryType,
+                    new URI(repositoryURI)));
+        } else {
+            response = downloadLocalExtension(extensionId, extensionVersion);
+        }
+
+        return response.build();
+    }
+
+    public ResponseBuilder downloadLocalExtension(String extensionId, String extensionVersion) throws ResolveException,
+        IOException, QueryException, XWikiException
     {
         XWikiDocument extensionDocument = getExistingExtensionDocumentById(extensionId);
 
@@ -113,10 +149,68 @@ public class ExtensionVersionFileRESTResource extends AbstractExtensionRESTResou
                 new InputRepresentation(connection.getInputStream(), new MediaType(connection.getContentType()),
                     connection.getContentLength());
             response.entity(content);
+        } else if (ExtensionResourceReference.TYPE.equals(resourceReference.getType())) {
+            ExtensionResourceReference extensionResource;
+            if (resourceReference instanceof ExtensionResourceReference) {
+                extensionResource = (ExtensionResourceReference) resourceReference;
+            } else {
+                extensionResource = new ExtensionResourceReference(resourceReference.getReference());
+            }
+
+            response = downloadRemoteExtension(extensionResource);
         } else {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
-        return response.build();
+        return response;
+    }
+
+    public ResponseBuilder downloadRemoteExtension(ExtensionResourceReference extensionResource)
+        throws ResolveException, IOException
+    {
+        ExtensionRepository repository = null;
+        if (extensionResource.getRepositoryId() != null) {
+            repository = this.extensionRepositoryManager.getRepository(extensionResource.getRepositoryId());
+        }
+
+        if (repository == null && extensionResource.getRepositoryType() != null
+            && extensionResource.getRepositoryURI() != null) {
+            ExtensionRepositoryId repositoryId =
+                new ExtensionRepositoryId("tmp", extensionResource.getRepositoryType(),
+                    extensionResource.getRepositoryURI());
+            try {
+                ExtensionRepositoryFactory repositoryFactory =
+                    this.componentManager.lookup(ExtensionRepositoryFactory.class, repositoryId.getType());
+
+                repository = repositoryFactory.createRepository(repositoryId);
+            } catch (Exception e) {
+                // Ignore invalid repository
+                this.logger.warning("Invalid repository in download link [" + extensionResource + "]");
+            }
+
+        }
+
+        // Resolve extension
+        Extension downloadExtension;
+        if (repository == null) {
+            downloadExtension =
+                this.extensionRepositoryManager.resolve(new ExtensionId(extensionResource.getExtensionId(),
+                    extensionResource.getExtensionVersion()));
+        } else {
+            downloadExtension =
+                repository.resolve(new ExtensionId(extensionResource.getExtensionId(), extensionResource
+                    .getExtensionVersion()));
+        }
+
+        // Get file
+        // TODO: find media type
+        ExtensionFile extensionFile = downloadExtension.getFile();
+        long length = extensionFile.getLength();
+        InputRepresentation content = new InputRepresentation(extensionFile.openStream(), MediaType.ALL, length);
+
+        ResponseBuilder response = Response.ok();
+        response.entity(content);
+
+        return response;
     }
 }

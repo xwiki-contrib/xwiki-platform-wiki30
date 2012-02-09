@@ -29,12 +29,14 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.extension.Extension;
 import org.xwiki.extension.InstallException;
 import org.xwiki.extension.LocalExtension;
+import org.xwiki.extension.ResolveException;
 import org.xwiki.extension.UninstallException;
 import org.xwiki.extension.event.ExtensionInstalledEvent;
 import org.xwiki.extension.event.ExtensionUpgradedEvent;
 import org.xwiki.extension.handler.ExtensionHandlerManager;
 import org.xwiki.extension.job.InstallRequest;
 import org.xwiki.extension.job.Job;
+import org.xwiki.extension.job.Request;
 import org.xwiki.extension.job.plan.ExtensionPlan;
 import org.xwiki.extension.job.plan.ExtensionPlanAction;
 import org.xwiki.extension.job.plan.ExtensionPlanAction.Action;
@@ -51,9 +53,14 @@ import org.xwiki.logging.event.LogEvent;
  * @version $Id$
  */
 @Component
-@Named("install")
-public class InstallJob extends AbstractJob<InstallRequest>
+@Named(InstallJob.JOBID)
+public class InstallJob extends AbstractExtensionJob<InstallRequest>
 {
+    /**
+     * The id of the job.
+     */
+    public static final String JOBID = "install";
+
     /**
      * Used to manipulate local extension repository.
      */
@@ -70,13 +77,26 @@ public class InstallJob extends AbstractJob<InstallRequest>
      * Used to generate the install plan.
      */
     @Inject
-    @Named("installplan")
+    @Named(InstallPlanJob.JOBID)
     private Job installPlanJob;
+
+    @Override
+    protected InstallRequest castRequest(Request request)
+    {
+        InstallRequest installRequest;
+        if (request instanceof InstallRequest) {
+            installRequest = (InstallRequest) request;
+        } else {
+            installRequest = new InstallRequest(request);
+        }
+
+        return installRequest;
+    }
 
     @Override
     protected void start() throws Exception
     {
-        notifyPushLevelProgress(2);
+        notifyPushLevelProgress(3);
 
         try {
             // Create the plan
@@ -97,6 +117,24 @@ public class InstallJob extends AbstractJob<InstallRequest>
 
             Collection<ExtensionPlanAction> actions = plan.getActions();
 
+            // Download all extensions
+
+            notifyPushLevelProgress(actions.size());
+
+            try {
+                for (ExtensionPlanAction action : actions) {
+                    store(action);
+
+                    notifyStepPropress();
+                }
+            } finally {
+                notifyPopLevelProgress();
+            }
+
+            notifyStepPropress();
+
+            // Install all extensions
+
             notifyPushLevelProgress(actions.size());
 
             try {
@@ -116,20 +154,26 @@ public class InstallJob extends AbstractJob<InstallRequest>
     }
 
     /**
+     * @param action the action containing the extension to download
+     * @throws LocalExtensionRepositoryException failed to store extension
+     * @throws InstallException unsupported action
+     */
+    private void store(ExtensionPlanAction action) throws LocalExtensionRepositoryException, InstallException
+    {
+        if (action.getAction() == Action.INSTALL || action.getAction() == Action.UPGRADE) {
+            storeExtension(action.getExtension());
+        }
+    }
+
+    /**
      * @param extension the extension to store
-     * @return the local extension
      * @throws LocalExtensionRepositoryException failed to store extension
      */
-    private LocalExtension storeExtension(Extension extension) throws LocalExtensionRepositoryException
+    private void storeExtension(Extension extension) throws LocalExtensionRepositoryException
     {
-        LocalExtension localExtension;
-        if (extension instanceof LocalExtension) {
-            localExtension = (LocalExtension) extension;
-        } else {
-            localExtension = this.localExtensionRepository.storeExtension(extension);
+        if (!(extension instanceof LocalExtension)) {
+            this.localExtensionRepository.storeExtension(extension);
         }
-
-        return localExtension;
     }
 
     /**
@@ -143,13 +187,13 @@ public class InstallJob extends AbstractJob<InstallRequest>
         boolean dependency) throws InstallException
     {
         if (previousExtension == null) {
-            this.extensionHandlerManager.install(extension, namespace);
+            this.extensionHandlerManager.install(extension, namespace, getExtraHandlerParameters());
 
             this.localExtensionRepository.installExtension(extension, namespace, dependency);
 
             this.observationManager.notify(new ExtensionInstalledEvent(extension.getId()), extension);
         } else {
-            this.extensionHandlerManager.upgrade(previousExtension, extension, namespace);
+            this.extensionHandlerManager.upgrade(previousExtension, extension, namespace, getExtraHandlerParameters());
 
             try {
                 this.localExtensionRepository.uninstallExtension(previousExtension, namespace);
@@ -167,8 +211,10 @@ public class InstallJob extends AbstractJob<InstallRequest>
      * @param action the action to perform
      * @throws InstallException failed to install extension
      * @throws LocalExtensionRepositoryException failed to store extension
+     * @throws ResolveException could not find extension in the local repository
      */
-    private void applyAction(ExtensionPlanAction action) throws InstallException, LocalExtensionRepositoryException
+    private void applyAction(ExtensionPlanAction action) throws InstallException, LocalExtensionRepositoryException,
+        ResolveException
     {
         if (action.getAction() != Action.INSTALL && action.getAction() != Action.UPGRADE) {
             throw new InstallException("Unsupported action [" + action.getAction() + "]");
@@ -187,7 +233,7 @@ public class InstallJob extends AbstractJob<InstallRequest>
 
         try {
             // Store extension in local repository
-            LocalExtension localExtension = storeExtension(extension);
+            LocalExtension localExtension = (LocalExtension) this.localExtensionRepository.resolve(extension.getId());
 
             notifyStepPropress();
 

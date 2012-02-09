@@ -1221,6 +1221,10 @@ public class XWikiDocument implements DocumentModelBridge
      */
     public void setAuthorReference(DocumentReference authorReference)
     {
+        if (ObjectUtils.notEqual(authorReference, getAuthorReference())) {
+            setMetaDataDirty(true);
+        }
+
         this.authorReference = authorReference;
     }
 
@@ -1259,11 +1263,6 @@ public class XWikiDocument implements DocumentModelBridge
                     this.xClassEntityReferenceResolver.resolve(author, EntityType.DOCUMENT), getDocumentReference());
         }
 
-        if ((getAuthorReference() == null && authorReference != null)
-            || (getAuthorReference() != null && !getAuthorReference().equals(authorReference))) {
-            setMetaDataDirty(true);
-        }
-
         setAuthorReference(authorReference);
     }
 
@@ -1280,6 +1279,10 @@ public class XWikiDocument implements DocumentModelBridge
      */
     public void setContentAuthorReference(DocumentReference contentAuthorReference)
     {
+        if (ObjectUtils.notEqual(contentAuthorReference, getContentAuthorReference())) {
+            setMetaDataDirty(true);
+        }
+
         this.contentAuthorReference = contentAuthorReference;
     }
 
@@ -1320,11 +1323,6 @@ public class XWikiDocument implements DocumentModelBridge
                     getDocumentReference());
         }
 
-        if ((getContentAuthorReference() == null && contentAuthorReference != null)
-            || (getContentAuthorReference() != null && !getContentAuthorReference().equals(contentAuthorReference))) {
-            setMetaDataDirty(true);
-        }
-
         setContentAuthorReference(contentAuthorReference);
     }
 
@@ -1341,6 +1339,10 @@ public class XWikiDocument implements DocumentModelBridge
      */
     public void setCreatorReference(DocumentReference creatorReference)
     {
+        if (ObjectUtils.notEqual(creatorReference, getCreatorReference())) {
+            setMetaDataDirty(true);
+        }
+
         this.creatorReference = creatorReference;
     }
 
@@ -1377,11 +1379,6 @@ public class XWikiDocument implements DocumentModelBridge
             creatorReference =
                 this.explicitReferenceDocumentReferenceResolver.resolve(
                     this.xClassEntityReferenceResolver.resolve(creator, EntityType.DOCUMENT), getDocumentReference());
-        }
-
-        if ((getCreatorReference() == null && creatorReference != null)
-            || (getCreatorReference() != null && !getCreatorReference().equals(creatorReference))) {
-            setMetaDataDirty(true);
         }
 
         setCreatorReference(creatorReference);
@@ -3497,19 +3494,19 @@ public class XWikiDocument implements DocumentModelBridge
             return false;
         }
 
-        if (!ObjectUtils.equals(getAuthorReference(), doc.getAuthorReference())) {
+        if (ObjectUtils.notEqual(getAuthorReference(), doc.getAuthorReference())) {
             return false;
         }
 
-        if (!ObjectUtils.equals(getContentAuthorReference(), doc.getContentAuthorReference())) {
+        if (ObjectUtils.notEqual(getContentAuthorReference(), doc.getContentAuthorReference())) {
             return false;
         }
 
-        if (!ObjectUtils.equals(getParentReference(), doc.getParentReference())) {
+        if (ObjectUtils.notEqual(getParentReference(), doc.getParentReference())) {
             return false;
         }
 
-        if (!ObjectUtils.equals(getCreatorReference(), doc.getCreatorReference())) {
+        if (ObjectUtils.notEqual(getCreatorReference(), doc.getCreatorReference())) {
             return false;
         }
 
@@ -3553,7 +3550,7 @@ public class XWikiDocument implements DocumentModelBridge
             return false;
         }
 
-        if (!ObjectUtils.equals(getTemplateDocumentReference(), doc.getTemplateDocumentReference())) {
+        if (ObjectUtils.notEqual(getTemplateDocumentReference(), doc.getTemplateDocumentReference())) {
             return false;
         }
 
@@ -3573,7 +3570,7 @@ public class XWikiDocument implements DocumentModelBridge
             return false;
         }
 
-        if (!ObjectUtils.equals(getSyntax(), doc.getSyntax())) {
+        if (ObjectUtils.notEqual(getSyntax(), doc.getSyntax())) {
             return false;
         }
 
@@ -7812,7 +7809,7 @@ public class XWikiDocument implements DocumentModelBridge
             mergeResult));
 
         // Parent
-        if (!ObjectUtils.equals(previousDocument.getAuthorReference(), newDocument.getAuthorReference())) {
+        if (ObjectUtils.notEqual(previousDocument.getAuthorReference(), newDocument.getAuthorReference())) {
             if (ObjectUtils.equals(previousDocument.getAuthorReference(), getAuthorReference())) {
                 setParentReference(newDocument.getRelativeParentReference());
 
@@ -7821,7 +7818,7 @@ public class XWikiDocument implements DocumentModelBridge
         }
 
         // Author
-        if (!ObjectUtils.equals(previousDocument.getAuthorReference(), newDocument.getAuthorReference())
+        if (ObjectUtils.notEqual(previousDocument.getAuthorReference(), newDocument.getAuthorReference())
             && ObjectUtils.equals(previousDocument.getAuthorReference(), getAuthorReference())) {
             setAuthorReference(newDocument.getAuthorReference());
 

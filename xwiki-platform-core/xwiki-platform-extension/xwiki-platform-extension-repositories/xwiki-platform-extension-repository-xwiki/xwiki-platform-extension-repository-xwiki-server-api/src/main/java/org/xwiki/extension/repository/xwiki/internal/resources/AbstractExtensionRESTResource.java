@@ -45,6 +45,7 @@ import org.xwiki.extension.repository.xwiki.model.jaxb.ExtensionVersion;
 import org.xwiki.extension.repository.xwiki.model.jaxb.ExtensionVersionSummary;
 import org.xwiki.extension.repository.xwiki.model.jaxb.License;
 import org.xwiki.extension.repository.xwiki.model.jaxb.ObjectFactory;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.rest.XWikiResource;
@@ -85,14 +86,18 @@ public abstract class AbstractExtensionRESTResource extends XWikiResource implem
 
             int j = 0;
 
+            pattern.append("doc.name");
+            EPROPERTIES_INDEX.put("doc.name", j++);
+            pattern.append(", ");
+            pattern.append("doc.space");
+            EPROPERTIES_INDEX.put("doc.space", j++);
+
             // Extension summary
             for (int i = 0; i < EPROPERTIES_SUMMARY.length; ++i, ++j) {
-                if (i != 0) {
-                    pattern.append(", ");
-                }
-                pattern.append("extension.");
-                pattern.append(EPROPERTIES_SUMMARY[i]);
-                EPROPERTIES_INDEX.put(EPROPERTIES_SUMMARY[i], j);
+                String value = EPROPERTIES_SUMMARY[i];
+                pattern.append(", extension.");
+                pattern.append(value);
+                EPROPERTIES_INDEX.put(value, j);
             }
 
             SELECT_EXTENSIONSUMMARY = pattern.toString();
@@ -388,9 +393,13 @@ public abstract class AbstractExtensionRESTResource extends XWikiResource implem
         extension.setSummary(this.<String> getQueryValue(entry, XWikiRepositoryModel.PROP_EXTENSION_SUMMARY));
         extension.setDescription(this.<String> getQueryValue(entry, XWikiRepositoryModel.PROP_EXTENSION_DESCRIPTION));
 
-        // TODO: if no website is provided return the page external URL but should absolutely be done without loading
-        // the XWikiDocument
+        // Website
         extension.setWebsite(this.<String> getQueryValue(entry, XWikiRepositoryModel.PROP_EXTENSION_WEBSITE));
+        if (StringUtils.isBlank(extension.getWebsite())) {
+            XWikiContext xcontext = getXWikiContext();
+            extension.setWebsite(xcontext.getWiki().getURL(
+                new DocumentReference(xcontext.getDatabase(), (String) entry[1], (String) entry[0]), "view", xcontext));
+        }
 
         // Authors
         for (String authorId : ListClass.getListFromString(

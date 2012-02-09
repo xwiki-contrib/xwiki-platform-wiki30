@@ -27,15 +27,20 @@ import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.restlet.data.MediaType;
 import org.xwiki.extension.Extension;
 import org.xwiki.extension.ExtensionDependency;
 import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.ExtensionLicenseManager;
+import org.xwiki.extension.ExtensionManagerConfiguration;
 import org.xwiki.extension.InvalidExtensionException;
 import org.xwiki.extension.ResolveException;
 import org.xwiki.extension.repository.AbstractExtensionRepository;
@@ -62,6 +67,8 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
 
     private final ExtensionLicenseManager licenseManager;
 
+    private final ExtensionManagerConfiguration configuration;
+
     private final UriBuilder extensionVersionUriBuider;
 
     private final UriBuilder extensionVersionFileUriBuider;
@@ -71,13 +78,15 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
     private final UriBuilder searchUriBuider;
 
     public XWikiExtensionRepository(ExtensionRepositoryId repositoryId,
-        XWikiExtensionRepositoryFactory repositoryFactory, ExtensionLicenseManager licenseManager) throws Exception
+        XWikiExtensionRepositoryFactory repositoryFactory, ExtensionLicenseManager licenseManager,
+        ExtensionManagerConfiguration configuration) throws Exception
     {
         super(repositoryId.getURI().getPath().endsWith("/") ? new ExtensionRepositoryId(repositoryId.getId(),
             repositoryId.getType(), new URI(StringUtils.chop(repositoryId.getURI().toString()))) : repositoryId);
 
         this.repositoryFactory = repositoryFactory;
         this.licenseManager = licenseManager;
+        this.configuration = configuration;
 
         // Uri builders
         this.extensionVersionUriBuider = createUriBuilder(Resources.EXTENSION_VERSION);
@@ -86,12 +95,12 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
         this.searchUriBuider = createUriBuilder(Resources.SEARCH);
     }
 
-    public UriBuilder getExtensionFileUriBuider()
+    protected UriBuilder getExtensionFileUriBuider()
     {
         return this.extensionVersionFileUriBuider;
     }
 
-    public GetMethod getRESTResource(UriBuilder builder, Object... values) throws IOException, IOException
+    protected HttpResponse getRESTResource(UriBuilder builder, Object... values) throws IOException, IOException
     {
         String url;
         try {
@@ -102,29 +111,35 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
 
         HttpClient httpClient = createClient();
 
-        GetMethod getMethod = new GetMethod(url.toString());
-        getMethod.addRequestHeader("Accept", MediaType.APPLICATION_XML.toString());
+        HttpGet getMethod = new HttpGet(url.toString());
+        getMethod.addHeader("Accept", MediaType.APPLICATION_XML.toString());
+        HttpResponse response;
         try {
-            httpClient.executeMethod(getMethod);
+            response = httpClient.execute(getMethod);
         } catch (Exception e) {
             throw new IOException("Failed to request [" + getMethod.getURI() + "]", e);
         }
 
-        if (getMethod.getStatusCode() != HttpStatus.SC_OK) {
-            throw new IOException("Invalid answer (" + getMethod.getStatusCode() + ") fo the server when requesting");
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new IOException("Invalid answer (" + response.getStatusLine().getStatusCode()
+                + ") fo the server when requesting");
         }
 
-        return getMethod;
+        return response;
     }
 
-    public InputStream getRESTResourceAsStream(UriBuilder builder, Object... values) throws IOException, IOException
+    protected InputStream getRESTResourceAsStream(UriBuilder builder, Object... values) throws IOException, IOException
     {
-        return getRESTResource(builder, values).getResponseBodyAsStream();
+        return getRESTResource(builder, values).getEntity().getContent();
     }
 
     private HttpClient createClient()
     {
-        HttpClient httpClient = new HttpClient();
+        HttpClient httpClient = new DefaultHttpClient();
+
+        httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, this.configuration.getUserAgent());
+        httpClient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000);
+        httpClient.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
 
         return httpClient;
     }
@@ -182,7 +197,7 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
     private ExtensionVersions resolveExtensionVersions(String id, VersionConstraint constraint, int offset, int nb,
         boolean requireTotalHits) throws ResolveException
     {
-        UriBuilder builder = this.searchUriBuider.clone();
+        UriBuilder builder = this.extensionVersionsUriBuider.clone();
 
         builder.queryParam(Resources.QPARAM_LIST_REQUIRETOTALHITS, requireTotalHits);
         builder.queryParam(Resources.QPARAM_LIST_START, offset);
@@ -202,11 +217,6 @@ public class XWikiExtensionRepository extends AbstractExtensionRepository implem
     @Override
     public IterableResult<Version> resolveVersions(String id, int offset, int nb) throws ResolveException
     {
-        UriBuilder builder = this.searchUriBuider.clone();
-
-        builder.queryParam(Resources.QPARAM_LIST_START, offset);
-        builder.queryParam(Resources.QPARAM_LIST_NUMBER, nb);
-
         ExtensionVersions restExtensions = resolveExtensionVersions(id, null, offset, nb, true);
 
         List<Version> versions = new ArrayList<Version>(restExtensions.getExtensionVersionSummaries().size());

@@ -66,9 +66,6 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
     @Inject
     private Execution execution;
 
-    @Inject
-    private EntityReferenceSerializer<String> entityReferenceSerializer;
-
     /**
      * Used to resolve a string into a proper Document Reference using the current document's reference to fill the
      * blanks, except for the page name for which the default page name is used instead.
@@ -341,7 +338,8 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
         XWikiContext xcontext = getContext();
         XWikiDocument doc = xcontext.getWiki().getDocument(documentReference, xcontext);
         doc.setParentReference(parentReference);
-        saveDocument(doc, String.format("Changed document parent to [%s].", parentReference), true);
+        saveDocument(doc, String.format("Changed document parent to [%s].",
+            this.defaultEntityReferenceSerializer.serialize(parentReference)), true);
     }
 
     public void setDocumentTitle(DocumentReference documentReference, String title) throws Exception
@@ -515,9 +513,8 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
         List<Object> result;
         try {
             XWikiContext xcontext = getContext();
-            result =
-                new ArrayList<Object>(xcontext.getWiki().getDocument(documentReference, xcontext).getObject(className)
-                    .getFieldList());
+            result = new ArrayList<Object>(xcontext.getWiki().getDocument(documentReference, xcontext)
+                .getObject(className).getFieldList());
         } catch (Exception ex) {
             result = Collections.emptyList();
         }
@@ -857,7 +854,7 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
         } else {
             XWikiContext xcontext = getContext();
             String documentReference =
-                this.entityReferenceSerializer.serialize(attachmentReference.getDocumentReference());
+                this.defaultEntityReferenceSerializer.serialize(attachmentReference.getDocumentReference());
             if (documentReference == null) {
                 documentReference = xcontext.getDoc().getFullName();
             }
@@ -1075,7 +1072,7 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
      */
     private boolean hasRight(DocumentReference documentReference, String right)
     {
-        return hasRight(this.entityReferenceSerializer.serialize(documentReference), right);
+        return hasRight(this.defaultEntityReferenceSerializer.serialize(documentReference), right);
     }
 
     /**
@@ -1090,9 +1087,8 @@ public class DefaultDocumentAccessBridge implements DocumentAccessBridge
         boolean hasRight = false;
         XWikiContext xcontext = getContext();
         try {
-            hasRight =
-                xcontext.getWiki().getRightService()
-                    .hasAccessLevel(right, xcontext.getUser(), documentReference, xcontext);
+            hasRight = xcontext.getWiki().getRightService()
+                .hasAccessLevel(right, xcontext.getUser(), documentReference, xcontext);
         } catch (XWikiException e) {
             // Do nothing
         }
