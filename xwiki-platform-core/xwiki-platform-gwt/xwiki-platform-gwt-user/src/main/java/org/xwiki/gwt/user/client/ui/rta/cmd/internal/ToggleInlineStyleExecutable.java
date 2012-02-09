@@ -80,6 +80,14 @@ public class ToggleInlineStyleExecutable extends InlineStyleExecutable
         return super.execute(parameter);
     }
 
+    /**
+     * @return the value of the style property
+     */
+    public String getValue()
+    {
+        return this.value;
+    }
+
     @Override
     protected TextFragment execute(Text text, int startIndex, int endIndex, String parameter)
     {
