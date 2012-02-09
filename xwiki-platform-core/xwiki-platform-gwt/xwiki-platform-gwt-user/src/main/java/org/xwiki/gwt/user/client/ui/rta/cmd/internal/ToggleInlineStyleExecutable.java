@@ -85,6 +85,14 @@ public class ToggleInlineStyleExecutable extends InlineStyleExecutable
     }
 
     /**
+     * @return the value of the style property
+     */
+    public String getValue()
+    {
+        return this.value;
+    }
+
+    /**
      * {@inheritDoc}
      * 
      * @see InlineStyleExecutable#execute(Text, int, int, String)
