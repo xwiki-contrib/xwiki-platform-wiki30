@@ -91,7 +91,7 @@ public class ToggleInlineStyleExecutable extends InlineStyleExecutable
     @Override
     protected TextFragment execute(Text text, int startIndex, int endIndex, String parameter)
     {
-        return executed ? removeStyle(text, startIndex, endIndex) : addStyle(text, startIndex, endIndex);
+        return isExcuted() ? removeStyle(text, startIndex, endIndex) : addStyle(text, startIndex, endIndex);
     }
 
     /**
