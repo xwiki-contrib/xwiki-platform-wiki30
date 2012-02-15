@@ -186,6 +186,14 @@ public class Command
      */
     public static final Command STRIKE_THROUGH = new Command("strikethrough");
 
+
+     /**
+     * If there is no selection, the insertion point will set linethrough for subsequently typed characters.<br/>
+     * If there is a selection and all of the characters are already striked, the linethrough will be removed.
+     * Otherwise, all selected characters will have a line drawn through them.
+     */
+    public static final Command LINE_THROUGH = new Command("line-through");
+
     /**
      * This command is used for toggling the format of generated content. By default (at least today), this is true. An
      * example of the differences is that the "bold" command will generate <code>&lt;b&gt;</code> if the styleWithCSS
