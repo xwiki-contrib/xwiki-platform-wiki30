@@ -45,8 +45,8 @@ public class DefaultCommandProvider
             Command.INSERT_HORIZONTAL_RULE, Command.INSERT_IMAGE, Command.INSERT_ORDERED_LIST, Command.INSERT_PARAGRAPH,
             Command.INSERT_UNORDERED_LIST, Command.ITALIC, Command.JUSTIFY_CENTER, Command.JUSTIFY_FULL,
             Command.JUSTIFY_LEFT, Command.JUSTIFY_RIGHT, Command.OUTDENT, Command.REDO, Command.REMOVE_FORMAT,
-            Command.STRIKE_THROUGH, Command.SUB_SCRIPT, Command.SUPER_SCRIPT, Command.TELETYPE, Command.UNDERLINE,
-            Command.UNDO, Command.UNLINK};
+            Command.STRIKE_THROUGH, Command.LINE_THROUGH, Command.SUB_SCRIPT, Command.SUPER_SCRIPT, Command.TELETYPE,
+            Command.UNDERLINE, Command.UNDO, Command.UNLINK};
         for (int i = 0; i < defaultCommands.length; i++) {
             cm.registerCommand(defaultCommands[i], new DefaultExecutable(rta, defaultCommands[i].toString()));
         }
