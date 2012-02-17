@@ -22,7 +22,7 @@
 <module rename-to="xwe">
   <inherits name='org.xwiki.gwt.user.User' />
   <inherits name='org.xwiki.gwt.wysiwyg.Plugin' />
-  <inherits name='org.xwiki.gwt.wysiwyg.MutationPlugin' />
+  <!--<inherits name='org.xwiki.gwt.wysiwyg.MutationPlugin' />-->
   <inherits name="com.smartgwt.SmartGwtNoScript" />
   <inherits name="org.xwiki.gwt.wysiwyg.RealTimePlugin"/>
 
