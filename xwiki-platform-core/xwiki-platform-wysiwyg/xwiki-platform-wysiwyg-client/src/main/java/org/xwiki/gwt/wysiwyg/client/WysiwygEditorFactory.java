@@ -24,7 +24,7 @@ import org.xwiki.gwt.wysiwyg.client.plugin.PluginFactoryManager;
 import org.xwiki.gwt.wysiwyg.client.plugin.color.ColorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.embed.EmbedPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.font.FontPluginFactory;
-import org.xwiki.gwt.wysiwyg.client.plugin.format.FormatPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.format.RTFormatPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.history.HistoryPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.image.ImagePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.importer.ImportPluginFactory;
@@ -35,12 +35,12 @@ import org.xwiki.gwt.wysiwyg.client.plugin.line.LinePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.link.LinkPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.list.ListPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.macro.MacroPluginFactory;
-import org.xwiki.gwt.wysiwyg.client.plugin.rt.RealTimePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.readonly.ReadOnlyPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.rt.RealTimePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.separator.SeparatorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.style.StylePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.submit.SubmitPluginFactory;
-import org.xwiki.gwt.wysiwyg.client.plugin.symbol.SymbolPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.symbol.RTSymbolPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.table.TablePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.text.TextPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.valign.VerticalAlignPluginFactory;
@@ -92,12 +92,11 @@ public final class WysiwygEditorFactory
         pfm.addPluginFactory(ListPluginFactory.getInstance());
         pfm.addPluginFactory(IndentPluginFactory.getInstance());
         pfm.addPluginFactory(HistoryPluginFactory.getInstance());
-        pfm.addPluginFactory(FormatPluginFactory.getInstance());
+
         pfm.addPluginFactory(FontPluginFactory.getInstance());
         pfm.addPluginFactory(ColorPluginFactory.getInstance());
         // The experimental real-time editing feature.
         // pfm.addPluginFactory(SyncPluginFactory.getInstance());
-        pfm.addPluginFactory(SymbolPluginFactory.getInstance());
         pfm.addPluginFactory(LinkPluginFactory.getInstance());
         pfm.addPluginFactory(TablePluginFactory.getInstance());
         pfm.addPluginFactory(ImagePluginFactory.getInstance());
@@ -105,7 +104,10 @@ public final class WysiwygEditorFactory
         pfm.addPluginFactory(MacroPluginFactory.getInstance());
         pfm.addPluginFactory(EmbedPluginFactory.getInstance());
         pfm.addPluginFactory(StylePluginFactory.getInstance());
+
         pfm.addPluginFactory(RealTimePluginFactory.getInstance());
+        pfm.addPluginFactory(RTSymbolPluginFactory.getInstance());
+        pfm.addPluginFactory(RTFormatPluginFactory.getInstance());
         // add additional PluginFactory for other plug-ins
     }
 
