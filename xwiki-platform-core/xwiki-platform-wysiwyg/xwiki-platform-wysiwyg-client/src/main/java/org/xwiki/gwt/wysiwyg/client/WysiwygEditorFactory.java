@@ -37,6 +37,7 @@ import org.xwiki.gwt.wysiwyg.client.plugin.list.ListPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.macro.MacroPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.readonly.ReadOnlyPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.rt.RealTimePluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.separator.RTSeparatorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.separator.SeparatorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.style.StylePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.submit.SubmitPluginFactory;
@@ -108,6 +109,7 @@ public final class WysiwygEditorFactory
         pfm.addPluginFactory(RealTimePluginFactory.getInstance());
         pfm.addPluginFactory(RTSymbolPluginFactory.getInstance());
         pfm.addPluginFactory(RTFormatPluginFactory.getInstance());
+        pfm.addPluginFactory(RTSeparatorPluginFactory.getInstance());
         // add additional PluginFactory for other plug-ins
     }
 
