@@ -39,7 +39,7 @@ public class ImageConfigJSONSerializerTest extends WysiwygTestCase
     private final ImageConfigJSONSerializer imageConfigJSONSerializer = new ImageConfigJSONSerializer();
 
     /**
-     * Test the behaviour of the JSON parser for an empty string
+     * Test the behaviour of the JSON parser for an empty string.
      */
     public void testParseEmptyString()
     {
