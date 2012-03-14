@@ -20,6 +20,7 @@
 package org.xwiki.gwt.wysiwyg.client.plugin.link;
 
 import org.xwiki.gwt.dom.client.Range;
+import org.xwiki.gwt.user.client.StringUtils;
 import org.xwiki.gwt.user.client.ui.rta.RichTextArea;
 import org.xwiki.gwt.user.client.ui.rta.cmd.Command;
 import org.xwiki.gwt.wysiwyg.client.plugin.image.ImageConfigJSONParser;
@@ -74,7 +75,7 @@ public class LinkConfigFactory
         linkConfig.setLabel(range.toHTML());
         // Check the special case when the selection is an image and add a link on an image.
         String imageJSON = rta.getCommandManager().getStringValue(Command.INSERT_IMAGE);
-        if (imageJSON != null) {
+        if (imageJSON != null && !StringUtils.isEmpty(imageJSON)) {
             // It's an image selection. Set the label read only and put the image reference in the label text.
             linkConfig.setLabelText(imageConfigJSONParser.parse(imageJSON).getReference());
             linkConfig.setReadOnlyLabel(true);
