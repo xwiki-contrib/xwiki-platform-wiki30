@@ -64,7 +64,7 @@ public class LinkConfigFactory
     public LinkConfig createLinkConfig()
     {
         String linkJSON = rta.getCommandManager().getStringValue(Command.CREATE_LINK);
-        if (linkJSON != null) {
+        if (!StringUtils.isEmpty(linkJSON)) {
             // Edit link.
             return linkConfigJSONParser.parse(linkJSON);
         }
@@ -75,7 +75,7 @@ public class LinkConfigFactory
         linkConfig.setLabel(range.toHTML());
         // Check the special case when the selection is an image and add a link on an image.
         String imageJSON = rta.getCommandManager().getStringValue(Command.INSERT_IMAGE);
-        if (imageJSON != null && !StringUtils.isEmpty(imageJSON)) {
+        if (!StringUtils.isEmpty(imageJSON)) {
             // It's an image selection. Set the label read only and put the image reference in the label text.
             linkConfig.setLabelText(imageConfigJSONParser.parse(imageJSON).getReference());
             linkConfig.setReadOnlyLabel(true);
