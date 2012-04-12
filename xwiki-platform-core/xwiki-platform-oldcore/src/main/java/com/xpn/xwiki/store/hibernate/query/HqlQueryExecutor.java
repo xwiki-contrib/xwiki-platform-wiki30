@@ -28,6 +28,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.hibernate.Session;
+import org.xwiki.bridge.DocumentAccessBridge;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
@@ -71,6 +72,12 @@ public class HqlQueryExecutor implements QueryExecutor, Initializable
     @Inject
     private Execution execution;
 
+    /**
+     * The bridge to the old XWiki core API, used to access user preferences.
+     */
+    @Inject
+    private DocumentAccessBridge documentAccessBridge;
+
     @Override
     public void initialize() throws InitializationException
     {
@@ -88,6 +95,7 @@ public class HqlQueryExecutor implements QueryExecutor, Initializable
             return getStore().executeRead(getContext(), true, new HibernateCallback<List<T>>()
             {
                 @SuppressWarnings("unchecked")
+                @Override
                 public List<T> doInHibernate(Session session)
                 {
                     org.hibernate.Query hquery = createHibernateQuery(session, query);
@@ -109,8 +117,17 @@ public class HqlQueryExecutor implements QueryExecutor, Initializable
      */
     protected org.hibernate.Query createHibernateQuery(Session session, Query query)
     {
-        return query.isNamed() ? session.getNamedQuery(query.getStatement()) : session
+        org.hibernate.Query hquery = query.isNamed() ? session.getNamedQuery(query.getStatement()) : session
             .createQuery(query.getStatement());
+
+        // Since we can't modify the hibernate query statement at this point we need to create a new one to apply the
+        // query filter. This comes with a performance cost, we could fix it by handling named queries ourselves and
+        // not delegate them to hibernate. This way we would always get a statement that we can transform before the
+        // execution.
+        if (query.getFilter() != null) {
+            hquery = session.createQuery(query.getFilter().filterStatement(hquery.getQueryString(), Query.HQL));
+        }
+        return hquery;
     }
 
     /**

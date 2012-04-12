@@ -27,7 +27,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.infinispan.config.Configuration;
+import org.apache.commons.io.IOUtils;
+import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
-import org.xwiki.container.Container;
+import org.xwiki.environment.Environment;
 
 /**
  * Implements {@link org.xwiki.cache.CacheFactory} based on Infinispan.
@@ -70,14 +71,9 @@ public class InfinispanCacheFactory implements CacheFactory, Initializable
     private ComponentManager componentManager;
 
     /**
-     * Optional container used to access configuration files.
+     * Optional Environment used to access configuration files.
      */
-    private Container container;
-
-    /**
-     * The original default configuration (generally coming from the configuration file).
-     */
-    private Configuration defaultConfiguration;
+    private Environment environment;
 
     /**
      * Used to create Infinispan caches.
@@ -87,35 +83,41 @@ public class InfinispanCacheFactory implements CacheFactory, Initializable
     @Override
     public void initialize() throws InitializationException
     {
+        // Container
+        // Note that the reason we lazy load the container is because we want to be able to use the Cache in
+        // environments when there's no container.
+
+        try {
+            this.environment = this.componentManager.getInstance(Environment.class);
+        } catch (ComponentLookupException e) {
+            this.logger.debug("Can't find any Environment", e);
+        }
+
         InputStream configurationStream = getConfigurationFileAsStream();
 
         if (configurationStream != null) {
+            // CacheManager initialization
+
+            configurationStream = getConfigurationFileAsStream();
+
             try {
                 this.cacheManager = new DefaultCacheManager(configurationStream);
             } catch (IOException e) {
                 throw new InitializationException("Failed to create Infinispan cache manager", e);
             } finally {
-                try {
-                    configurationStream.close();
-                } catch (IOException e) {
-                    logger.error("Failed to close configuration file stream", e);
-                }
+                IOUtils.closeQuietly(configurationStream);
             }
         } else {
             this.cacheManager = new DefaultCacheManager();
         }
+    }
 
-        // save the real default configuration to be able to restore it
-
-        this.defaultConfiguration = this.cacheManager.getDefaultConfiguration().clone();
-
-        // container
-
-        try {
-            this.container = this.componentManager.lookup(Container.class);
-        } catch (ComponentLookupException e) {
-            this.logger.debug("Can't find any Container", e);
-        }
+    /**
+     * @return the Infinispan cache manager
+     */
+    public EmbeddedCacheManager getCacheManager()
+    {
+        return this.cacheManager;
     }
 
     /**
@@ -123,12 +125,10 @@ public class InfinispanCacheFactory implements CacheFactory, Initializable
      */
     private InputStream getConfigurationFileAsStream()
     {
-        InputStream is;
+        InputStream is = null;
 
-        if (this.container != null && this.container.getApplicationContext() != null) {
-            is = this.container.getApplicationContext().getResourceAsStream(DEFAULT_CONFIGURATION_FILE);
-        } else {
-            is = null;
+        if (this.environment != null) {
+            is = this.environment.getResourceAsStream(DEFAULT_CONFIGURATION_FILE);
         }
 
         return is;
@@ -137,28 +137,28 @@ public class InfinispanCacheFactory implements CacheFactory, Initializable
     @Override
     public <T> org.xwiki.cache.Cache<T> newCache(CacheConfiguration configuration) throws CacheException
     {
+        InfinispanConfigurationLoader loader = new InfinispanConfigurationLoader(configuration);
+
         String cacheName = configuration.getConfigurationId();
+
+        // Set custom configuration
+
+        Configuration modifiedConfiguration =
+            loader.customize(this.cacheManager.getDefaultCacheConfiguration(),
+                cacheName != null ? this.cacheManager.getCacheConfiguration(cacheName) : null);
+
         if (cacheName == null) {
             // Infinispan require a name for the cache
             cacheName = UUID.randomUUID().toString();
+            loader.getCacheConfiguration().setConfigurationId(cacheName);
         }
-        configuration.setConfigurationId(cacheName);
 
-        // set custom configuration
-
-        InfinispanConfigurationLoader loader = new InfinispanConfigurationLoader(configuration);
-
-        boolean configChanged = loader.customize(this.cacheManager.getDefaultConfiguration());
+        if (modifiedConfiguration != null) {
+            this.cacheManager.defineConfiguration(cacheName, modifiedConfiguration);
+        }
 
         // create cache
 
-        try {
-            return new InfinispanCache<T>(this.cacheManager, loader.getCacheConfiguration());
-        } finally {
-            // restore default configuration
-            if (configChanged) {
-                this.cacheManager.getDefaultConfiguration().applyOverrides(this.defaultConfiguration);
-            }
-        }
+        return new InfinispanCache<T>(this.cacheManager, loader.getCacheConfiguration());
     }
 }

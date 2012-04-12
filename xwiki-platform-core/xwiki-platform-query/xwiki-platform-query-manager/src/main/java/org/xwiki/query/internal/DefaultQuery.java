@@ -26,6 +26,7 @@ import java.util.Map;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryExecutor;
+import org.xwiki.query.QueryFilter;
 
 /**
  * Stores all information needed for execute a query.
@@ -35,6 +36,11 @@ import org.xwiki.query.QueryExecutor;
  */
 public class DefaultQuery implements Query
 {
+    /**
+     * field for {@link #isNamed()}.
+     */
+    protected boolean isNamed;
+
     /**
      * field for {@link Query#getStatement()}.
      */
@@ -71,9 +77,9 @@ public class DefaultQuery implements Query
     private int offset;
 
     /**
-     * field for {@link #isNamed()}.
+     * field for {@link #getFilter()}.
      */
-    private boolean isNamed;
+    private QueryFilter filter;
 
     /**
      * field for {@link #getExecuter()}.
@@ -98,7 +104,7 @@ public class DefaultQuery implements Query
     /**
      * Create a named Query.
      *
-     * @param queryName name of the query.
+     * @param queryName the name of the query.
      * @param executor QueryExecutor component for execute the query.
      */
     public DefaultQuery(String queryName, QueryExecutor executor)
@@ -108,68 +114,52 @@ public class DefaultQuery implements Query
         this.isNamed = true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getStatement()
     {
         return statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getLanguage()
     {
         return language;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public boolean isNamed()
     {
         return isNamed;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query setWiki(String wiki)
     {
         this.wiki = wiki;
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getWiki()
     {
         return wiki;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query bindValue(String var, Object val)
     {
         namedParameters.put(var, val);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query bindValue(int index, Object val)
     {
         positionalParameters.put(index, val);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query bindValues(List<Object> values)
     {
         for (int i = 0; i < values.size(); i++) {
@@ -178,59 +168,58 @@ public class DefaultQuery implements Query
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getLimit()
     {
         return limit;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getOffset()
     {
         return offset;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query setLimit(int limit)
     {
         this.limit = limit;
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Query setOffset(int offset)
     {
         this.offset = offset;
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Map<String, Object> getNamedParameters()
     {
         return namedParameters;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Map<Integer, Object> getPositionalParameters()
     {
         return positionalParameters;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public QueryFilter getFilter()
+    {
+        return filter;
+    }
+
+    @Override
+    public Query setFilter(QueryFilter filter)
+    {
+        this.filter = filter;
+        return this;
+    }
+
+    @Override
     public <T> List<T> execute() throws QueryException
     {
         return getExecuter().execute(this);

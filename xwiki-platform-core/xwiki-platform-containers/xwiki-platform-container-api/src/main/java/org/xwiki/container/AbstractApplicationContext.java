@@ -31,7 +31,9 @@ import org.xwiki.configuration.ConfigurationSource;
  * Base class for {@link ApplicationContext} implementations.
  * 
  * @version $Id$
+ * @deprecated starting with 3.5M1, use the notion of Environment instead
  */
+@Deprecated
 public abstract class AbstractApplicationContext implements ApplicationContext
 {
     /**
@@ -91,8 +93,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext
     {
         File directory = null;
 
-        String directoryName = this.componentManager.lookup(ConfigurationSource.class, "xwikiproperties").getProperty(
-            PROPERTY_PERSISTENTDIRECTORY);
+        ConfigurationSource source = this.componentManager.getInstance(ConfigurationSource.class, "xwikiproperties");
+        String directoryName = source.getProperty(PROPERTY_PERSISTENTDIRECTORY);
         if (directoryName != null) {
             directory = new File(directoryName);
             if (directory.exists()) {

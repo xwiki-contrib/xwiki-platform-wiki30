@@ -27,31 +27,35 @@
   <parent>
     <groupId>org.xwiki.platform</groupId>
     <artifactId>xwiki-platform-core</artifactId>
-    <version>3.4-SNAPSHOT</version>
+    <version>4.1-SNAPSHOT</version>
   </parent>
   <artifactId>xwiki-platform-oldcore</artifactId>
   <name>XWiki Platform - Old Core</name>
   <packaging>jar</packaging>
   <description>XWiki Platform - Old Core</description>
   <properties>
+    <!-- Old names of this module used for retro compatibility when resolving dependencies of old extensions -->
     <xwiki.extension.features>com.xpn.xwiki.platform:xwiki-core</xwiki.extension.features>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.jvnet.hudson</groupId>
+      <artifactId>org.suigeneris.jrcs.diff</artifactId>
+      <version>0.4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jvnet.hudson</groupId>
+      <artifactId>org.suigeneris.jrcs.rcs</artifactId>
+      <version>0.4.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.java-diff-utils</groupId>
+      <artifactId>diffutils</artifactId>
+      <version>1.2.1</version>
+    </dependency>
 
     <!-- Dependencies that we need to fix so that we don't need to have them in our custom remote repository -->
-
-    <!-- The JRCS JARS are are in our repo till we get them published on the central repository.
-         JRCS home page: http://www.suigeneris.org/kb/display/jrcs/JRCS+Home -->
-    <dependency>
-      <groupId>org.suigeneris</groupId>
-      <artifactId>jrcs.diff</artifactId>
-      <version>0.4.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.suigeneris</groupId>
-      <artifactId>jrcs.rcs</artifactId>
-      <version>0.4.2</version>
-    </dependency>
 
     <!-- We need to find what version of the googleapi we're using and get that to the central repository if the
          license allows it -->
@@ -69,7 +73,7 @@
     </dependency>
 
     <dependency>
-      <groupId>jfree</groupId>
+      <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
     </dependency>
 
@@ -217,12 +221,12 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>3.6.8.Final</version>
+      <version>3.6.9.Final</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-c3p0</artifactId>
-      <version>3.6.8.Final</version>
+      <version>3.6.9.Final</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -235,6 +239,11 @@
       <groupId>javassist</groupId>
       <artifactId>javassist</artifactId>
       <version>3.9.0.GA</version>
+    </dependency>
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>2.0.3</version>
     </dependency>
 
     <!-- Authentication -->
@@ -280,9 +289,9 @@
 
     <!-- JSON -->
     <dependency>
+      <!-- Used by packaging plugin -->
       <groupId>net.sf.json-lib</groupId>
       <artifactId>json-lib</artifactId>
-      <version>2.3</version>
       <classifier>jdk15</classifier>
     </dependency>
 
@@ -414,9 +423,19 @@
 
     <!-- Other XWiki modules -->
     <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-configuration-default</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-environment-api</artifactId>
+      <version>${commons.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-context</artifactId>
+      <version>${commons.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-script</artifactId>
+      <version>${commons.version}</version>
     </dependency>
     <dependency>
       <groupId>org.xwiki.commons</groupId>
@@ -434,14 +453,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.xwiki.commons</groupId>
-      <artifactId>xwiki-commons-script</artifactId>
-      <version>${commons.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.commons</groupId>
-      <artifactId>xwiki-commons-context</artifactId>
-      <version>${commons.version}</version>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-configuration-default</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
@@ -485,7 +499,7 @@
     </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-display</artifactId>
+      <artifactId>xwiki-platform-display-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -581,6 +595,18 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- User by HibernateDataMigrationManager to temporarily disable logback logging in hibernate -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-logging-api</artifactId>
+      <version>${commons.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-logging-logback</artifactId>
+      <version>${commons.version}</version>
+      <scope>test</scope>
+    </dependency>
     <!-- Test dependencies -->
 
     <!-- Used to mock XWiki class -->
@@ -638,7 +664,6 @@
       <version>${commons.version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
   <build>
     <plugins>
@@ -1006,6 +1031,7 @@
               **/store/migration/hibernate/R4359XWIKI1459DataMigration.java,
               **/store/migration/hibernate/R6079XWIKI1878DataMigration.java,
               **/store/migration/hibernate/R7350XWIKI2079DataMigration.java,
+              **/store/migration/hibernate/R40000XWIKI6990DataMigration.java,
               **/store/XWikiAttachmentStoreInterface.java,
               **/store/XWikiBatcherFactory.java,
               **/store/XWikiBatcher.java,
@@ -1070,10 +1096,6 @@
               **/web/InlineAction.java,
               **/web/LifeBlogAction.java,
               **/web/LockAction.java,
-              **/web/LoginAction.java,
-              **/web/LoginErrorAction.java,
-              **/web/LoginSubmitAction.java,
-              **/web/LogoutAction.java,
               **/web/ObjectAddAction.java,
               **/web/ObjectAddForm.java,
               **/web/ObjectRemoveAction.java,
@@ -1129,9 +1151,18 @@
               **/xmlrpc/XWikiXmlRpcUser.java,
               <!-- Small Fan-Out complexity issue but it would need a big refactor to be fixed. -->
               **/stats/impl/xwiki/XWikiStatsReader.java,
-              <!-- Fan-Out complexity violation -->
-              **/plugin/zipexplorer/ZipExplorerPlugin.java
           </excludes>
+        </configuration>
+      </plugin>
+      <!-- Since oldcore doesn't follow the "internal" package rule (for legacy reasons) we only run CLIRR on "api"
+           packages -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>clirr-maven-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/api/**</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>
@@ -1169,26 +1200,6 @@
     </pluginManagement>
   </build>
   <profiles>
-    <profile>
-      <!-- See platform/core/pom.xml -->
-      <id>clirr</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>clirr-maven-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>**/api/**</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <profile>
       <!-- Use this profile to weave the Log Aspect to trace all method calls. This is useful for
            debugging XWiki, especially in the case when you cannot debug the application (for

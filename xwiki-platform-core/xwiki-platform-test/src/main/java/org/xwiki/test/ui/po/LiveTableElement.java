@@ -47,7 +47,8 @@ public class LiveTableElement extends BaseElement
      */
     public boolean isReady()
     {
-        return (Boolean) executeJavascript("return Element.hasClassName('" + livetableId + "-ajax-loader','hidden')");
+        Object result = executeJavascript("return Element.hasClassName('" + livetableId + "-ajax-loader','hidden')");
+        return result instanceof Boolean ? (Boolean) result : false;
     }
 
     /**
@@ -91,6 +92,16 @@ public class LiveTableElement extends BaseElement
         WebElement element = getDriver().findElement(By.id(inputId));
         element.sendKeys(filterValue);
         waitUntilReady();
+    }
+
+    /**
+     * @param inputId the filter input identifier
+     * @return the value of the filter input for the specified column
+     * @see #filterColumn(String, String)
+     */
+    public String getFilterValue(String inputId)
+    {
+        return getDriver().findElement(By.id(inputId)).getAttribute("value");
     }
 
     /**

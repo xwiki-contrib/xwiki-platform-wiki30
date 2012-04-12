@@ -159,12 +159,7 @@ public class DashboardMacro extends AbstractMacro<DashboardMacroParameters>
         super("Dashboard", DESCRIPTION, DashboardMacroParameters.class);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.xwiki.rendering.macro.Macro#execute(java.lang.Object, java.lang.String,
-     *      org.xwiki.rendering.transformation.MacroTransformationContext)
-     */
+    @Override
     public List<Block> execute(DashboardMacroParameters parameters, String content, MacroTransformationContext context)
         throws MacroExecutionException
     {
@@ -272,7 +267,7 @@ public class DashboardMacro extends AbstractMacro<DashboardMacroParameters>
     protected DashboardRenderer getDashboardRenderer(String layout)
     {
         try {
-            return this.componentManager.lookup(DashboardRenderer.class, layout);
+            return this.componentManager.getInstance(DashboardRenderer.class, layout);
         } catch (ComponentLookupException e) {
             this.logger.warn("Could not find the Dashboard renderer for layout \"" + layout + "\"");
             return null;
@@ -290,18 +285,14 @@ public class DashboardMacro extends AbstractMacro<DashboardMacroParameters>
             hint = "edit";
         }
         try {
-            return this.componentManager.lookup(GadgetRenderer.class, hint);
+            return this.componentManager.getInstance(GadgetRenderer.class, hint);
         } catch (ComponentLookupException e) {
             this.logger.warn("Could not find the Gadgets renderer for hint \"" + hint + "\".");
             return null;
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.xwiki.rendering.macro.Macro#supportsInlineMode()
-     */
+    @Override
     public boolean supportsInlineMode()
     {
         return false;

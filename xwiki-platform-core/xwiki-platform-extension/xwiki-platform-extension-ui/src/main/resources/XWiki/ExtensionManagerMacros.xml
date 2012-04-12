@@ -1,150 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <xwikidoc>
-<web>XWiki</web>
-<name>ExtensionManagerMacros</name>
-<language></language>
-<defaultLanguage>en</defaultLanguage>
-<translation>0</translation>
-<parent>XWiki.AdminSheet</parent>
-<creator>xwiki:XWiki.Admin</creator>
-<author>xwiki:XWiki.Admin</author>
-<customClass></customClass>
-<contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-<creationDate>1321509118000</creationDate>
-<date>1323762399000</date>
-<contentUpdateDate>1323762399000</contentUpdateDate>
-<version>1.1</version>
-<title></title>
-<template></template>
-<defaultTemplate></defaultTemplate>
-<validationScript></validationScript>
-<comment></comment>
-<minorEdit>false</minorEdit>
-<syntaxId>xwiki/2.1</syntaxId>
-<hidden>false</hidden>
-<object>
-<class>
-<name>XWiki.JavaScriptExtension</name>
-<customClass></customClass>
-<customMapping></customMapping>
-<defaultViewSheet></defaultViewSheet>
-<defaultEditSheet></defaultEditSheet>
-<defaultWeb></defaultWeb>
-<nameField></nameField>
-<validationScript></validationScript>
-<cache>
-<cache>0</cache>
-<disabled>0</disabled>
-<displayType>select</displayType>
-<multiSelect>0</multiSelect>
-<name>cache</name>
-<number>5</number>
-<prettyName>Caching policy</prettyName>
-<relationalStorage>0</relationalStorage>
-<separator> </separator>
-<separators> ,|</separators>
-<size>1</size>
-<unmodifiable>0</unmodifiable>
-<values>long|short|default|forbid</values>
-<classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-</cache>
-<code>
-<disabled>0</disabled>
-<name>code</name>
-<number>2</number>
-<prettyName>Code</prettyName>
-<rows>20</rows>
-<size>50</size>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-</code>
-<name>
-<disabled>0</disabled>
-<name>name</name>
-<number>1</number>
-<prettyName>Name</prettyName>
-<size>30</size>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-</name>
-<parse>
-<disabled>0</disabled>
-<displayFormType>select</displayFormType>
-<displayType>yesno</displayType>
-<name>parse</name>
-<number>4</number>
-<prettyName>Parse content</prettyName>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-</parse>
-<use>
-<cache>0</cache>
-<disabled>0</disabled>
-<displayType>select</displayType>
-<multiSelect>0</multiSelect>
-<name>use</name>
-<number>3</number>
-<prettyName>Use this extension</prettyName>
-<relationalStorage>0</relationalStorage>
-<separator> </separator>
-<separators> ,|</separators>
-<size>1</size>
-<unmodifiable>0</unmodifiable>
-<values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
-<classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-</use>
-</class>
-<name>XWiki.ExtensionManagerMacros</name>
-<number>0</number>
-<className>XWiki.JavaScriptExtension</className>
-<guid>ce6647d0-aa85-4972-a890-a76e852f7be6</guid>
-<property>
-<cache>forbid</cache>
-</property>
-<property>
-<code>var XWiki = (function (XWiki) {
+  <web>XWiki</web>
+  <name>ExtensionManagerMacros</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>XWiki.AdminSheet</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1321509118000</creationDate>
+  <date>1332154820000</date>
+  <contentUpdateDate>1332154820000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <template/>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <object>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <name>XWiki.ExtensionManagerMacros</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>ce6647d0-aa85-4972-a890-a76e852f7be6</guid>
+    <property>
+      <cache>forbid</cache>
+    </property>
+    <property>
+      <code>var XWiki = (function (XWiki) {
   var admin = XWiki.admin = XWiki.admin || {};
+
  /**
-  * Javascript enhancements for the Extension Manager.
+  * JavaScript enhancements for the Extension Manager.
   */
   admin.ExtensionManager = Class.create({
     /** How to find an element corresponding to a displayed extension in the UI: */
     extensionItemSelector : ".extension-item",
+
     /** Extension details */
     extensionBodySelector : ".extension-body",
+
     /** Extension details "menu" */
-    extensionMenuItemSelector : ".innerMenu li",
+    extensionMenuItemSelector : ".innerMenu li a",
+
     /** Extension details section */
     extensionDetailsSectionSelector : ".extension-body-section",
+
     /** CSS class of the menu item that is currently active */
-    crtExtensionMenuItemMarker : 'current',
+    extensionCurrentMenuItemMarker : 'current',
+
     /**
-     * Initialization: Enable loading extension details via AJAX
+     * Initialization: Enable loading extension details via AJAX.
      */ 
     initialize : function () {
       $$(this.extensionItemSelector + " form input[name='actionshowdetails']").invoke("observe", "click", this.loadExtensionDetails.bindAsEventListener(this));
+      this.prepareSimpleSearch();
+      this.prepareAdvancedSearch();
     },
+
     /**
-     * Ajax loading of Extension details
+     * AJAX loading of Extension details.
      */
     loadExtensionDetails : function(event) {
-      var form = event.element().form;
-
       event.stop();
-      // Ignore consecutive requests, just handle the first one
+
+      // Ignore consecutive requests, just handle the first one.
+      var form = event.element().form;
       if (form.__disabled) {
         return false;
       }
       form.__disabled = true;
-      // Prepare the data for the ajax call
-      var formData = new Hash(form.serialize(true));
-      formData.set('actionshowdetails', '1');
-      formData.set('ajax', '1');
 
-      // Prepare the url for the ajax call
-      var targetDocument;
-      if (XWiki.currentDocument.page == 'XWikiPreferences') {
-        targetDocument = form.action.replace(/^.*(&amp;|\?)section=/, "").replace(/&amp;.*$/, "");
+      // Prepare the data for the AJAX call.
+      var formData = new Hash(form.serialize(true));
+
+      // Prepare the URL for the AJAX call.
+      var targetDocument = formData.get('section');
+      if (targetDocument) {
         targetDocument = XWiki.getResource(targetDocument);
         targetDocument = new XWiki.Document(targetDocument.name, targetDocument.space, targetDocument.wiki);
       } else {
@@ -152,48 +160,49 @@
       }
       var targetDocumentURL = targetDocument.getURL('get');
 
-      // Launch the ajax call to fetch extension details
+      // Launch the AJAX call to fetch extension details.
       new Ajax.Request(
-            // Ajax request URL
-            targetDocumentURL,
-            // Ajax request parameters
-            {
-              method: 'post',
-              parameters : formData,
-              onCreate : function() {
-                // Don't panic, the content is loading...
-                form.up(this.extensionItemSelector).insert({bottom: new Element('div', {'class' : 'extension-body loading'})});
-              }.bind(this),
-              onSuccess : function(response) {
-                // Replace the old Extension data element with the one that was just fetched
-                var originalExtensionItem = form.up(this.extensionItemSelector);
-                originalExtensionItem.addClassName('hidden');
-                originalExtensionItem.insert({after : response.responseText});
-                var newExtensionItem = originalExtensionItem.next();
-                originalExtensionItem.remove();
-                // Attach behavior to the new element
-                this.addExtensionElementBehavior(newExtensionItem);
-              }.bind(this),
-              onFailure : function (response) {
-                var failureReason = response.statusText;
-                if (response.statusText == '' /* No response */ || response.status == 12031 /* In IE */) {
-                  failureReason = 'Server not responding';
-                }
-                new XWiki.widgets.Notification("$msg.get('extensions.info.fetch.failed')" + failureReason, "error");
-              }.bind(this),
-              on0 : function (response) {
-                response.request.options.onFailure(response);
-              },
-              onComplete : function() {
-                // In the end: re-enable the button
-                form.__disabled = false;
-                // Remove the loading marker if it's still there (i.e. fetching failed)
-                form.down(".extension-body.loading").remove();
-              }
+        // AJAX request URL.
+        targetDocumentURL,
+        // AJAX request parameters.
+        {
+          parameters : formData,
+          onCreate : function() {
+            // Don't panic, the content is loading.
+            form.up(this.extensionItemSelector).insert({bottom: new Element('div', {'class' : 'extension-body loading'})});
+          }.bind(this),
+          onSuccess : function(response) {
+            // Replace the old Extension data element with the one that was just fetched.
+            var originalExtensionItem = form.up(this.extensionItemSelector);
+            originalExtensionItem.addClassName('hidden');
+            originalExtensionItem.insert({after : response.responseText});
+            var newExtensionItem = originalExtensionItem.next();
+            originalExtensionItem.remove();
+            // Attach behaviour to the new element.
+            this.addExtensionElementBehavior(newExtensionItem);
+          }.bind(this),
+          onFailure : function (response) {
+            var failureReason = response.statusText;
+            if (response.statusText == '' /* No response */ || response.status == 12031 /* In IE */) {
+              failureReason = 'Server not responding';
             }
-          );
+            new XWiki.widgets.Notification("$msg.get('extensions.info.fetch.failed')" + failureReason, "error");
+          }.bind(this),
+          on0 : function (response) {
+            response.request.options.onFailure(response);
+          },
+          onComplete : function() {
+            // In the end: re-enable the button.
+            form.__disabled = false;
+            // Remove the loading marker if it's still there (i.e. fetching failed).
+            if (form &amp;&amp; form.down(".extension-body.loading")) {
+              form.down(".extension-body.loading").remove();
+            }
+          }
+        }
+      );
     },
-    
+
     /**
      * Add JS enhancement to the UI of an extension
      */ 
@@ -207,7 +216,7 @@
       extensionItem.select('.visibilityAction').invoke('observe', 'click', function(event) {
         event.stop();
         var button = event.element().up('span');
-//        button.__otherButton.toggleClassName('hidden');
+        // button.__otherButton.toggleClassName('hidden');
         button.__targetElement.toggleClassName('hidden');
         button.replace(button.__otherButton);
       }.bindAsEventListener(this));
@@ -215,43 +224,89 @@
       // Add JS handlers for the extension menu
       this.addExtensionMenuBehavior(extensionItem);
       // Fix dependencies links
-      extensionItem.select(".extension-body-dependencies a.dependency-type-core, .extension-body-dependencies a.dependency-type-installed").each(function (link) {
+      extensionItem.select(".extension-body-dependencies a").each(function (link) {
          link.setAttribute('href', XWiki.currentDocument.getURL((XWiki.currentDocument.page == 'XWikiPreferences' ? 'admin' : 'view'), link.getAttribute('href').replace(/.*\?/, "")));
       });
     },
 
     /**
-     * Add JS handlers for the extension menu
+     * Add JavaScript handlers for the extension menu.
      */
     addExtensionMenuBehavior : function(extensionItem) {
-      // Expand the first menu item
-      var firstMenuItem = extensionItem.down(this.extensionMenuItemSelector);
-      if (firstMenuItem) {
-        this.activateExtensionMenuItem(firstMenuItem.down('a'));
-        // Make the activation of menu items persistent
-        $$(this.extensionMenuItemSelector + " a").invoke("observe", "click", function(event) {
-          // when a menu link is clicked...
+      // Expand the current menu item.
+      var currentMenuItem = extensionItem.down(this.extensionMenuItemSelector + "." + this.extensionCurrentMenuItemMarker);
+      if (!currentMenuItem) {
+        // Expand the first menu item.
+        currentMenuItem = extensionItem.down(this.extensionMenuItemSelector);
+      }
+      if (currentMenuItem) {
+        this.activateExtensionMenuItem(currentMenuItem);
+        // Make the activation of menu items persistent.
+        $$(this.extensionMenuItemSelector).invoke("observe", "click", function(event) {
+          // When a menu item is clicked..
           event.stop();
-          var menuLink = event.element();
-          this.activateExtensionMenuItem(menuLink);
+          var menuItem = event.element();
+          this.activateExtensionMenuItem(menuItem);
         }.bindAsEventListener(this));
       }
     },
-     
-    activateExtensionMenuItem : function (menuLink) {
-      var extensionItem = menuLink.up(this.extensionItemSelector);
-      // ... hide all sections ...
+
+    activateExtensionMenuItem : function (menuItem) {
+      var extensionItem = menuItem.up(this.extensionItemSelector);
+      // Hide all sections (each section is associated with a menu item).
       extensionItem.select(this.extensionDetailsSectionSelector).invoke("setStyle", {'display' : 'none'});
-      // ... unmark the currently active menu item ...
-      var crtMenuItem = extensionItem.down(this.extensionMenuItemSelector + "." + this.crtExtensionMenuItemMarker);
-      if (crtMenuItem) {
-         crtMenuItem.removeClassName(this.crtExtensionMenuItemMarker);
+      // Unmark the currently active menu item.
+      var currentMenuItem = extensionItem.down(this.extensionMenuItemSelector + "." + this.extensionCurrentMenuItemMarker);
+      if (currentMenuItem) {
+         currentMenuItem.removeClassName(this.extensionCurrentMenuItemMarker);
       }
-      // ... and display the one indicated by the clicked menu link
-      // (the href attribute is expected be "#id-of-an-anchor-placed-before-the-section-to-display
-      $(menuLink.getAttribute('href').substring(1)).next(this.extensionDetailsSectionSelector).setStyle({'display' : 'block'});
-      // ... also marking the clicked menu item as current
-      menuLink.up(this.extensionMenuItemSelector).addClassName(this.crtExtensionMenuItemMarker);
+      // Display the section associated with the given menu item (the menu item that was clicked).
+      // (the href attribute is expected be "#id-of-an-anchor-placed-before-the-section-to-display)
+      $(menuItem.getAttribute('href').substring(1)).next(this.extensionDetailsSectionSelector).setStyle({'display' : 'block'});
+      // Mark the given menu item as active (i.e. select the menu item that was cliked).
+      menuItem.addClassName(this.extensionCurrentMenuItemMarker);
+    },
+
+    prepareSimpleSearch : function() {
+      var simpleSearchBox = $('extension-search-simple');
+      if (!simpleSearchBox) {
+        return;
+      }
+      // Submit the search form whenever the user selects a different repository.
+      $('extensionSearchRepositoryList').observe('change', function(event) {
+        // Make sure we don't submit the search tip.
+        $('extensionSearchInput').focus();
+        event.element().up('form').submit();
+      }.bindAsEventListener(this));
+    },
+
+    prepareAdvancedSearch : function() {
+      var advancedSearchBox = $('extension-search-advanced');
+      if (!advancedSearchBox) {
+        return;
+      }
+      var advancedSearchTrigger = advancedSearchBox.down('legend a');//ry :)
+      if (advancedSearchTrigger) {
+        var target = advancedSearchTrigger.up('legend').next();
+        if (target) {
+          advancedSearchTrigger.observe('click', function(event) {
+            event.stop();
+            advancedSearchTrigger.blur();
+            target.toggleClassName('hidden');
+            advancedSearchTrigger.toggleClassName('expanded');
+          });
+          var cancelTrigger = target.down('a.actioncancel');
+          if (cancelTrigger) {
+            cancelTrigger.observe('click', function(event) {
+              event.stop();
+              cancelTrigger.up('form').select('input[type=text]').each(function(input) {
+                input.value = '';
+              });
+              advancedSearchTrigger.click();
+          });
+         }
+        }
+      }
     }
   });
 
@@ -263,108 +318,108 @@
     return em;
   }
 
-  // When the document is loaded, trigger the ExtensionManager form enhancements.
+  // When the document is loaded, trigger the Extension Manager form enhancements.
   (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
 
   // End XWiki augmentation.
   return XWiki;
 }(XWiki || {}));</code>
-</property>
-<property>
-<name></name>
-</property>
-<property>
-<parse>1</parse>
-</property>
-<property>
-<use>onDemand</use>
-</property>
-</object>
-<object>
-<class>
-<name>XWiki.StyleSheetExtension</name>
-<customClass></customClass>
-<customMapping></customMapping>
-<defaultViewSheet></defaultViewSheet>
-<defaultEditSheet></defaultEditSheet>
-<defaultWeb></defaultWeb>
-<nameField></nameField>
-<validationScript></validationScript>
-<cache>
-<cache>0</cache>
-<disabled>0</disabled>
-<displayType>select</displayType>
-<multiSelect>0</multiSelect>
-<name>cache</name>
-<number>5</number>
-<prettyName>Caching policy</prettyName>
-<relationalStorage>0</relationalStorage>
-<separator> </separator>
-<separators> ,|</separators>
-<size>1</size>
-<unmodifiable>0</unmodifiable>
-<values>long|short|default|forbid</values>
-<classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-</cache>
-<code>
-<disabled>0</disabled>
-<name>code</name>
-<number>2</number>
-<prettyName>Code</prettyName>
-<rows>20</rows>
-<size>50</size>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-</code>
-<name>
-<disabled>0</disabled>
-<name>name</name>
-<number>1</number>
-<prettyName>Name</prettyName>
-<size>30</size>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-</name>
-<parse>
-<disabled>0</disabled>
-<displayFormType>select</displayFormType>
-<displayType>yesno</displayType>
-<name>parse</name>
-<number>4</number>
-<prettyName>Parse content</prettyName>
-<unmodifiable>0</unmodifiable>
-<classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-</parse>
-<use>
-<cache>0</cache>
-<disabled>0</disabled>
-<displayType>select</displayType>
-<multiSelect>0</multiSelect>
-<name>use</name>
-<number>3</number>
-<prettyName>Use this extension</prettyName>
-<relationalStorage>0</relationalStorage>
-<separator> </separator>
-<separators> ,|</separators>
-<size>1</size>
-<unmodifiable>0</unmodifiable>
-<values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
-<classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-</use>
-</class>
-<name>XWiki.ExtensionManagerMacros</name>
-<number>0</number>
-<className>XWiki.StyleSheetExtension</className>
-<guid>9a7ab38c-4990-415a-beed-6968710f3b02</guid>
-<property>
-<cache>forbid</cache>
-</property>
-<property>
-<code>#template('colorThemeInit.vm')
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <name>XWiki.ExtensionManagerMacros</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>9a7ab38c-4990-415a-beed-6968710f3b02</guid>
+    <property>
+      <cache>forbid</cache>
+    </property>
+    <property>
+      <code>#template('colorThemeInit.vm')
 .extension-item {
   border-color: $theme.borderColor $theme.pageContentBackgroundColor $theme.pageContentBackgroundColor $theme.borderColor;
   border-style: solid solid solid;
-  border-width: 1px 1px 1px 1px;
+  border-width: 1px 4px 1px 1px;
   display: block;
   -moz-box-shadow: 1px 0 0 $theme.borderColor;
   -webkit-box-shadow:  1px 0 0 $theme.borderColor;
@@ -375,7 +430,6 @@
 .extension-item &gt; * {
   padding: 0.8em 1em 1em 2.7em;
 }
-
 .extension-item:last-of-type {
   border-bottom-color: $theme.borderColor;
 }
@@ -385,24 +439,9 @@
   font-size: 1.2em;
   font-weight: 700;
   border: none;
-  background: url("$xwiki.getSkinFile('icons/silk/cog.png')") no-repeat scroll 0.2em 0.3em transparent;
+  background: none no-repeat scroll 0.2em 0.3em transparent;
   margin: 0 0 0 -1.8em;
   padding: 2px 0 2px 1.8em;
-}
-.ui-progress-bar {
-  background-image:-moz-repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.2) 5px, transparent 5px, transparent 10px);
-  background-repeat: repeat;
-  background-color: $theme.notificationSuccessColor !important;
-  background-position: left;
-  -moz-animation-duration: 0.2s;
-  -moz-animation-iteration-count: infinite;
-  -moz-animation-name: progress-animation;
-  -moz-animation-timing-function: linear;
-}
-
-@-moz-keyframes progress-animation {
-  0% {background-position: -14.142px 0;}
-  100% {background-position: 0px 0;}
 }
 
 .extension-version {
@@ -412,8 +451,23 @@
   font-size: .8em;
 }
 
+.extension-item:hover .extension-header {
+  background-color: $theme.highlightColor;
+}
 .extension-header .buttonwrapper {
   margin: 0 0 0 5px;
+}
+
+.extension-header-right {
+  float: right;
+  text-align: right;
+}
+
+.extension-status {
+  font-size: 0.8em;
+}
+.extension-header-right .extension-status {
+  margin: -2em 0 1em;
 }
 
 .extension-authors {
@@ -421,15 +475,23 @@
   font-size: .9em;
 }
 
-.extension-actions {
-  float: right;
+.extension-item-core .extension-status, .extension-item-installed .extension-status {
+  color: $theme.notificationSuccessColor;
+}
+.extension-item-remote-installed .extension-status {
+  color: $theme.notificationWarningColor;
+}
+.extension-item-remote-core .extension-status {
+  color: $theme.notificationErrorColor;
 }
 
 .extension-description {
   font-size: .9em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
+
 .extension-body {
-  background-color: $theme.highlightColor;
   border: 1px dotted $theme.borderColor;;
   padding: 0 .8em .8em 1.8em !important;
   margin: 0 1em 1em;
@@ -441,60 +503,124 @@
 *[id^="extension-body-"]:target {
   display: none;
 }
-
 *[class^="extension-body-"] {
   display: none;
+  font-size: 0.9em;
 }
 *[id^="extension-body-"]:target + *[class^="extension-body-"] {
   display: block;
 }
-.extension-metadata {
-  margin: 0 !important;
-  -moz-column-width: 30em;
-  -webkit-column-width: 30em;
-  column-width: 30em;
-}
-.extension-metadata li {
-  display: block;
-  vertical-align: top;
-  padding: 0.5em 0;
-}
 
-*[class|="dependency-type"] {
-  padding-left: 20px;
-  background: transparent none no-repeat left;
+ul.extension-metadata {
+  list-style-type: none;
+  margin: 0;
+}
+ul.extension-metadata li {
+  padding-top: 0.5em;
 }
 
 .extension-body-dependencies ul {
+  border-top: 1px dotted #E8E8E8;
   list-style-type: none;
+  margin: 0;
 }
-.dependency-type-core {
+.extension-body-dependencies li:hover {
+  background-color: $theme.highlightColor;
+}
+.dependency-item {
+  background: transparent none no-repeat left;
+  border-bottom: 1px dotted #E8E8E8;
+  border-right: 7px solid $theme.pageContentBackgroundColor;
+  padding: 0.3em 0 0.3em 20px;
+  position: relative;
+}
+.dependency-item &gt; p {
+  margin: 0;
+}
+.extension-item-core .extension-name, .extension-item-remote-core .extension-name,
+.dependency-item.extension-item-core, .dependency-item.extension-item-remote-core {
   background-image: url("$xwiki.getSkinFile('icons/silk/cog.png')");
 }
-.dependency-type-installed {
+.extension-item-installed .extension-name, .extension-item-remote-installed .extension-name,
+.dependency-item.extension-item-installed, .dependency-item.extension-item-remote-installed {
   background-image: url("$xwiki.getSkinFile('icons/silk/plugin.png')");
 }
-.dependency-type-remote {
+.extension-item-remote .extension-name, .dependency-item.extension-item-remote {
   background-image: url("$xwiki.getSkinFile('icons/silk/world.png')");
 }
-.dependency-type-unknown {
+.dependency-item.extension-item-unknown {
   background-image: url("$xwiki.getSkinFile('icons/silk/plugin_error.png')");
 }
+.dependency-item .extension-status {
+  position: absolute;
+  right: 1.5em;
+}
 
-#advancedextensionsearch div {
-  display: none;
+.extension-item-core, .extension-item-installed {
+  border-right-color: $theme.notificationSuccessColor;
 }
-#advancedextensionsearch legend {
+.extension-item-remote-installed {
+  border-right-color: $theme.notificationWarningColor;
+}
+.extension-item-remote-core {
+  border-right-color: $theme.notificationErrorColor;
+}
+
+.extension-search-bar {
+  background-color: $theme.panelCollapsedBackgroundColor;
+  border: 1px solid $theme.borderColor;
+  border-bottom: 0;
+  color: $theme.panelCollapsedTextColor;
   font-size: .8em;
+  padding: .3em 1.2em .3em .3em;
+  position: relative;
 }
-#advancedextensionsearch legend a:after {
-  content: "&gt;&gt;";
+
+#extension-search-simple {
+  float: left;
 }
-#advancedextensionsearch-body {
+#extensionSearchInput {
+  background: url("$xwiki.getSkinFile('icons/xwiki/search.png')") no-repeat scroll left center $theme.pageContentBackgroundColor;
+  padding-left: 18px;
+  width: 340px;
+}
+
+#extensionSearchRepositoryList {
+  padding: 3px;
+}
+
+#extension-search-advanced {
+  float: right;
+  margin: 8px 0 0;
+}
+
+#extension-search-advanced legend {
+  font-size: .875em;
+  margin: 0;
+  border: 0 none;
+  text-align: right;
+}
+
+#extension-search-advanced legend a:after {
+  content: " \bb";
+}
+#extension-search-advanced legend a.expanded:after {
+  color: transparent;
+}
+#extension-search-advanced-body {
   display: none;
 }
-#advancedextensionsearch-body:target ~ div {
+#extension-search-advanced-body:target ~ div.hidden {
   display: block;
+}
+.extension-search-advanced-popup {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  padding: .3em .5em;
+  position: absolute;
+  right: 1.2em;
+  text-align: left;
+  width: 40%;
+  z-index: 200;
 }
 /****************************** &lt;Inner Menu&gt; *************************/
 
@@ -529,7 +655,7 @@
   margin-top: 0px;
 }
 
-.innerMenu li.current a {
+.innerMenu li a.current {
   background-color: $theme.panelCollapsedBackgroundColor;
   border: 0 none;
   border-top: 5px solid $theme.panelCollapsedBackgroundColor;
@@ -538,7 +664,7 @@
   box-shadow: 3px;
 }
 
-.innerMenu li.current a:after {
+.innerMenu li a.current:after {
   border-style: solid;
   border-color: transparent transparent  $theme.borderColor;
   border-width: 0 5px 5px 0;
@@ -551,15 +677,28 @@
   right: -5px;
 }
 
-.innerMenu li.current a {
+.innerMenu li a.current {
   color: $theme.panelCollapsedTextColor;
   text-decoration: none;
 }
 
 /****************************** &lt;/ Clean&gt; *************************/
 
+.ui-progress-bar {
+  background-image:-moz-repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.2) 5px, transparent 5px, transparent 10px);
+  background-repeat: repeat;
+  background-color: $theme.notificationSuccessColor !important;
+  background-position: left;
+  -moz-animation-duration: 0.2s;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-name: progress-animation;
+  -moz-animation-timing-function: linear;
+}
 
-
+@-moz-keyframes progress-animation {
+  0% {background-position: -14.142px 0;}
+  100% {background-position: 0px 0;}
+}
 
 .ui-progress-background {
   background-color: transparent;
@@ -705,6 +844,14 @@
 
 .extHeaderLeft {
   float: left;
+  width: 50%;
+}
+.extHeaderLeft .xform label {
+  display: block;
+  font-weight: bold;
+}
+.extHeaderLeft .xform .globalsearch {
+  text-align: left;
 }
 
 .extHeaderBottom  .extHeaderLeft{
@@ -716,6 +863,8 @@
   float: right;
   cursor: pointer;
   margin: 3px 0 -3px;
+  position: relative;
+  width: 40%;
 }
 
 .extHeaderBottom  .extHeaderRight {
@@ -1051,37 +1200,89 @@ ul.repositories .addRepository:hover  {
 }
 
 /*********** /Repositories *********/</code>
-</property>
-<property>
-<name></name>
-</property>
-<property>
-<parse>1</parse>
-</property>
-<property>
-<use>onDemand</use>
-</property>
-</object>
-<content>{{velocity output="false"}}
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <content>{{velocity output="false"}}
 $xwiki.ssx.use('ExtensionManagerMacros')
 $xwiki.jsx.use('ExtensionManagerMacros')
+
 #set ($extensionManager = $services.extension)
-#if ($request.extensionwiki &amp;&amp; $request.extensionwiki.trim() != '')
-  #set($extensionwiki = $request.extensionwiki)
-  #set($extensionnamespace = "wiki:${extensionwiki}")
+
+#if ($request.extensionWiki &amp;&amp; $request.extensionWiki.trim() != '')
+  #set($extensionWiki = $request.extensionWiki)
+#else
+  #if (!$xcontext.isMainWiki())
+    #set($extensionWiki = $xcontext.database)
+  #end
+#end
+
+#if ($extensionWiki)
+  #set($extensionNamespace = "wiki:${extensionWiki}")
 #end
 
 #macro (displayExtensionSearchBar)
-  (% class="extHeader" %)(((
-    (% class="extHeaderLeft" %)(((
-      {{html}}
-      &lt;form action="$doc.getURL($xcontext.action, $request.getQueryString().replaceAll('(^|&amp;)actionshowdetails=[^&amp;]++&amp;?', '$1').replaceAll('(^|&amp;)(extension(id|version)=[^&amp;]++&amp;?+)+', '$1').replaceAll('(^|&amp;)section=[^&amp;]++', '$1section=XWiki.AddExtensions').replaceAll('(^|&amp;)searchextension=[^&amp;]++&amp;?', '$1'))" method="post"&gt;
-        &lt;div class="globalsearch extHeaderLeftSearch"&gt;
-          &lt;label class="hidden" for="extensionsearchinput"&gt;Search&lt;/label&gt;&lt;input type="text" class="globalsearchinput#if ("$!request.searchextension" == '') withTip#end extHeaderLeftInput" id="extensionsearchinput" name="searchextension" value="#if ("$!request.searchextension" != '')$request.searchextension#{else}search extension...#{end}" size="60"&gt;&lt;input type="image" class="button" value="Go" alt="Go" src="/xwiki/resources/icons/xwiki/search.png"&gt;
+  (% class="extension-search-bar" %)(((
+    {{html clean="false"}}
+    ## Simple search form.
+    &lt;form action="" id="extension-search-simple"&gt;
+      &lt;div&gt;
+        #if ($request.section)
+          &lt;input type="hidden" name="section" value="$escapetool.xml($request.section)" /&gt;
+        #end
+        &lt;label class="hidden" for="extensionSearchInput"&gt;$msg.get('extensions.search.tip')&lt;/label&gt;
+        &lt;input type="text" #if ("$!request.search" == '')class="withTip" #{end}id="extensionSearchInput" name="search" value="#if ("$!request.search" != '')$escapetool.xml($request.search)#{else}$msg.get('extensions.search.tip')#{end}" /&gt;
+        &lt;label class="hidden" for="extensionSearchRepositoryList"&gt;$msg.get('extensions.search.repository.label')&lt;/label&gt;
+        &lt;select id="extensionSearchRepositoryList" name="repo"&gt;
+          &lt;option value=""&gt;$msg.get('extensions.search.repository.all.label')&lt;/option&gt;
+          #if ($request.repo)
+            #set ($selectedRepositoryId = $request.repo)
+          #end
+          #foreach ($repositoryId in ['core', 'installed', 'local'])
+            &lt;option value="$repositoryId"#if ($selectedRepositoryId == $repositoryId) selected="selected"#end&gt;$msg.get("extensions.search.repository.${repositoryId}.label")&lt;/option&gt;
+          #end
+        &lt;/select&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+    ## Advanced search form.
+    &lt;form action="" class="xform"&gt;
+      &lt;fieldset id="extension-search-advanced"&gt;
+        &lt;div id="extension-search-advanced-body"&gt;&lt;/div&gt;
+        &lt;legend&gt;&lt;a href="#extension-search-advanced-body"&gt;$msg.get('extensions.advancedSearch.title')&lt;/a&gt;&lt;/legend&gt;
+        &lt;div class="plainmessage extension-search-advanced-popup hidden"&gt;
+          #if ($request.section)
+            &lt;input type="hidden" name="section" value="$escapetool.xml($request.section)" /&gt;
+          #end
+          &lt;dl&gt;
+            &lt;dt&gt;&lt;label for="advancedExtensionSearch-id"&gt;$msg.get('extensions.advancedSearch.id.label')&lt;/label&gt;&lt;/dt&gt;
+            &lt;dd&gt;&lt;input type="text" name="extensionId" id="advancedExtensionSearch-id" value="" /&gt;&lt;/dd&gt;
+            &lt;dt&gt;&lt;label for="advancedExtensionSearch-version"&gt;$msg.get('extensions.advancedSearch.version.label')&lt;/label&gt;&lt;/dt&gt;
+            &lt;dd&gt;&lt;input type="text" name="extensionVersion" id="advancedExtensionSearch-version" value="" /&gt;&lt;/dd&gt;
+            #if ($xcontext.isMainWiki() &amp;&amp; $xwiki.isVirtualMode())
+              &lt;dt&gt;&lt;label for="advancedExtensionSearch-wiki"&gt;$msg.get('extensions.advancedSearch.wiki.label')&lt;/label&gt;&lt;/dt&gt;
+              &lt;dd&gt;&lt;input type="text" name="extensionWiki" id="advancedExtensionSearch-wiki" value="" /&gt;&lt;/dd&gt;
+            #end
+          &lt;/dl&gt;
+          &lt;p&gt;
+            &lt;span class="buttonwrapper"&gt;
+              &lt;input type="submit" value="$msg.get('extensions.advancedSearch.actions.submit')" class="button" /&gt;
+            &lt;/span&gt;
+            &lt;span class="buttonwrapper"&gt;
+              &lt;a href="#extension-search-simple" class="actioncancel secondary button"&gt;$msg.get('extensions.advancedSearch.actions.cancel')&lt;/a&gt;
+            &lt;/span&gt;
+          &lt;/p&gt;
         &lt;/div&gt;
-      &lt;/form&gt;
-      {{/html}}
-    )))
+      &lt;/fieldset&gt;
+    &lt;/form&gt;
+    {{/html}}
     (% class="clearfloats" %)((()))
   )))
 #end
@@ -1094,184 +1295,461 @@ $xwiki.jsx.use('ExtensionManagerMacros')
       #set ($name = $name.substring($mathtool.add($name.indexOf(':'), 1)))
     #end
   #end
-  $name##
+  ${name}##
 #end
 
-#macro (displayExtension $extension)
-    (% class="extension-item" %)(((
-    (% class="extension-header" %)(((
-    (% class="extension-name" %)
-    ==#displayExtensionName($extension) (% class="extension-version %)$extension.id.version==
-
-    {{html}}
-    #if ($doc.name == 'XWikiPreferences')
-      #set ($action = 'admin')
-    #else
-      #set ($action = 'view')
-    #end
-    &lt;form method="post" action="$doc.getURL($action, $request.getQueryString().replaceAll('(^|&amp;)actionshowdetails=[^&amp;]++', ''))"&gt;
-      &lt;div class="extension-actions"&gt;
-        &lt;input type="hidden" name="extensionid" value="$extension.id.id" /&gt;
-        &lt;input type="hidden" name="extensionversion" value="$extension.id.version" /&gt;
-        #foreach ($action in $actions)
-          ${action}##
-        #end
-      &lt;/div&gt;
-    &lt;/form&gt;
-    {{/html}}
-
-    #if ($extension.authors.size() &gt; 0)
-      (% class="extension-authors" %)(((
-      $msg.get('by:') ##
-      #foreach ($author in $extension.authors)
-        #if ($author.name == 'devs')
-          [[$msg.get('XWiki Development Team')&gt;&gt;http://www.xwiki.org/]]##
-        #elseif ("$!author.url" != '' &amp;&amp; "$!author.name" != '')
-          [[${author.name}&gt;&gt;${author.url}]]##
-        #else
-          ${author.name}##
-        #end
-        #if ($foreach.hasNext), ##
-        #else
-        )))
-
-        #end
+#macro (displayExtensionActionButtons $extension)
+  #set ($actions = [])
+  #computeXBack()
+  #if(!$extensionStatus)
+    #determineExtensionStatus($extension $extensionStatus $extensionStatusMessage)
+  #end
+  #if ($extensionStatus.endsWith('core'))
+    #getCoreExtensionButtons($extension, $actions)
+  #elseif ($extensionStatus == 'installed')
+    #getInstalledExtensionButtons($extension, $actions)
+  #elseif ($extensionStatus.startsWith('remote'))
+    #getRemoteExtensionButtons($extension, $actions)
+  #end
+  {{html}}
+  &lt;form action=""&gt;
+    &lt;div class="extension-actions"&gt;
+      &lt;input type="hidden" name="extensionId" value="$extension.id.id" /&gt;
+      &lt;input type="hidden" name="extensionVersion" value="$extension.id.version" /&gt;
+      #if ($extensionWiki)
+        &lt;input type="hidden" name="extensionWiki" value="$extensionWiki" /&gt;
       #end
-    #end
-    #if ("$!{extension.summary}" != '')
-      (% class="extension-description" %)
-      {{{
-      $extension.summary.replaceAll('\s+', ' ')
-      }}}
-
-    #end
-    (% class="clearfloats" %)((()))
-    )))
-    #if ($request.actionshowdetails)
-    #set ($backwardDependencies = $extensionManager.getBackwardDependencies($extension.id.id, $extension.id.version))
-    #if (!$backwardDependencies)
-      #set ($backwardDependencies = {})
-    #end
-    (% class="extension-body" %)(((
-      (% class="innerMenu" %)
-      * [[Description&gt;&gt;||anchor="extension-body-description-${extension.id.id}-${extension.id.version}"]]
-      #if ("$!{extension.releaseNotes}" != '')
-        * [[Release Notes&gt;&gt;||anchor="extension-body-relnotes-${extension.id.id}-${extension.id.version}"]]
+      #if ($request.section)
+        &lt;input type="hidden" name="section" value="$escapetool.xml($request.section)" /&gt;
       #end
-      #if ($extension.dependencies.size() &gt; 0 || $backwardDependencies.size() &gt; 0)
-        * [[Dependencies&gt;&gt;||anchor="extension-body-dependencies-${extension.id.id}-${extension.id.version}"]]
+      #foreach ($action in $actions)
+        ${action}##
       #end
-
-      {{id name="extension-body-description-${extension.id.id}-${extension.id.version}" /}}
-      (% class="extension-body-description extension-body-section" %)(((
-        (% class="extension-metadata" %)
-        * $msg.get('extensions.info.license', [$extension.licenses.size()]) ##
-        #foreach ($license in $extension.licenses)
-          ${license.name}##
-          #if ($foreach.hasNext), #end
-        #end
-
-        #if ($extension.repository.id.URI &amp;&amp; $extension.repository.id.URI.scheme != 'file')
-          * $msg.get('extensions.info.repository') [[$extension.repository.id.id&gt;&gt;$extension.repository.id.URI]]
-        #end
-        #if ($extension.dependency)
-          * $msg.get('extensions.info.dependency')
-        #end
-        #if ("$!{extension.webSite}" != '')
-          * $msg.get('extensions.info.website') [[$extension.webSite.replaceAll('^[^/]++//([^/]++)/?.*+$', '$1')&gt;&gt;$extension.webSite]]
-        #end
-        #if ($extension.features.size() &gt; 0)
-          * $msg.get('extensions.info.features') $extension.features
-        #end
-        #if ($xwiki.virtualMode)
-          #if (!$extension.namespaces || $extension.namespaces.size() == 0)
-            * $msg.get('extensions.info.namespaces.global')
-          #else
-            * $msg.get('extensions.info.namespaces.list') #foreach ($namespace in $extension.namespaces)$namespace#if($foreach.hasNext), #end#end
-
-          #end
-        #end
-
-        ## TODO: need a decision on what exactly is the description and how it should be safely displayed (wiki syntax, server side generated HTML, etc)
-        ## $!extension.description
-      )))
-
-      #if ("$!{extension.releaseNotes}" != '')
-      {{id name="extension-body-relnotes-${extension.id.id}-${extension.id.version}"/}}
-      (% class="extension-body-relnotes extension-body-section" %)(((
-        $!{extension.releaseNotes}
-      )))
-      #end
-
-      {{id name="extension-body-dependencies-${extension.id.id}-${extension.id.version}" /}}
-      #computeXBack()
-      (% class="extension-body-dependencies extension-body-section" %)(((
-        $msg.get('extensions.info.dependencies.directDependencies', [$extension.dependencies.size()])
-        #foreach ($dependency in $extension.dependencies)
-          #set ($dependencyExtension = $extensionManager.resolve($dependency))
-          #set ($dependencyClass = "$!{dependencyExtension.class}")
-          #if ($dependencyExtension)
-            * [[#displayExtensionName($dependencyExtension)&gt;&gt;##
-            #if ($dependencyClass.endsWith('CoreExtension'))
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id}&amp;extensionversion=${dependency.versionConstraint}&amp;section=XWiki.CoreExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-core"]]
-            #elseif ($dependencyClass.endsWith('LocalExtension'))
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id}&amp;extensionversion=${dependency.versionConstraint}&amp;section=XWiki.InstalledExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-installed"]]
-            #else
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id}&amp;extensionversion=${dependency.versionConstraint}&amp;section=XWiki.AddExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-remote"]]
-            #end
-          #else
-            * (% class="dependency-type-unknown" %)${dependency.id}
-          #end
-          #if (!$foreach.hasNext)
-
-          #end
-        #end
-        $msg.get('extensions.info.dependencies.backwardDependencies', [$backwardDependencies.size()])
-        #foreach ($namespace in $backwardDependencies.entrySet())
-          #foreach ($dependency in $namespace.value)
-            #set ($dependencyClass = "${dependency.class}")
-            * [[#displayExtensionName($dependency)&gt;&gt;##
-            #if ($dependencyClass.endsWith('CoreExtension'))
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id.id}&amp;extensionversion=${dependency.id.version}&amp;section=XWiki.CoreExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-core"]]##
-            #elseif ($dependencyClass.endsWith('LocalExtension'))
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id.id}&amp;extensionversion=${dependency.id.version}&amp;section=XWiki.InstalledExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-installed"]]##
-            #else
-              path:$doc.getURL($xcontext.action, "actionshowdetails=true&amp;extensionid=${dependency.id.id}&amp;extensionversion=${dependency.id.version}&amp;section=XWiki.AddExtensions&amp;xback=${escapetool.url($xback)}")||class="dependency-type-remote"]]##
-            #end
-            #if ("$!{namespace.key}" != '')
-              (in wiki $namespace.key)
-            #else
-
-            #end
-          #end
-        #end
-      )))
-    )))
-    #end
-    )))
+    &lt;/div&gt;
+  &lt;/form&gt;
+  {{/html}}
 #end
 
-#macro (prepareInstall $extensionid $extensionversion $extensionsToInstall $extensionsToUpgrade $extensionsSuggested $coreExtensionsConflicts)
-  #set ($extension = $extensionManager.resolve($extensionid, $extensionversion))
-  #set ($extensionclass = "${extension.class}")
-  #if (!$extensionclass.endsWith('CoreExtension'))
-    #if (!$extension.isInstalled($extensionwiki))
-      #set($installedExtension = $extensionManager.getInstalledExtension($extensionid, $extensionwiki))
-      #if ($installedExtension &amp;&amp; $installedExtension.id.version.compareTo($extensionversion) &gt; 0)
-        #set($extensionsToUpgrade[$extension.id] = $extension)
+#macro (displayExtensionAuthors $extension)
+  (% class="extension-authors" %)(((
+    $msg.get('extensions.info.authors') ##
+    #foreach ($author in $extension.authors)
+      #if ($author.name == 'devs')
+        [[$msg.get('extensions.info.authors.xwikiorg')&gt;&gt;http://www.xwiki.org/]]##
+      #elseif ("$!author.url" != '' &amp;&amp; "$!author.name" != '')
+        [[${author.name}&gt;&gt;${author.url}]]##
       #else
-        #set($extensionsToInstall[$extension.id] = $extension)
+        ${author.name}##
       #end
-      #prepareInstallDependencies($extension, $extensionsToInstall, $extensionsToUpgrade, $extensionsSuggested, $coreExtensionsConflicts)
+      #if ($foreach.hasNext), ##
+      #else )))
+
+      #end
     #end
-  #elseif ($extensionversion.compareTo($extension.id.version) &gt; 0)
-    #set($coreExtensionsConflicts[$extension.id] = [$extension, $extensionversion])
+#end
+
+#macro (displayExtensionDetails_menuLink $detail $selected)
+  [[$msg.get("extensions.info.category.$detail")&gt;&gt;||anchor="extension-body-${detail}-${extension.id.id}-${extension.id.version}"#if ($selected) class="current"#end]]
+#end
+
+#macro (displayExtensionDetails_menu $extension)
+  (% class="innerMenu" %)
+  * #displayExtensionDetails_menuLink('description')
+  #if ("$!{extension.releaseNotes}" != '')
+    * #displayExtensionDetails_menuLink('releaseNotes')
+  #end
+  #if ($extension.dependencies.size() &gt; 0 || $backwardDependencies.size() &gt; 0)
+    * #displayExtensionDetails_menuLink('dependencies')
+  #end
+  ## Display the progress tab if the install/uninstall plan is requested or if there is 
+  ## a previously stored job status for this extension (a previous install or uninstall).
+  #set ($planRequested = $request.actioninstall || $request.actionuninstall)
+  #if ($planRequested || $extensionManager.getExtensionJobStatus($extension.id.id))
+    * #displayExtensionDetails_menuLink('progress' $planRequested)
   #end
 #end
 
-#macro (prepareInstallDependencies $extension $extensionsToInstall $extensionsToUpgrade $extensionsSuggested $coreExtensionsConflicts)
+#macro (displayExtensionDetails_description $extension)
+  {{id name="extension-body-description-${extension.id.id}-${extension.id.version}" /}}
+  (% class="extension-body-description extension-body-section" %)(((
+    (% class="extension-metadata" %)
+    * $msg.get('extensions.info.license', [$extension.licenses.size()]) ##
+    #foreach ($license in $extension.licenses)
+      ${license.name}##
+      #if ($foreach.hasNext), #end
+    #end
+
+    #if ($extension.repository.id.URI &amp;&amp; $extension.repository.id.URI.scheme != 'file')
+      * $msg.get('extensions.info.repository') [[$extension.repository.id.id&gt;&gt;$extension.repository.id.URI]]
+    #end
+    #if ($extension.dependency)
+      * $msg.get('extensions.info.dependency')
+    #end
+    #if ("$!{extension.webSite}" != '')
+      * $msg.get('extensions.info.website') [[$extension.webSite.replaceAll('^[^/]++//([^/]++)/?.*+$', '$1')&gt;&gt;$extension.webSite]]
+    #end
+    #if ($extension.features.size() &gt; 0)
+      * $msg.get('extensions.info.features') $extension.features
+    #end
+    #if ($xwiki.virtualMode)
+      #if (!$extension.namespaces || $extension.namespaces.size() == 0)
+        * $msg.get('extensions.info.namespaces.global')
+      #else
+        * $msg.get('extensions.info.namespaces.list') #foreach ($namespace in $extension.namespaces)$namespace#if($foreach.hasNext), #end#end
+
+      #end
+    #end
+    ##
+    ## TODO: need a decision on what exactly is the description and how it should be safely displayed (wiki syntax, server side generated HTML, etc)
+    ## $!extension.description
+  )))
+#end
+
+#macro (displayExtensionDetails_releaseNotes $extension)
+  #if ("$!{extension.releaseNotes}" != '')
+
+    {{id name="extension-body-releaseNotes-${extension.id.id}-${extension.id.version}"/}}
+    (% class="extension-body-releaseNotes extension-body-section" %)(((
+      $!{extension.releaseNotes}
+    )))
+  #end
+#end
+
+#macro (displayExtensionDetails_dependencies_upstream $extension)
+  $msg.get('extensions.info.dependencies.directDependencies', [$extension.dependencies.size()])
   #foreach ($dependency in $extension.dependencies)
-    #prepareInstall($dependency.id, $dependency.version, $extensionsToInstall, $extensionsToUpgrade, $extensionsSuggested, $coreExtensionsConflicts)
+    #set ($dependencyStatus = 'unknown')
+    #set ($dependencyStatusMessage = $NULL)
+    #set ($dependencyName = $dependency.id)
+    #set ($dependencyExtension = $extensionManager.resolve($dependency))
+    #if ($dependencyExtension)
+      #determineExtensionStatus($dependencyExtension $dependencyStatus $dependencyStatusMessage)
+      #set ($dependencyURL = "#getExtensionURL($dependency.id $dependency.versionConstraint)")
+      #set ($dependencyName = "[[#displayExtensionName($dependencyExtension)&gt;&gt;path:$dependencyURL]]")
+    #end
+    * (% class="dependency-item extension-item-$dependencyStatus" %)(((
+        ${dependencyName}(% class="extension-version" %)$!{dependency.versionConstraint}(% class="extension-status" %)$!dependencyStatusMessage
+      )))
+    #if (!$foreach.hasNext)
+
+    #end
+  #end
+#end
+
+#macro (displayExtensionDetails_dependencies_downstream $backwardDependencies)
+  $msg.get('extensions.info.dependencies.backwardDependencies', [$backwardDependencies.size()])
+  #foreach ($namespace in $backwardDependencies.entrySet())
+    #foreach ($dependency in $namespace.value)
+      #set ($dependencyURL = "#getExtensionURL($dependency.id.id $dependency.id.version)")
+      * (% class="dependency-item extension-item-installed" %)(((
+          [[#displayExtensionName($dependency)&gt;&gt;path:$dependencyURL]](% class="extension-version" %)$!{dependency.id.version}(%%)##
+          #if ("$!{namespace.key}" != '')
+            (% class="extension-namespace" %)$msg.get('extensions.info.dependency.wiki', [$namespace.key])##
+          #end
+          (% class="extension-status" %)$msg.get("extensions.info.status.installed")
+        )))
+    #end
+  #end
+#end
+
+#macro (displayExtensionDetails_dependencies $extension $backwardDependencies)
+  #if ($extension.dependencies.size() &gt; 0 || $backwardDependencies.size() &gt; 0)
+
+    {{id name="extension-body-dependencies-${extension.id.id}-${extension.id.version}" /}}
+    #computeXBack()
+    (% class="extension-body-dependencies extension-body-section" %)(((
+      #displayExtensionDetails_dependencies_upstream($extension)
+      #displayExtensionDetails_dependencies_downstream($backwardDependencies)
+    )))
+  #end
+#end
+
+#macro (displayExtensionDetails_progress $extension)
+  #set ($jobStatus = $extensionManager.getExtensionJobStatus($extension.id.id))
+  #if ($jobStatus || $request.actioninstall || $request.actionuninstall)
+
+    {{id name="extension-body-progress-${extension.id.id}-${extension.id.version}" /}}
+    (% class="extension-body-progress extension-body-section" %)(((
+      #if ($request.actioninstall)
+        #computeInstallPlan($extension.id.id $extension.id.version.value $extensionNamespace)
+      #elseif ($request.actionuninstall)
+        #computeUninstallPlan($extension.id.id $extension.id.version.value $extensionNamespace)
+      #else
+        {{box}}#printStatusLog($jobStatus){{/box}}
+      #end
+    )))
+  #end
+#end
+
+#macro (displayExtensionDetails $extension)
+  #set ($backwardDependencies = $extensionManager.getBackwardDependencies($extension.id.id, $extension.id.version.value))
+  #if (!$backwardDependencies)
+    #set ($backwardDependencies = {})
+  #end
+  (% class="extension-body" %)(((
+    #displayExtensionDetails_menu($extension)
+
+    #displayExtensionDetails_description($extension)
+    #displayExtensionDetails_releaseNotes($extension)
+    #displayExtensionDetails_dependencies($extension $backwardDependencies)
+    #displayExtensionDetails_progress($extension)
+  )))
+#end
+
+#macro (displayExtension $extension)
+  #determineExtensionStatus($extension $extensionStatus $extensionStatusMessage)
+  (% class="extension-item extension-item-${extensionStatus}" %)(((
+    (% class="extension-header" %)(((
+      (% class="extension-name" %)
+      == #displayExtensionName($extension) (% class="extension-version %)$extension.id.version ==
+
+      (% class="extension-header-right" %)(((
+        #if ($extensionStatusMessage)
+          (% class="extension-status" %)
+          $extensionStatusMessage
+
+        #end
+        #displayExtensionActionButtons($extension)
+      )))
+
+      #if ($extension.authors.size() &gt; 0)
+        #displayExtensionAuthors($extension)
+      #end
+      #if ("$!{extension.summary}" != '')
+        (% class="extension-description" %)
+        {{{
+          $extension.summary.replaceAll('\s+', ' ')
+        }}}
+
+      #end
+      (% class="clearfloats" %)((()))
+    )))
+    #if ($request.extensionId == $extension.id.id &amp;&amp; $request.extensionVersion == $extension.id.version.value)
+      #displayExtensionDetails($extension)
+    #end
+  )))
+#end
+
+#macro (installExtension $extensionId $extensionVersion $extensionNamespace)
+  #set ($discard = $extensionManager.install($extensionId, $extensionVersion, $extensionNamespace))
+  #set ($lastError = $extensionManager.lastError)
+  #if ($lastError)
+    #if ($extensionWiki)
+      #set ($errorMessage = $msg.get('extensions.install.error.installFailure.onWiki', [$extensionId, $extensionVersion, $extensionWiki]))
+    #else
+      #set ($errorMessage = $msg.get('extensions.install.error.installFailure', [$extensionId, $extensionVersion]))
+    #end
+    #if ($xcontext.action == 'get')
+      ## AJAX request. Send error back.
+      $response.sendError(400, $errorMessage)
+    #else
+      {{error}}$errorMessage #printThrowable($lastError){{/error}}
+    #end
+  #else
+    ## Redirect to extension display.
+    $response.sendRedirect("#getExtensionURL()")
+  #end
+#end
+
+#macro (computeInstallPlan $extensionId $extensionVersion $extensionNamespace)
+  #set($installPlan = $extensionManager.createInstallPlan($extensionId, $extensionVersion, $extensionNamespace))
+  #if (!$installPlan)
+    {{error}}$msg.get('extensions.install.error.prepareFailure', [$extensionId, $extensionVersion, $extensionManager.lastError.message]){{/error}}
+  #else
+    #set($hasError = false)
+    #foreach($log in $installPlan.log)
+      #if ($log.level.name() == 'ERROR')
+        #set($hasError = true)
+      #end
+    #end
+    ##
+    #if ($hasError)
+      {{box}}#printStatusLog($installPlan){{/box}}
+    #else
+      #set($extensionsToInstall = [])
+      #set($extensionsToUpgrade = [])
+      ##
+      #foreach($planAction in $installPlan.actions)
+        #if ($planAction.action.name() == "INSTALL")
+          #set($void = $extensionsToInstall.add($planAction))
+        #elseif ($planAction.action.name() == "UPGRADE")
+          #set($void = $extensionsToUpgrade.add($planAction))
+        #end
+      #end
+      ##
+      #if ($extensionsToInstall.isEmpty() &amp;&amp; $extensionsToUpgrade.isEmpty())
+        {{info}}$msg.get('extensions.install.error.alreadyInstalled'){{/info}}
+      #else
+        #if (!$extensionsToInstall.isEmpty())
+          $msg.get('extensions.install.list.new')
+          #foreach ($planAction in $extensionsToInstall)
+            * $planAction.extension.id.id ($planAction.extension.id.version)#if ($planAction.namespace) - $planAction.namespace#end
+
+          #end
+
+        #end
+        #if (!$extensionsToUpgrade.isEmpty())
+          $msg.get('extensions.install.list.upgrade')
+          #foreach ($planAction in $extensionsToUpgrade)
+            * $planAction.extension.id.id ($planAction.extension.id.version)#if ($planAction.namespace) - $planAction.namespace#end
+
+          #end
+
+        #end
+        {{html}}
+          &lt;form action="" class="xform"&gt;
+            &lt;div&gt;
+              &lt;input name="form_token" value="$!services.csrf.getToken()" type="hidden" /&gt;
+              &lt;input name="extensionId" value="${escapetool.xml($extensionId)}" type="hidden" /&gt;
+              &lt;input name="extensionVersion" value="${escapetool.xml($extensionVersion)}" type="hidden" /&gt;
+              #if ($extensionWiki)
+                &lt;input name="extensionWiki" value="$extensionWiki" type="hidden" /&gt;
+              #end
+              #if ($request.section)
+                &lt;input type="hidden" name="section" value="$escapetool.xml($request.section)" /&gt;
+              #end
+              &lt;input name="actioninstall" type="hidden" /&gt;
+              &lt;p&gt;
+                &lt;span class="buttonwrapper"&gt;&lt;input type="submit" value="$msg.get('extensions.install.actions.submit')" name="confirm" class="button"/&gt;&lt;/span&gt;
+                #if ("$!{request.xback}" != '')
+                  &lt;span class="buttonwrapper"&gt;&lt;a href="${request.xback}" class="secondary button"&gt;$msg.get('extensions.install.actions.cancel')&lt;/a&gt;&lt;/span&gt;
+                #end
+              &lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/form&gt;
+        {{/html}}
+      #end
+    #end
+  #end
+#end
+
+#macro (uninstallExtension $extensionId $extensionVersion $extensionNamespace)
+  #set($discard = $extensionManager.uninstall($extensionId, $extensionNamespace))
+  #set($lastError = $extensionManager.lastError)
+  #if ($lastError)
+    #set ($errorMessage = $msg.get('extensions.uninstall.error.uninstallFailure', [$extensionId, $extensionVersion]))
+    #if ($xcontext.action == 'get')
+      ## AJAX request. Send error back.
+      $response.sendError(400, $errorMessage)
+    #else
+      {{error}}$errorMessage #printThrowable($lastError){{/error}}
+    #end
+  #else
+    ## Redirect to extension display.
+    $response.sendRedirect("#getExtensionURL()")
+  #end
+#end
+
+#macro (computeUninstallPlan $extensionId $extensionVersion $extensionNamespace)
+  #set($uninstallPlan = $extensionManager.createUninstallPlan($extensionId, $extensionNamespace))
+  #if (!$uninstallPlan)
+    {{error}}$msg.get('extensions.uninstall.error.prepareFailure', [$extensionId, $extensionVersion, $lasterror.message]){{/error}}
+  #else
+    #set($hasError = false)
+    #foreach($log in $uninstallPlan.log)
+      #if ($log.level.name() == 'ERROR')
+        #set($hasError = true)
+      #end
+    #end
+    ##
+    #if ($hasError)
+      {{box}}#printStatusLog($uninstallPlan){{/box}}
+    #else
+      #set($extensionsToUninstall = [])
+      ##
+      #foreach($planAction in $uninstallPlan.actions)
+        #if ($planAction.action.name() == "UNINSTALL")
+          #set($void = $extensionsToUninstall.add($planAction))
+        #end
+      #end
+      ##
+      #if ($extensionsToUninstall.isEmpty())
+        {{info}}$msg.get('extensions.uninstall.error.notInstalled'){{/info}}
+      #else
+        The following extensions will be removed:
+        #foreach ($planAction in $extensionsToUninstall)
+          * $planAction.extension.id.id ($planAction.extension.id.version)#if ($planAction.namespace) - $planAction.namespace#end
+
+        #end
+
+        {{html}}
+          &lt;form action="" class="xform"&gt;
+            &lt;div&gt;
+              &lt;input name="form_token" value="$!services.csrf.getToken()" type="hidden" /&gt;
+              &lt;input name="extensionId" value="${escapetool.xml($extensionId)}" type="hidden" /&gt;
+              &lt;input name="extensionVersion" value="${escapetool.xml($extensionVersion)}" type="hidden" /&gt;
+              #if ($extensionWiki)
+                &lt;input name="extensionWiki" value="${extensionWiki}" type="hidden" /&gt;
+              #end
+              #if ($request.section)
+                &lt;input type="hidden" name="section" value="$escapetool.xml($request.section)" /&gt;
+              #end
+              &lt;input name="actionuninstall" type="hidden" /&gt;
+              &lt;p&gt;
+                &lt;span class="buttonwrapper"&gt;&lt;input type="submit" value="$msg.get('extensions.uninstall.actions.submit')" name="confirm" class="button"/&gt;&lt;/span&gt;
+                #if ("$!{request.xback}" != '')
+                  &lt;span class="buttonwrapper"&gt;&lt;a href="${request.xback}" class="secondary button"&gt;$msg.get('extensions.uninstall.actions.cancel')&lt;/a&gt;&lt;/span&gt;
+                #end
+              &lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/form&gt;
+        {{/html}}
+      #end
+    #end
+  #end
+#end
+
+#macro (getExtensionURL $extensionId $extensionVersion)
+  #set ($parameters = {})
+  #if ($extensionId)
+    #set ($discard = $parameters.put('extensionId', $extensionId))
+  #elseif ($request.extensionId)
+    #set ($discard = $parameters.put('extensionId', $request.extensionId))
+  #end
+  #if ($extensionVersion)
+    #set ($discard = $parameters.put('extensionVersion', $extensionVersion))
+  #elseif ($request.extensionVersion)
+    #set ($discard = $parameters.put('extensionVersion', $request.extensionVersion))
+  #end
+  #if ($xback)
+    #set ($discard = $parameters.put('xback', $xback))
+  #elseif ($request.xback)
+    #set ($discard = $parameters.put('xback', $request.xback))
+  #end
+  #if ($request.section)
+    #set ($discard = $parameters.put('section', $request.section))
+  #end
+  #set ($queryString = '')
+  #foreach ($entry in $parameters.entrySet())
+    #set ($queryString = "$queryString&amp;$escapetool.url($entry.key)=$escapetool.url($entry.value)")
+  #end
+$doc.getURL($xcontext.action, $queryString.substring(1))##
+#end
+
+#macro (handleExtensionRequest)
+  #if ($request.confirm)
+    #if ($services.csrf.isTokenValid($request.form_token))
+      #if ($request.actioninstall)
+        #installExtension($request.extensionId $request.extensionVersion $extensionNamespace)
+      #elseif ($request.actionuninstall)
+        #uninstallExtension($request.extensionId $request.extensionVersion $extensionNamespace)
+      #else
+        $response.sendRedirect("#getExtensionURL()")
+      #end
+    #elseif ($xcontext.action == 'get')
+      # AJAX request. The CSRF token expired. We only redisplay the extension because the resubmission confirmation doesn't fit nicely in-line.
+      $response.sendRedirect("#getExtensionURL()")
+    #else
+      $response.sendRedirect($services.csrf.getResubmissionURL())
+    #end
+  #else
+    ## Display the extension.
+    #set ($extension = $extensionManager.resolve($request.extensionId, $request.extensionVersion))
+    #if ($extension)
+      #displayExtension($extension)
+    #else
+      {{info}}$msg.get('extensions.advancedSearch.noResults', ["**{{{$!request.extensionId}}}**", "**{{{$!request.extensionVersion}}}**"]){{/info}}
+    #end
   #end
 #end
 
@@ -1286,9 +1764,12 @@ $xwiki.jsx.use('ExtensionManagerMacros')
   #end
 #end
 
-#macro (printJobLog $job)
-  #foreach ($log in $job.status.log)
+#macro (printStatusLog $status)
+  #foreach ($log in $status.log)
     #set ($logLevel = $log.level.toString().toLowerCase())
+    #if ($logLevel == 'warn')
+      #set ($logLevel = 'warning')
+    #end
     {{$logLevel}}
       $log.formattedMessage
       #if ($log.throwable)
@@ -1298,21 +1779,7 @@ $xwiki.jsx.use('ExtensionManagerMacros')
   #end
 #end
 
-#macro (prepareUninstall $extensionid $extensionversion $extensionsToUninstall)
-  #set ($discard = $extensionsToUninstall.add("${extensionid}-${extensionversion}"))
-  #set ($backwardDependencies = $extensionManager.getBackwardDependencies($extensionid, $extensionversion))
-  #prepareUninstallBackwardDependencies($backwardDependencies, $extensionsToUninstall)
-#end
-
-#macro(prepareUninstallBackwardDependencies $backwardDependencies $extensionsToUninstall)
-  #foreach ($backwardDependencyMap in $backwardDependencies.values())
-    #foreach ($backwardDependency in $backwardDependencyMap)
-      #prepareUninstall($backwardDependency.id.id, $backwardDependency.id.version, $extensionsToUninstall)
-    #end
-  #end
-#end
-
-#macro(computeXBack)
+#macro (computeXBack)
   #set ($xback = "$!{request.xback}")
   #if ($xback == '')
     #set ($params = '')
@@ -1329,4 +1796,84 @@ $xwiki.jsx.use('ExtensionManagerMacros')
     #set ($xback = $doc.getURL($xcontext.action, $params))
   #end
 #end
-{{/velocity}}</content></xwikidoc>
+
+#macro (getCoreExtensionButtons $extension $actions)
+  #if ($request.extensionId == $extension.id.id &amp;&amp; $request.extensionVersion == $extension.id.version.value)
+    #if ($xcontext.action == 'get')
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""showdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button visibilityAction"" /&gt;&lt;/span&gt;"))
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""hidedetails"" value=""$msg.get('extensions.actions.hideDetails')"" class=""button visibilityAction"" /&gt;&lt;/span&gt;"))
+    #else
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;a href=""${xback}"" class=""button""&gt;$msg.get('extensions.actions.back')&lt;/a&gt;&lt;/span&gt;"))
+    #end
+  #else
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionshowdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button""/&gt;&lt;/span&gt;&lt;input type=""hidden"" name=""xback"" value=""${xback}"" /&gt;"))
+  #end
+#end
+
+#macro (getInstalledExtensionButtons $extension $actions)
+  #if ($request.extensionId == $extension.id.id &amp;&amp; $request.extensionVersion == $extension.id.version.value)
+    #if ($xcontext.action == 'get')
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""showdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button visibilityAction""/&gt;&lt;/span&gt;"))
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""hidedetails"" value=""$msg.get('extensions.actions.hideDetails')"" class=""button visibilityAction""/&gt;&lt;/span&gt;"))
+    #else
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;a href=""${xback}"" class=""button""&gt;$msg.get('extensions.actions.back')&lt;/a&gt;&lt;/span&gt;"))
+    #end
+  #else
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionshowdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button""/&gt;&lt;/span&gt;&lt;input type=""hidden"" name=""xback"" value=""${xback}"" /&gt;"))
+  #end
+  #if ($hasProgramming)
+    #if ($xcontext.isMainWiki() || !$extension.isInstalled(null))
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionuninstall"" value=""$msg.get('extensions.actions.uninstall')"" class=""button secondary""/&gt;&lt;/span&gt;"))
+    #end
+  #end
+#end
+
+#macro (getRemoteExtensionButtons $extension $actions)
+  #if ($request.extensionId == $extension.id.id &amp;&amp; $request.extensionVersion == $extension.id.version.value)
+    #if ($xcontext.action == 'get')
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""showdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button visibilityAction"" /&gt;&lt;/span&gt;"))
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""hidedetails"" value=""$msg.get('extensions.actions.hideDetails')"" class=""button visibilityAction"" /&gt;&lt;/span&gt;"))
+    #else
+      #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;a href=""${xback}"" class=""button""&gt;$msg.get('extensions.actions.back')&lt;/a&gt;&lt;/span&gt;"))
+    #end
+  #else
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actionshowdetails"" value=""$msg.get('extensions.actions.showDetails')"" class=""button""/&gt;&lt;/span&gt;&lt;input type=""hidden"" name=""xback"" value=""${xback}"" /&gt;"))
+  #end
+  #if ($hasProgramming)
+    #set ($discard = $actions.add("&lt;span class=""buttonwrapper""&gt;&lt;input type=""submit"" name=""actioninstall"" value=""$msg.get('extensions.actions.install')"" class=""button""/&gt;&lt;/span&gt;"))
+  #end
+#end
+
+#macro (determineExtensionStatus $extension $extensionStatus $extensionStatusMessage)
+  #set ($currentVersion = $NULL)
+  #if ($extension.isInstalled())
+    #set ($status = 'installed')
+  #else
+    #set ($status = $extension.repository.id.id)
+    #if ($status != 'core')
+      ## An extension, either local or remote, that is available to install.
+      ## Check if a different version of this extension is installed or is a core dependency.
+      #set ($currentVersion = $extensionManager.getCoreExtension($extension.id.id))
+      #if ($currentVersion)
+        #set ($status = 'remote-core')
+      #else
+        #set ($currentVersion = $extensionManager.getInstalledExtension($extension.id.id, $extensionNamespace))
+        #if ($currentVersion)
+          #set ($status = 'remote-installed')
+        #else
+          #set ($status = 'remote')
+        #end
+      #end
+    #end
+  #end
+  #set ($message = $NULL)
+  #if ($status != 'remote')
+    #set ($message = $msg.get("extensions.info.status.$status", [$currentVersion.id.version.value]))
+  #end
+  #set ($extensionStatus = $NULL)
+  #setVariable ("$extensionStatus" $status)
+  #set ($extensionStatusMessage = $NULL)
+  #setVariable ("$extensionStatusMessage" $message)
+#end
+{{/velocity}}</content>
+</xwikidoc>

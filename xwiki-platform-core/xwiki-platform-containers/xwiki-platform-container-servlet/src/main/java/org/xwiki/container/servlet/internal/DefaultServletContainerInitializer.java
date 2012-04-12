@@ -80,6 +80,10 @@ public class DefaultServletContainerInitializer implements ServletContainerIniti
     @Inject
     private Logger logger;
 
+    /**
+     * @deprecated starting with 3.5M1, use the notion of Environment instead
+     */
+    @Deprecated
     @Override
     public void initializeApplicationContext(ServletContext servletContext)
     {
@@ -111,7 +115,7 @@ public class DefaultServletContainerInitializer implements ServletContainerIniti
         // it as a parameter (which can be ignored by factories not using it).
         try {
             URL url = getURL(httpServletRequest);
-            XWikiURLFactory<URL> urlFactory = this.componentManager.lookup(XWikiURLFactory.class);
+            XWikiURLFactory<URL> urlFactory = this.componentManager.getInstance(XWikiURLFactory.class);
             XWikiURL xwikiURL =
                 urlFactory.createURL(url,
                     Collections.<String, Object> singletonMap("ignorePrefix", httpServletRequest.getContextPath()));
@@ -131,7 +135,7 @@ public class DefaultServletContainerInitializer implements ServletContainerIniti
 
         // 5) Call the request initializers to populate the Request further.
         try {
-            RequestInitializerManager manager = this.componentManager.lookup(RequestInitializerManager.class);
+            RequestInitializerManager manager = this.componentManager.getInstance(RequestInitializerManager.class);
             manager.initializeRequest(this.container.getRequest());
         } catch (Exception e) {
             throw new ServletContainerException("Failed to initialize request", e);
@@ -139,7 +143,7 @@ public class DefaultServletContainerInitializer implements ServletContainerIniti
 
         // 6) Call Execution Context initializers to perform further Execution Context initializations
         try {
-            ExecutionContextManager manager = this.componentManager.lookup(ExecutionContextManager.class);
+            ExecutionContextManager manager = this.componentManager.getInstance(ExecutionContextManager.class);
             manager.initialize(this.execution.getContext());
         } catch (Exception e) {
             throw new ServletContainerException("Failed to initialize Execution Context", e);

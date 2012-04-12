@@ -19,11 +19,16 @@
  */
 package org.xwiki.cache.infinispan.internal;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
-import org.infinispan.config.Configuration;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.FileCacheStoreConfiguration;
+import org.infinispan.configuration.cache.FileCacheStoreConfigurationBuilder;
+import org.infinispan.configuration.cache.LoaderConfiguration;
+import org.infinispan.configuration.cache.LoadersConfigurationBuilder;
 import org.infinispan.eviction.EvictionStrategy;
-import org.infinispan.loaders.CacheLoaderConfig;
-import org.infinispan.loaders.file.FileCacheStoreConfig;
 import org.xwiki.cache.config.CacheConfiguration;
 import org.xwiki.cache.eviction.EntryEvictionConfiguration;
 import org.xwiki.cache.eviction.LRUEvictionConfiguration;
@@ -37,6 +42,11 @@ import org.xwiki.cache.util.AbstractCacheConfigurationLoader;
 public class InfinispanConfigurationLoader extends AbstractCacheConfigurationLoader
 {
     /**
+     * The default location of a filesystel based cache loader when not provided in the xml configuration file.
+     */
+    private static final String DEFAULT_FILECACHESTORE_LOCATION = "Infinispan-FileCacheStore";
+
+    /**
      * @param configuration the XWiki cache configuration
      */
     public InfinispanConfigurationLoader(CacheConfiguration configuration)
@@ -45,42 +55,144 @@ public class InfinispanConfigurationLoader extends AbstractCacheConfigurationLoa
     }
 
     /**
-     * Customize provided configuration based on XWiki cache configuration.
-     * 
-     * @param isConfiguration the Infinispan configuration
-     * @return true if the provided configuration has been modified
+     * @param builder the current builder
+     * @param isconfiguration the configuration to customize
+     * @return the new builder based on provided configuration if the current one is null
      */
-    public boolean customize(Configuration isConfiguration)
+    private ConfigurationBuilder builder(ConfigurationBuilder builder, Configuration isconfiguration)
     {
-        boolean configChanged = false;
+        if (builder != null) {
+            return builder;
+        }
+
+        ConfigurationBuilder newBuilder = new ConfigurationBuilder();
+
+        if (isconfiguration != null) {
+            newBuilder.read(isconfiguration);
+        }
+
+        return newBuilder;
+    }
+
+    /**
+     * @param isconfiguration the configuration to check
+     * @return true if one of the loader is an incomplete {@link FileCacheStoreConfiguration}
+     */
+    private boolean containsIncompleteFileLoader(Configuration isconfiguration)
+    {
+        for (Object cacheLoaderConfig : (List) isconfiguration.loaders().cacheLoaders()) {
+            if (cacheLoaderConfig instanceof FileCacheStoreConfiguration) {
+                FileCacheStoreConfiguration fileCacheLoaderConfig = (FileCacheStoreConfiguration) cacheLoaderConfig;
+                String location = fileCacheLoaderConfig.location();
+
+                // "Infinispan-FileCacheStore" is the default location...
+                if (StringUtils.isBlank(location) || location.equals(DEFAULT_FILECACHESTORE_LOCATION)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Customize the eviction configuration.
+     * 
+     * @param currentBuilder the configuration builder
+     * @param configuration the configuration
+     * @return the configuration builder
+     */
+    private ConfigurationBuilder customizeEviction(ConfigurationBuilder currentBuilder, Configuration configuration)
+    {
+        ConfigurationBuilder builder = currentBuilder;
 
         EntryEvictionConfiguration eec =
             (EntryEvictionConfiguration) getCacheConfiguration().get(EntryEvictionConfiguration.CONFIGURATIONID);
 
         if (eec != null && eec.getAlgorithm() == EntryEvictionConfiguration.Algorithm.LRU) {
             if (eec.containsKey(LRUEvictionConfiguration.MAXENTRIES_ID)) {
-                isConfiguration.fluent().eviction().strategy(EvictionStrategy.LRU)
-                    .maxEntries(((Number) eec.get(LRUEvictionConfiguration.MAXENTRIES_ID)).intValue());
-                configChanged = true;
+                int maxEntries = ((Number) eec.get(LRUEvictionConfiguration.MAXENTRIES_ID)).intValue();
+                if (configuration.eviction() == null || configuration.eviction().strategy() != EvictionStrategy.LRU
+                    || configuration.eviction().maxEntries() != maxEntries) {
+                    builder = builder(builder, null);
+                    builder.eviction().strategy(EvictionStrategy.LRU);
+                    builder.eviction().maxEntries(maxEntries);
+                }
             }
 
             if (eec.getTimeToLive() > 0) {
-                isConfiguration.fluent().expiration().maxIdle(eec.getTimeToLive() * 1000L);
-                configChanged = true;
-            }
-        }
-
-        for (CacheLoaderConfig cacheLoaderConfig : isConfiguration.getCacheLoaders()) {
-            if (cacheLoaderConfig instanceof FileCacheStoreConfig) {
-                FileCacheStoreConfig fileCacheLoaderConfig = (FileCacheStoreConfig) cacheLoaderConfig;
-                String location = fileCacheLoaderConfig.getLocation();
-
-                if (StringUtils.isBlank(location)) {
-                    fileCacheLoaderConfig.location(createTempDir());
+                long maxIdle = eec.getTimeToLive() * 1000L;
+                if (configuration.expiration() == null || configuration.expiration().maxIdle() != maxIdle) {
+                    builder = builder(builder, null);
+                    builder.expiration().maxIdle(eec.getTimeToLive() * 1000L);
                 }
             }
         }
 
-        return configChanged;
+        return builder;
+    }
+
+    /**
+     * Add missing location for filesystem based cache.
+     * 
+     * @param currentBuilder the configuration builder
+     * @param configuration the configuration
+     * @return the configuration builder
+     */
+    private ConfigurationBuilder completeFilesystem(ConfigurationBuilder currentBuilder, Configuration configuration)
+    {
+        ConfigurationBuilder builder = currentBuilder;
+
+        if (containsIncompleteFileLoader(configuration)) {
+            builder = builder(builder, configuration);
+
+            LoadersConfigurationBuilder loadersBuilder = builder.loaders();
+            loadersBuilder.clearCacheLoaders();
+
+            for (Object cacheLoaderConfig : (List) configuration.loaders().cacheLoaders()) {
+                if (cacheLoaderConfig instanceof LoaderConfiguration) {
+                    loadersBuilder.addCacheLoader().read((LoaderConfiguration) cacheLoaderConfig);
+                } else if (cacheLoaderConfig instanceof FileCacheStoreConfiguration) {
+                    FileCacheStoreConfiguration fileCacheLoaderConfig = (FileCacheStoreConfiguration) cacheLoaderConfig;
+
+                    FileCacheStoreConfigurationBuilder loaderBuilder =
+                        loadersBuilder.addFileCacheStore().read(fileCacheLoaderConfig);
+
+                    String location = fileCacheLoaderConfig.location();
+                    // "Infinispan-FileCacheStore" is the default location...
+                    if (StringUtils.isBlank(location) || location.equals(DEFAULT_FILECACHESTORE_LOCATION)) {
+                        loaderBuilder.location(createTempDir());
+                    }
+                }
+            }
+        }
+
+        return builder;
+    }
+
+    /**
+     * Customize provided configuration based on XWiki cache configuration.
+     * 
+     * @param defaultConfiguration the default Infinispan configuration
+     * @param namedConfiguration the named default Infinispan configuration
+     * @return the new configuration or the passed one if nothing changed
+     */
+    public Configuration customize(Configuration defaultConfiguration, Configuration namedConfiguration)
+    {
+        // Set custom configuration
+
+        ConfigurationBuilder builder = null;
+
+        if (namedConfiguration == null) {
+            builder = customizeEviction(builder, defaultConfiguration);
+        }
+
+        // Make sure filesystem based caches have a proper location
+
+        if (namedConfiguration != null) {
+            builder = completeFilesystem(builder, namedConfiguration);
+        }
+
+        return builder != null ? builder.build() : null;
     }
 }

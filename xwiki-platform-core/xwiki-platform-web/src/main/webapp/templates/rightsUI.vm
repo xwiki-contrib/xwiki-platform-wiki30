@@ -9,7 +9,7 @@ $xwiki.ssfx.use('js/xwiki/usersandgroups/usersandgroups.css', true)
 $xwiki.jsfx.use('js/xwiki/table/livetable.js', true)
 $xwiki.ssfx.use('js/xwiki/table/livetable.css', true)
 #set ($rightsLevels = {'view': 0, 'comment': 1, 'edit': 2, 'delete': 3, 'admin': 4, 'register': 5, 'programming': 6})
-#set ($levelsRights = $util.hashMap)
+#set ($levelsRights = {})
 #foreach ($r in $rightsLevels.keySet())
   #set ($discard = $levelsRights.put($rightsLevels.get($r), $r))
 #end
@@ -41,7 +41,7 @@ $xwiki.ssfx.use('js/xwiki/table/livetable.css', true)
 #set ($saveUrl = $doc.getURL('edit', "form_token=$!{services.csrf.getToken()}&xpage=saverights&clsname=${clsname}&fullname=XWiki.XWikiGuest&uorg=users"))
 
 ## get the rights for XWikiGuest
-#set($r = $util.arrayList)
+#set($r = [])
 #foreach ($i in [0..$maxlevel])
   #set ($discard = $r.add(0))
 #end
@@ -71,9 +71,9 @@ $xwiki.ssfx.use('js/xwiki/table/livetable.css', true)
     <tr>
       <td class="xwiki-livetable-pagination" colspan="2">
         <span id="usersandgroupstable-limits" class="xwiki-livetable-limits"></span>
-        <span id="usersandgroupstable-ajax-loader" class="xwiki-livetable-loader"><img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$msg.get('xe.livetable.loading')" title="" />$msg.get('xe.livetable.loading')</span>
+        <span id="usersandgroupstable-ajax-loader" class="xwiki-livetable-loader"><img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$msg.get('platform.livetable.loading')" title="" />$msg.get('platform.livetable.loading')</span>
         <span class="pagination">
-          <span id="usersandgroupstable-pagination-text" class="xwiki-livetable-pagination-text">$msg.get('xe.pagination.page')</span>
+          <span id="usersandgroupstable-pagination-text" class="xwiki-livetable-pagination-text">$msg.get('platform.livetable.paginationPage')</span>
           <span id="usersandgroupstable-pagination" class="xwiki-livetable-pagination-content" ></span>
         </span>
       </td>

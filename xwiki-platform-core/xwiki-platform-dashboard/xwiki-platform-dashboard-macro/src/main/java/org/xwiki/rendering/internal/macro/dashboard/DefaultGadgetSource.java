@@ -94,7 +94,7 @@ public class DefaultGadgetSource implements GadgetSource
      * The current entity reference resolver, to resolve the gadgets class reference.
      */
     @Inject
-    @Named("current/reference")
+    @Named("current")
     protected DocumentReferenceResolver<EntityReference> currentReferenceEntityResolver;
 
     /**
@@ -156,7 +156,7 @@ public class DefaultGadgetSource implements GadgetSource
         }
         VelocityEngine velocityEngine = velocityManager.getVelocityEngine();
         // prepare the parser to parse the title and content of the gadget into blocks
-        Parser contentParser = (Parser) componentManager.lookup(Parser.class, sourceSyntax.toIdString());
+        Parser contentParser = (Parser) componentManager.getInstance(Parser.class, sourceSyntax.toIdString());
         ParserUtils parserUtils = new ParserUtils();
 
         for (BaseObject xObject : objects) {
@@ -271,8 +271,8 @@ public class DefaultGadgetSource implements GadgetSource
     @Override
     public boolean isEditing()
     {
-        // get the XWiki context and look at the action. if it's inline, it's edit mode
+        // get the XWiki context and look at the action. if it's "inline" or "edit", it's edit mode
         XWikiContext context = getXWikiContext();
-        return "inline".equals(context.getAction());
+        return "inline".equals(context.getAction()) || "edit".equals(context.getAction());
     }
 }

@@ -29,7 +29,9 @@ import org.jfree.chart.plot.Plot;
 import org.xwiki.chart.ChartGenerator;
 import org.xwiki.chart.ChartGeneratorException;
 import org.xwiki.chart.internal.plot.AreaPlotGenerator;
+import org.xwiki.chart.internal.plot.Bar3DPlotGenerator;
 import org.xwiki.chart.internal.plot.BarPlotGenerator;
+import org.xwiki.chart.internal.plot.Line3DPlotGenerator;
 import org.xwiki.chart.internal.plot.LinePlotGenerator;
 import org.xwiki.chart.internal.plot.PiePlotGenerator;
 import org.xwiki.chart.internal.plot.PlotGenerator;
@@ -53,9 +55,7 @@ public class DefaultChartGenerator implements ChartGenerator, Initializable
      */
     private Map<String, PlotGenerator> plotGenerators;
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void initialize() throws InitializationException
     {
         plotGenerators = new HashMap<String, PlotGenerator>();        
@@ -63,11 +63,11 @@ public class DefaultChartGenerator implements ChartGenerator, Initializable
         plotGenerators.put("bar", new BarPlotGenerator());    
         plotGenerators.put("area", new AreaPlotGenerator());
         plotGenerators.put("pie", new PiePlotGenerator());
+        plotGenerators.put("line3D", new Line3DPlotGenerator());
+        plotGenerators.put("bar3D", new Bar3DPlotGenerator());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public byte[] generate(ChartModel model, Map<String, String> parameters) throws ChartGeneratorException
     {
         setDefaultParams(parameters);

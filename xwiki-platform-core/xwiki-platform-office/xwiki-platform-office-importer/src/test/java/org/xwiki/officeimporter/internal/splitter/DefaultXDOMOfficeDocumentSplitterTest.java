@@ -52,16 +52,15 @@ public class DefaultXDOMOfficeDocumentSplitterTest extends AbstractOfficeImporte
      * Document splitter for testing.
      */
     private XDOMOfficeDocumentSplitter officeDocumentSplitter;
-    
-    /**
-     * {@inheritDoc}
-     */
+
+    @Override
     @Before
     public void setUp() throws Exception
     {
         super.setUp();
-        this.xwikiSyntaxParser = getComponentManager().lookup(Parser.class, "xwiki/2.0");
-        this.officeDocumentSplitter = getComponentManager().lookup(XDOMOfficeDocumentSplitter.class);
+
+        this.xwikiSyntaxParser = getComponentManager().getInstance(Parser.class, "xwiki/2.0");
+        this.officeDocumentSplitter = getComponentManager().getInstance(XDOMOfficeDocumentSplitter.class);
     }
 
     /**

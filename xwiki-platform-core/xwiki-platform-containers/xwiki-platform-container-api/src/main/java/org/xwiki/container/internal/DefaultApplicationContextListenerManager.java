@@ -37,9 +37,11 @@ import org.xwiki.container.ApplicationContextListenerManager;
  * 
  * @version $Id$
  * @since 1.9M2
+ * @deprecated starting with 3.5M1, use the notion of Environment instead
  */
 @Component
 @Singleton
+@Deprecated
 public class DefaultApplicationContextListenerManager implements ApplicationContextListenerManager
 {
     /**
@@ -59,7 +61,7 @@ public class DefaultApplicationContextListenerManager implements ApplicationCont
     {
         try {
             List<ApplicationContextListener> initializers =
-                this.componentManager.lookupList(ApplicationContextListener.class);
+                this.componentManager.getInstanceList(ApplicationContextListener.class);
             for (ApplicationContextListener initializer : initializers) {
                 initializer.initializeApplicationContext(applicationContext);
             }
@@ -73,7 +75,7 @@ public class DefaultApplicationContextListenerManager implements ApplicationCont
     {
         try {
             List<ApplicationContextListener> initializers =
-                this.componentManager.lookupList(ApplicationContextListener.class);
+                this.componentManager.getInstanceList(ApplicationContextListener.class);
             for (ApplicationContextListener initializer : initializers) {
                 initializer.destroyApplicationContext(applicationContext);
             }

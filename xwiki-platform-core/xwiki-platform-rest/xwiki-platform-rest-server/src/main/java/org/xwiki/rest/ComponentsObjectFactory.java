@@ -56,15 +56,12 @@ public class ComponentsObjectFactory implements ObjectFactory
         this.componentManager = componentManager;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.restlet.ext.jaxrs.ObjectFactory#getInstance(java.lang.Class)
-     */
+    @Override
     public <T> T getInstance(Class<T> clazz) throws InstantiateException
     {
         try {
             /* Use the component manager to lookup the class. This ensure that injections are properly executed */
-            XWikiRestComponent component = componentManager.lookup(XWikiRestComponent.class, clazz.getName());
+            XWikiRestComponent component = componentManager.getInstance(XWikiRestComponent.class, clazz.getName());
 
             /*
              * JAX-RS resources and providers must be declared as components whose hint is the FQN of the class

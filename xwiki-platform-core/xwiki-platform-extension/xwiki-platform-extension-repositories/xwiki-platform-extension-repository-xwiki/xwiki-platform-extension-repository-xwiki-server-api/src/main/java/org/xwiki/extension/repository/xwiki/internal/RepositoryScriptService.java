@@ -21,22 +21,36 @@ package org.xwiki.extension.repository.xwiki.internal;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.context.Execution;
+import org.xwiki.extension.ExtensionException;
+import org.xwiki.extension.repository.ExtensionRepository;
+import org.xwiki.extension.repository.ExtensionRepositoryManager;
+import org.xwiki.extension.version.Version;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.script.service.ScriptService;
 
 @Component
 @Named("repository")
+@Singleton
 public class RepositoryScriptService implements ScriptService
 {
-    /** The key under which the last encountered error is stored in the current execution context. */
+    /**
+     * The key under which the last encountered error is stored in the current execution context.
+     */
     private static final String REPOSITORYERROR_KEY = "scriptservice.repository.error";
 
     @Inject
     private RepositoryManager repositoryManager;
 
-    /** Provides access to the current context. */
+    @Inject
+    private ExtensionRepositoryManager extensionRepositoryManager;
+
+    /**
+     * Provides access to the current context.
+     */
     @Inject
     private Execution execution;
 
@@ -70,5 +84,24 @@ public class RepositoryScriptService implements ScriptService
         } catch (Exception e) {
             setError(e);
         }
+    }
+
+    public DocumentReference importExtension(String extensionId, String repositoryId)
+    {
+        setError(null);
+
+        try {
+            ExtensionRepository repository = this.extensionRepositoryManager.getRepository(repositoryId);
+
+            if (repository == null) {
+                throw new ExtensionException("Can't find any registered repository with id [" + repositoryId + "]");
+            }
+
+            return this.repositoryManager.importExtension(extensionId, repository, Version.Type.STABLE);
+        } catch (Exception e) {
+            setError(e);
+        }
+
+        return null;
     }
 }

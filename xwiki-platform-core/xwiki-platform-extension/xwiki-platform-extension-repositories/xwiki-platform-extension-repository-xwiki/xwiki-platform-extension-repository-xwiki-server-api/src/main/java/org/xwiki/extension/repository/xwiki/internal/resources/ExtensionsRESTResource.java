@@ -20,6 +20,7 @@
 
 package org.xwiki.extension.repository.xwiki.internal.resources;
 
+import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -37,6 +38,7 @@ import org.xwiki.query.QueryException;
  */
 @Component("org.xwiki.extension.repository.xwiki.internal.resources.ExtensionsRESTResource")
 @Path(Resources.EXTENSIONS)
+@Singleton
 public class ExtensionsRESTResource extends AbstractExtensionRESTResource
 {
     @GET
@@ -45,7 +47,7 @@ public class ExtensionsRESTResource extends AbstractExtensionRESTResource
         @QueryParam(Resources.QPARAM_LIST_REQUIRETOTALHITS) @DefaultValue("true") boolean requireTotalHits)
         throws QueryException
     {
-        Extensions extensions = this.objectFactory.createExtensions();
+        Extensions extensions = this.extensionObjectFactory.createExtensions();
 
         if (requireTotalHits) {
             Query countQuery = createExtensionsCountQuery(null, null);

@@ -28,41 +28,28 @@
   <parent>
     <groupId>org.xwiki.platform</groupId>
     <artifactId>xwiki-platform-tools</artifactId>
-    <version>3.4-SNAPSHOT</version>
+    <version>@project.version@</version>
   </parent>
-  <artifactId>xwiki-package-simple-sample</artifactId>
+  <artifactId>xwiki-platform-tool-packager-plugin-it-simple</artifactId>
   <packaging>pom</packaging>
-  <name>Maven XWiki Sample Simple Package Plugin</name>
-  <description>Maven XWiki Sample Simple Package Plugin</description>
+  <name>XWiki Platform - Tools - Packager - Test - Simple</name>
+  <description>XWiki Platform - Tools - Packager - Test - Simple</description>
   <properties>
-      <!-- Overridden configuration data for xwiki.properties -->
-      <xwikiRenderingTransformations>macro, icon, linkchecker</xwikiRenderingTransformations>
+    <!-- Don't run CLIRR here since there's no Java code. -->
+    <xwiki.clirr.skip>true</xwiki.clirr.skip>
   </properties>
-  <dependencies>
-    <!-- This XAR will be installed in the packaged XWiki -->
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-linkchecker-ui</artifactId>
-      <version>${project.version}</version>
-      <type>xar</type>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>dependency</module>
+    <module>package</module>
+  </modules>
   <build>
-    <plugins>
-      <!-- Generate XWiki packaging -->
-      <plugin>
-        <groupId>org.xwiki.platform</groupId>
-        <artifactId>xwiki-platform-tool-packager-plugin</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <id>package</id>
-            <goals>
-              <goal>package</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+    <extensions>
+      <!-- Needed to add support for the "xar" packaging -->
+      <extension>
+        <groupId>org.xwiki.commons</groupId>
+        <artifactId>xwiki-commons-tool-xar-handlers</artifactId>
+        <version>${commons.version}</version>
+      </extension>
+    </extensions>
   </build>
 </project>

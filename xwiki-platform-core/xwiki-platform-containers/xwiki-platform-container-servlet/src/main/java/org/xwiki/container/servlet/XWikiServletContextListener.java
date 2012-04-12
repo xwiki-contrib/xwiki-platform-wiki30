@@ -28,6 +28,8 @@ import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.container.ApplicationContextListenerManager;
 import org.xwiki.container.Container;
+import org.xwiki.environment.Environment;
+import org.xwiki.environment.internal.ServletEnvironment;
 import org.xwiki.observation.ObservationManager;
 import org.xwiki.observation.event.ApplicationStartedEvent;
 import org.xwiki.observation.event.ApplicationStoppedEvent;
@@ -50,37 +52,6 @@ public class XWikiServletContextListener implements ServletContextListener
         ecm.initialize(this.getClass().getClassLoader());
         this.componentManager = ecm;
 
-        // Use a Component Event Manager that stacks Component instance creation events till we tell it to flush them.
-        // The reason is that the Observation Manager used to send the events but we need the Application Context to
-        // be set up before we start sending events since there can be Observation Listener components that require
-        // the Application Context (this is the case for example for the Office Importer Lifecycle Listener).
-        StackingComponentEventManager eventManager = new StackingComponentEventManager();
-        this.componentManager.setComponentEventManager(eventManager);
-
-        // Initializes XWiki's Container with the Servlet Context.
-        try {
-            ServletContainerInitializer containerInitializer =
-                this.componentManager.lookup(ServletContainerInitializer.class);
-            containerInitializer.initializeApplicationContext(servletContextEvent.getServletContext());
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException("Failed to initialize the Application Context", e);
-        }
-
-        // Send an Observation event to signal the XWiki application is started. This allows components who need to do
-        // something on startup to do it.
-        ObservationManager observationManager;
-        try {
-            observationManager = this.componentManager.lookup(ObservationManager.class);
-            observationManager.notify(new ApplicationStartedEvent(), this);
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException("Failed to find the Observation Manager component", e);
-        }
-
-        // Now that the Application Context is set up, send the Component instance creation events we had stacked up.
-        eventManager.setObservationManager(observationManager);
-        eventManager.shouldStack(false);
-        eventManager.flushEvents();
-
         // This is a temporary bridge to allow non XWiki components to lookup XWiki components.
         // We're putting the XWiki Component Manager instance in the Servlet Context so that it's
         // available in the XWikiAction class which in turn puts it into the XWikiContext instance.
@@ -91,6 +62,52 @@ public class XWikiServletContextListener implements ServletContextListener
         // component manager together with a private class member, for automatic injection by the CM on init.
         servletContextEvent.getServletContext().setAttribute(
             org.xwiki.component.manager.ComponentManager.class.getName(), this.componentManager);
+
+        // Use a Component Event Manager that stacks Component instance creation events till we tell it to flush them.
+        // The reason is that the Observation Manager used to send the events but we need the Application Context to
+        // be set up before we start sending events since there can be Observation Listener components that require
+        // the Application Context (this is the case for example for the Office Importer Lifecycle Listener).
+        StackingComponentEventManager eventManager = new StackingComponentEventManager();
+        this.componentManager.setComponentEventManager(eventManager);
+
+        // Initialize the Environment
+        try {
+            ServletEnvironment servletEnvironment =
+                (ServletEnvironment) this.componentManager.getInstance(Environment.class);
+            servletEnvironment.setServletContext(servletContextEvent.getServletContext());
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException("Failed to initialize the Servlet Environment", e);
+        }
+
+        // Initializes the Application Context.
+        // Even though the notion of ApplicationContext has been deprecated in favor of the notion of Environment we
+        // still keep this initialization for backward-compatibility.
+        // TODO: Add an Observation Even that we send when the Environment is initialized so that we can move the code
+        // below in an Event Listener and move it to the legacy module.
+        try {
+            ServletContainerInitializer containerInitializer =
+                this.componentManager.getInstance(ServletContainerInitializer.class);
+            containerInitializer.initializeApplicationContext(servletContextEvent.getServletContext());
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException("Failed to initialize the Application Context", e);
+        }
+
+        // Send an Observation event to signal the XWiki application is started. This allows components who need to do
+        // something on startup to do it.
+        ObservationManager observationManager;
+        try {
+            observationManager = this.componentManager.getInstance(ObservationManager.class);
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException("Failed to find the Observation Manager component", e);
+        }
+
+        // Now that the Application Context is set up, send the Component instance creation events we had stacked up.
+        eventManager.setObservationManager(observationManager);
+        eventManager.shouldStack(false);
+        eventManager.flushEvents();
+
+        // Indicate to the various components that XWiki is ready
+        observationManager.notify(new ApplicationStartedEvent(), this);
     }
 
     @Override
@@ -99,17 +116,21 @@ public class XWikiServletContextListener implements ServletContextListener
         // Send an Observation event to signal the XWiki application is stopped. This allows components who need to do
         // something on stop to do it.
         try {
-            ObservationManager observationManager = this.componentManager.lookup(ObservationManager.class);
+            ObservationManager observationManager = this.componentManager.getInstance(ObservationManager.class);
             observationManager.notify(new ApplicationStoppedEvent(), this);
         } catch (ComponentLookupException e) {
             // Nothing to do here.
             // TODO: Log a warning
         }
 
+        // Even though the notion of ApplicationContext has been deprecated in favor of the notion of Environment we
+        // still keep this destruction for backward-compatibility.
+        // TODO: Add an Observation Even that we send when the Environment is destroyed so that we can move the code
+        // below in an Event Listener and move it to the legacy module.
         try {
             ApplicationContextListenerManager applicationContextListenerManager =
-                this.componentManager.lookup(ApplicationContextListenerManager.class);
-            Container container = this.componentManager.lookup(Container.class);
+                this.componentManager.getInstance(ApplicationContextListenerManager.class);
+            Container container = this.componentManager.getInstance(Container.class);
             applicationContextListenerManager.destroyApplicationContext(container.getApplicationContext());
         } catch (ComponentLookupException ex) {
             // Nothing to do here.
