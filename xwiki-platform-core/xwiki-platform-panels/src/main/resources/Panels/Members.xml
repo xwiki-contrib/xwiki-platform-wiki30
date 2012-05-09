@@ -22,7 +22,7 @@
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
-  <hidden>false</hidden>
+  <hidden>true</hidden>
   <object>
     <class>
       <name>Panels.PanelClass</name>
@@ -107,7 +107,7 @@
     <property>
       <content>{{velocity}}
 #panelheader($msg.get('xe.panels.last.members'))
-#set ($list = $xwiki.searchDocuments(',BaseObject as obj where doc.fullName=obj.name and obj.className=''XWiki.XWikiUsers'' order by doc.creationDate desc', 5, 0))
+#set ($list = $services.query.xwql('from doc.object(XWiki.XWikiUsers) as user order by doc.creationDate desc').addFilter('hidden').setLimit(5).setOffset(0).execute())
 |=(% scope="col" %)$msg.get('xe.panels.members.photo')|=(% scope="col" %)$msg.get('xe.panels.members.name')
 #foreach ($user in $list)
   |{{html}}#smallUserAvatar($user){{/html}}|[[$xwiki.getUserName($user, false)&gt;&gt;$user]]

@@ -50,6 +50,7 @@ import com.xpn.xwiki.user.api.XWikiUser;
 import com.xpn.xwiki.util.Programming;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiEngineContext;
+import com.xpn.xwiki.web.XWikiURLFactory;
 
 public class XWiki extends Api
 {
@@ -128,14 +129,28 @@ public class XWiki extends Api
     }
 
     /**
-     * API Allowing to access the current request URL being requested
+     * API Allowing to access the current request URL being requested.
      * 
-     * @return URL
-     * @throws XWikiException
+     * @return the URL
+     * @throws XWikiException failed to create the URL
      */
     public String getRequestURL() throws XWikiException
     {
         return getXWikiContext().getURLFactory().getRequestURL(getXWikiContext()).toString();
+    }
+
+    /**
+     * API Allowing to access the current request URL being requested as a relative URL.
+     * 
+     * @return the URL
+     * @throws XWikiException failed to create the URL
+     * @since 4.0M1
+     */
+    public String getRelativeRequestURL() throws XWikiException
+    {
+        XWikiURLFactory urlFactory = getXWikiContext().getURLFactory();
+
+        return urlFactory.getURL(urlFactory.getRequestURL(getXWikiContext()), getXWikiContext());
     }
 
     /**
@@ -1288,70 +1303,6 @@ public class XWiki extends Api
             return -2;
         }
 
-    }
-
-    /**
-     * Priviledged API to create a new Wiki from an existing wiki This creates the database, copies to documents from a
-     * existing wiki Assigns the admin rights, creates the Wiki identification page in the main wiki
-     * 
-     * @param wikiName Wiki Name to create
-     * @param wikiUrl Wiki URL to accept requests from
-     * @param wikiAdmin Wiki admin user
-     * @param baseWikiName Wiki to copy documents from
-     * @param failOnExist true to fail if the wiki already exists, false to overwrite
-     * @return Success of Failure code (0 for success, -1 for missing programming rights, > 0 for other errors
-     * @throws XWikiException
-     */
-    public int createNewWiki(String wikiName, String wikiUrl, String wikiAdmin, String baseWikiName, boolean failOnExist)
-        throws XWikiException
-    {
-        return createNewWiki(wikiName, wikiUrl, wikiAdmin, baseWikiName, "", null, failOnExist);
-    }
-
-    /**
-     * Priviledged API to create a new Wiki from an existing wiki This creates the database, copies to documents from a
-     * existing wiki Assigns the admin rights, creates the Wiki identification page in the main wiki
-     * 
-     * @param wikiName Wiki Name to create
-     * @param wikiUrl Wiki URL to accept requests from
-     * @param wikiAdmin Wiki admin user
-     * @param baseWikiName Wiki to copy documents from
-     * @param description Description of the Wiki
-     * @param failOnExist true to fail if the wiki already exists, false to overwrite
-     * @return Success of Failure code (0 for success, -1 for missing programming rights, > 0 for other errors
-     * @throws XWikiException
-     */
-    public int createNewWiki(String wikiName, String wikiUrl, String wikiAdmin, String baseWikiName,
-        String description, boolean failOnExist) throws XWikiException
-    {
-        return createNewWiki(wikiName, wikiUrl, wikiAdmin, baseWikiName, description, null, failOnExist);
-    }
-
-    /**
-     * Priviledged API to create a new Wiki from an existing wiki This creates the database, copies to documents from a
-     * existing wiki Assigns the admin rights, creates the Wiki identification page in the main wiki Copy is limited to
-     * documents of a specified language. If a document for the language is not found, the default language document is
-     * used
-     * 
-     * @param wikiName Wiki Name to create
-     * @param wikiUrl Wiki URL to accept requests from
-     * @param wikiAdmin Wiki admin user
-     * @param baseWikiName Wiki to copy documents from
-     * @param description Description of the Wiki
-     * @param language Language to copy
-     * @param failOnExist true to fail if the wiki already exists, false to overwrite
-     * @return Success of Failure code (0 for success, -1 for missing programming rights, > 0 for other errors
-     * @throws XWikiException
-     */
-    public int createNewWiki(String wikiName, String wikiUrl, String wikiAdmin, String baseWikiName,
-        String description, String language, boolean failOnExist) throws XWikiException
-    {
-        if (hasProgrammingRights()) {
-            return this.xwiki.createNewWiki(wikiName, wikiUrl, wikiAdmin, baseWikiName, description, language,
-                failOnExist, getXWikiContext());
-        }
-
-        return -1;
     }
 
     /**

@@ -36,6 +36,8 @@
   <properties>
     <!-- Old names of this module used for retro compatibility when resolving dependencies of old extensions -->
     <xwiki.extension.features>com.xpn.xwiki.platform:xwiki-core</xwiki.extension.features>
+    <!-- Skipping CLIRR since xwiki-platform-legacy-oldcore wraps this module and runs CLIRR on it -->
+    <xwiki.clirr.skip>true</xwiki.clirr.skip>
   </properties>
   <dependencies>
     <dependency>
@@ -50,9 +52,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.java-diff-utils</groupId>
-      <artifactId>diffutils</artifactId>
-      <version>1.2.1</version>
+      <groupId>com.qarks</groupId>
+      <artifactId>jdiff</artifactId>
+      <version>1.4.2-xwiki</version>
     </dependency>
 
     <!-- Dependencies that we need to fix so that we don't need to have them in our custom remote repository -->
@@ -173,7 +175,7 @@
     <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
-      <version>0.9</version>
+      <version>1.1</version>
     </dependency>
 
     <!-- XML processing -->
@@ -246,6 +248,13 @@
       <version>2.0.3</version>
     </dependency>
 
+    <!-- UnexpectedException -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-store-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Authentication -->
     <dependency>
       <groupId>securityfilter</groupId>
@@ -257,7 +266,6 @@
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
-      <version>1.6.1</version>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
@@ -637,11 +645,11 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <!-- XWiki syntax parsers -->
     <dependency>
       <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-syntax-xwiki2</artifactId>
+      <artifactId>xwiki-rendering-syntax-xwiki21</artifactId>
       <version>${rendering.version}</version>
       <scope>test</scope>
     </dependency>
@@ -716,7 +724,6 @@
               **/api/Document.java,
               **/api/DocumentSection.java,
               **/api/Object.java,
-              **/api/Util.java,
               **/api/XWiki.java,
               **/atom/lifeblog/LifeblogServices.java,
               **/atom/lifeblog/UserBlog.java,
@@ -827,11 +834,7 @@
               **/objects/PropertyInterface.java,
               **/objects/StringListProperty.java,
               **/pdf/impl/PdfExportImpl.java,
-              **/plugin/autotag/AutoTagPluginAPI.java,
-              **/plugin/autotag/AutoTagPlugin.java,
               **/plugin/autotag/FrenchStemmer.java,
-              **/plugin/autotag/TagCloud.java,
-              **/plugin/autotag/Tag.java,
               **/plugin/charts/actions/ChartingAction.java,
               **/plugin/charts/actions/ChartWizardAction.java,
               **/plugin/charts/actions/CreateChartAction.java,

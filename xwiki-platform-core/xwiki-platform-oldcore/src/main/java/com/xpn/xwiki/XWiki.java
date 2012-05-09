@@ -81,12 +81,15 @@ import org.hibernate.HibernateException;
 import org.securityfilter.filter.URLPatternMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xwiki.bridge.event.ApplicationReadyEvent;
 import org.xwiki.bridge.event.DocumentCreatedEvent;
 import org.xwiki.bridge.event.DocumentCreatingEvent;
 import org.xwiki.bridge.event.DocumentDeletedEvent;
 import org.xwiki.bridge.event.DocumentDeletingEvent;
 import org.xwiki.bridge.event.DocumentUpdatedEvent;
 import org.xwiki.bridge.event.DocumentUpdatingEvent;
+import org.xwiki.bridge.event.WikiDeletedEvent;
+import org.xwiki.bridge.event.WikiReadyEvent;
 import org.xwiki.cache.Cache;
 import org.xwiki.cache.CacheException;
 import org.xwiki.cache.CacheFactory;
@@ -109,9 +112,9 @@ import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.model.reference.WikiReference;
 import org.xwiki.observation.EventListener;
 import org.xwiki.observation.ObservationManager;
-import org.xwiki.bridge.event.ApplicationReadyEvent;
 import org.xwiki.observation.event.Event;
 import org.xwiki.query.QueryException;
+import org.xwiki.query.QueryFilter;
 import org.xwiki.rendering.macro.wikibridge.WikiMacroInitializer;
 import org.xwiki.rendering.parser.ParseException;
 import org.xwiki.rendering.syntax.Syntax;
@@ -810,7 +813,7 @@ public class XWiki implements EventListener
         observationManager.addListener(this);
 
         // Send Event to signal that the application is ready to service requests.
-        observationManager.notify(new ApplicationReadyEvent(), this);
+        observationManager.notify(new ApplicationReadyEvent(), this, context);
     }
 
     /**
@@ -928,6 +931,11 @@ public class XWiki implements EventListener
             // Add initdone which will allow to
             // bypass some initializations
             context.put("initdone", "1");
+
+            // Send event to notify listeners that the subwiki is ready
+            ObservationManager observationManager = Utils.getComponent((Type) ObservationManager.class);
+            observationManager.notify(new WikiReadyEvent(wikiName), wikiName, context);
+
         } finally {
             context.setDatabase(database);
         }
@@ -2335,15 +2343,6 @@ public class XWiki implements EventListener
     }
 
     /**
-     * @deprecated use {@link #getLanguagePreference(XWikiContext)} instead
-     */
-    @Deprecated
-    public String getDocLanguagePreference(XWikiContext context)
-    {
-        return getLanguagePreference(context);
-    }
-
-    /**
      * First try to find the current language in use from the XWiki context. If none is used and if the wiki is not
      * multilingual use the default language defined in the XWiki preferences. If the wiki is multilingual try to get
      * the language passed in the request. If none was passed try to get it from a cookie. If no language cookie exists
@@ -2749,15 +2748,6 @@ public class XWiki implements EventListener
         ExecutionContext ec = execution.getContext();
 
         return ec != null ? (XWikiContext) ec.getProperty("xwikicontext") : null;
-    }
-
-    /**
-     * @deprecated user {@link #flushCache(XWikiContext)} instead
-     */
-    @Deprecated
-    public void flushCache()
-    {
-        flushCache(getXWikiContext());
     }
 
     public void flushCache(XWikiContext context)
@@ -3952,12 +3942,9 @@ public class XWiki implements EventListener
 
         memberObject.setStringValue("member", userName);
 
-        if (groupDoc.isNew()) {
-            saveDocument(groupDoc, context.getMessageTool().get("core.comment.addedUserToGroup"), context);
-        } else {
-            // TODO Fix use of deprecated call.
-            getHibernateStore().saveXWikiObject(memberObject, context, true);
-        }
+        this.saveDocument(groupDoc,
+                          context.getMessageTool().get("core.comment.addedUserToGroup"),
+                          context);
 
         try {
             XWikiGroupService gservice = getGroupService(context);
@@ -4706,143 +4693,6 @@ public class XWiki implements EventListener
         throws XWikiException
     {
         return copySpaceBetweenWikis(null, sourceWiki, targetWiki, language, clean, context);
-    }
-
-    /**
-     * @deprecated use WikiManager plugin instead
-     */
-    @Deprecated
-    public int createNewWiki(String wikiName, String wikiUrl, String wikiAdmin, String baseWikiName,
-        String description, String wikilanguage, boolean failOnExist, XWikiContext context) throws XWikiException
-    {
-        String database = context.getDatabase();
-        wikiName = wikiName.toLowerCase();
-
-        try {
-            XWikiDocument userdoc = getDocument(wikiAdmin, context);
-
-            // User does not exist
-            if (userdoc.isNew()) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                        + "user does not exist");
-                }
-                return -2;
-            }
-
-            // User is not active
-            if (!(userdoc.getIntValue("XWiki.XWikiUsers", "active") == 1)) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                        + "user is not active");
-                }
-                return -3;
-            }
-
-            String wikiForbiddenList = Param("xwiki.virtual.reserved_wikis");
-            if (Util.contains(wikiName, wikiForbiddenList, ", ")) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                        + "wiki name is forbidden");
-                }
-                return -4;
-            }
-
-            String wikiServerPage = "XWikiServer" + wikiName.substring(0, 1).toUpperCase() + wikiName.substring(1);
-            // Verify is server page already exist
-            XWikiDocument serverdoc = getDocument(SYSTEM_SPACE, wikiServerPage, context);
-            if (serverdoc.isNew()) {
-                // clear entry in virtual wiki cache
-                this.virtualWikiMap.remove(wikiUrl);
-
-                // Create Wiki Server page
-                serverdoc.setStringValue(VIRTUAL_WIKI_DEFINITION_CLASS_REFERENCE, "server", wikiUrl);
-                serverdoc.setStringValue(VIRTUAL_WIKI_DEFINITION_CLASS_REFERENCE, "owner", wikiAdmin);
-                if (description != null) {
-                    serverdoc.setLargeStringValue(VIRTUAL_WIKI_DEFINITION_CLASS_REFERENCE, "description", description);
-                }
-                if (wikilanguage != null) {
-                    serverdoc.setStringValue(VIRTUAL_WIKI_DEFINITION_CLASS_REFERENCE, "language", wikilanguage);
-                }
-                if (!getDefaultDocumentSyntax().equals(Syntax.XWIKI_1_0.toIdString())) {
-                    serverdoc.setContent("{{include document=\"XWiki.XWikiServerForm\"/}}\n");
-                    serverdoc.setSyntax(Syntax.XWIKI_2_0);
-                } else {
-                    serverdoc.setContent("#includeForm(\"XWiki.XWikiServerForm\")\n");
-                    serverdoc.setSyntax(Syntax.XWIKI_1_0);
-                }
-                serverdoc.setParentReference(VIRTUAL_WIKI_DEFINITION_CLASS_REFERENCE);
-                saveDocument(serverdoc, context);
-            } else {
-                // If we are not allowed to continue if server page already exists
-                if (failOnExist) {
-                    if (LOGGER.isErrorEnabled()) {
-                        LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                            + "wiki server page already exists");
-                    }
-                    return -5;
-                } else if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                        + "wiki server page already exists");
-                }
-            }
-
-            // Create wiki database
-            try {
-                context.setDatabase(getDatabase());
-                getStore().createWiki(wikiName, context);
-            } catch (XWikiException e) {
-                if (LOGGER.isErrorEnabled()) {
-                    if (e.getCode() == 10010) {
-                        LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                            + "wiki database already exists");
-                    } else if (e.getCode() == 10011) {
-                        LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                            + "wiki database creation failed");
-                    } else {
-                        LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                            + "wiki database creation threw exception", e);
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                    + "wiki database creation threw exception", e);
-            }
-
-            try {
-                updateDatabase(wikiName, true, false, context);
-            } catch (Exception e) {
-                LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                    + "wiki database shema update threw exception", e);
-                return -6;
-            }
-
-            // Copy base wiki
-            int nb = copyWiki(baseWikiName, wikiName, wikilanguage, context);
-            // Save the number of docs copied in the context
-            context.put("nbdocs", Integer.valueOf(nb));
-
-            // Create user page in his wiki
-            // Let's not create it anymore.. this makes the creator loose
-            // super admin rights on his wiki
-            // copyDocument(wikiAdmin, getDatabase(), wikiName, wikilanguage, context);
-
-            // Modify rights in user wiki
-            context.setDatabase(wikiName);
-            /*
-             * XWikiDocument wikiprefdoc = getDocument("XWiki.XWikiPreferences", context);
-             * wikiprefdoc.setStringValue("XWiki.XWikiGlobalRights", "users", wikiAdmin);
-             * wikiprefdoc.setStringValue("XWiki.XWikiGlobalRights", "levels", "admin, edit");
-             * wikiprefdoc.setIntValue("XWiki.XWikiGlobalRights", "allow", 1); saveDocument(wikiprefdoc, context);
-             */
-            return 1;
-        } catch (Exception e) {
-            LOGGER.error("Wiki creation (" + wikiName + "," + wikiUrl + "," + wikiAdmin + ") failed: "
-                + "wiki creation threw exception", e);
-            return -10;
-        } finally {
-            context.setDatabase(database);
-        }
     }
 
     public String getEncoding()
@@ -6098,7 +5948,8 @@ public class XWiki implements EventListener
     public List<String> getSpaces(XWikiContext context) throws XWikiException
     {
         try {
-            return getStore().getQueryManager().getNamedQuery("getSpaces").execute();
+            return getStore().getQueryManager().getNamedQuery("getSpaces")
+                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden")).execute();
         } catch (QueryException ex) {
             throw new XWikiException(0, 0, ex.getMessage(), ex);
         }
@@ -6107,8 +5958,9 @@ public class XWiki implements EventListener
     public List<String> getSpaceDocsName(String spaceName, XWikiContext context) throws XWikiException
     {
         try {
-            return getStore().getQueryManager().getNamedQuery("getSpaceDocsName").bindValue("space", spaceName)
-                    .execute();
+            return getStore().getQueryManager().getNamedQuery("getSpaceDocsName")
+                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden"))
+                    .bindValue("space", spaceName).execute();
         } catch (QueryException ex) {
             throw new XWikiException(0, 0, ex.getMessage(), ex);
         }
@@ -6188,7 +6040,8 @@ public class XWiki implements EventListener
     {
         try {
             // refreshes all Links of each doc of the wiki
-            List<String> docs = getStore().getQueryManager().getNamedQuery("getAllDocuments").execute();
+            List<String> docs = getStore().getQueryManager().getNamedQuery("getAllDocuments")
+                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden")).execute();
             for (int i = 0; i < docs.size(); i++) {
                 XWikiDocument myDoc = this.getDocument(docs.get(i), context);
                 myDoc.getStore().saveLinks(myDoc, context, true);
@@ -7134,6 +6987,10 @@ public class XWiki implements EventListener
             needsUpdate = true;
             doc.setTitle(title);
         }
+        if (!doc.isHidden()) {
+            needsUpdate = true;
+            doc.setHidden(true);
+        }
 
         // Use ClassSheet to display the class document if no other sheet is explicitly specified.
         SheetBinder documentSheetBinder = Utils.getComponent(SheetBinder.class, "document");
@@ -7223,6 +7080,11 @@ public class XWiki implements EventListener
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
+        if (event instanceof WikiDeletedEvent) {
+            getVirtualWikiList().remove(((WikiDeletedEvent) event).getWikiId());
+            return;
+        }
+
         XWikiDocument doc = (XWikiDocument) source;
         XWikiContext context = (XWikiContext) data;
 
@@ -7277,6 +7139,7 @@ public class XWiki implements EventListener
             add(new XObjectPropertyAddedEvent(XWIKIPREFERENCE_PROPERTY_REFERENCE));
             add(new XObjectPropertyDeletedEvent(XWIKIPREFERENCE_PROPERTY_REFERENCE));
             add(new XObjectPropertyUpdatedEvent(XWIKIPREFERENCE_PROPERTY_REFERENCE));
+            add(new WikiDeletedEvent());
         }
     };
 

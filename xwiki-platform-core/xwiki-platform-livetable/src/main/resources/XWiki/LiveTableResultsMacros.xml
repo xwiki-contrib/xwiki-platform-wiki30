@@ -22,7 +22,7 @@
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
-  <hidden>false</hidden>
+  <hidden>true</hidden>
   <content>{{velocity output="false"}}
 #**
  * Macro to get the results of a livetable data call.
@@ -217,8 +217,9 @@
   #if (!$limit)
     #set ($limit = 15)
   #end
-  #set($items = $xwiki.searchDocuments($sql, $limit, $offset, $sqlParams))
-  #set($discard = $map.put('totalrows', $xwiki.countDocuments($countSql, $sqlParams)))
+  #set($query = $services.query.hql($sql).addFilter('hidden').addFilter('unique').setLimit($limit).setOffset($offset).bindValues($sqlParams))
+  #set($items = $query.execute())
+  #set($discard = $map.put('totalrows', $query.count()))
   #set($discard = $map.put('returnedrows', $mathtool.min($items.size(), $limit)))
   #set($discard = $map.put('offset', $mathtool.add($offset, 1)))
   #set($rows = [])
@@ -462,8 +463,10 @@
   #set($imagesList = '')
   #foreach ($attachment in $itemDoc.attachmentList)
     #if($attachment.isImage())
-      #set($attachmentUrl = $itemDoc.getAttachmentURL($attachment.filename))
-      #set($imagesList = "${imagesList}&lt;img src='${attachmentUrl}' alt='${attachment.filename}' width='50'/&gt;&lt;br/&gt;")
+      ## Create a thumbnail by resizing the image on the server side, if needed, to fit inside a 50x50 pixel square.
+      #set($thumbnailURL = $itemDoc.getAttachmentURL($attachment.filename, 'download', "width=50&amp;height=50&amp;keepAspectRatio=true"))
+      #set($imageURL = $itemDoc.getAttachmentURL($attachment.filename))
+      #set($imagesList = "${imagesList}&lt;a href=""$imageURL""&gt;&lt;img src=""$thumbnailURL"" alt=""$attachment.filename"" title=""$attachment.filename"" /&gt;&lt;/a&gt;")
     #end
   #end
 #end

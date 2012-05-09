@@ -45,6 +45,7 @@ import org.xwiki.extension.job.internal.InstallJob;
 import org.xwiki.extension.job.internal.InstallPlanJob;
 import org.xwiki.extension.job.internal.UninstallJob;
 import org.xwiki.extension.job.internal.UninstallPlanJob;
+import org.xwiki.extension.job.internal.UpgradePlanJob;
 import org.xwiki.extension.job.plan.ExtensionPlan;
 import org.xwiki.extension.repository.CoreExtensionRepository;
 import org.xwiki.extension.repository.ExtensionRepository;
@@ -87,6 +88,11 @@ public class ExtensionManagerScriptService implements ScriptService
      * The prefix put behind all job ids.
      */
     public static final String EXTENSION_JOBID_PREFIX = "extension_";
+
+    /**
+     * The prefix put behind all job ids.
+     */
+    public static final String EXTENSIONPLAN_JOBID_PREFIX = EXTENSION_JOBID_PREFIX + "_plan_";
 
     /**
      * The real extension manager bridged by this script service.
@@ -366,8 +372,7 @@ public class ExtensionManagerScriptService implements ScriptService
     // Actions
 
     /**
-     * Start the asynchronous installation process for an extension if the context document has programming rights and
-     * no other job is in progress already.
+     * Start the asynchronous installation process for an extension if the context document has programming rights.
      * 
      * @param id the identifier of the extension to install
      * @param version the version to install
@@ -393,6 +398,8 @@ public class ExtensionManagerScriptService implements ScriptService
             installRequest.addNamespace(namespace);
         }
 
+        installRequest.setProperty("user.reference", this.documentAccessBridge.getCurrentUserReference());
+
         Job job;
         try {
             job = this.jobManager.executeJob(InstallJob.JOBTYPE, installRequest);
@@ -406,8 +413,7 @@ public class ExtensionManagerScriptService implements ScriptService
     }
 
     /**
-     * Start the asynchronous installation plan creation process for an extension if no other job is in progress
-     * already.
+     * Start the asynchronous installation plan creation process for an extension.
      * 
      * @param id the identifier of the extension to install
      * @param version the version to install
@@ -421,6 +427,7 @@ public class ExtensionManagerScriptService implements ScriptService
         setError(null);
 
         InstallRequest installRequest = new InstallRequest();
+        installRequest.setId(EXTENSIONPLAN_JOBID_PREFIX + id);
         installRequest.addExtension(new ExtensionId(id, version));
         if (StringUtils.isNotBlank(namespace)) {
             installRequest.addNamespace(namespace);
@@ -440,8 +447,7 @@ public class ExtensionManagerScriptService implements ScriptService
     }
 
     /**
-     * Start the asynchronous uninstall process for an extension if the context document has programming rights and no
-     * other job is in progress already.
+     * Start the asynchronous uninstall process for an extension if the context document has programming rights.
      * <p>
      * Only uninstall from the provided namespace.
      * 
@@ -468,6 +474,8 @@ public class ExtensionManagerScriptService implements ScriptService
             uninstallRequest.addNamespace(namespace);
         }
 
+        uninstallRequest.setProperty("user.reference", this.documentAccessBridge.getCurrentUserReference());
+
         Job job;
         try {
             job = this.jobManager.executeJob(UninstallJob.JOBTYPE, uninstallRequest);
@@ -481,8 +489,7 @@ public class ExtensionManagerScriptService implements ScriptService
     }
 
     /**
-     * Start the asynchronous uninstall process for an extension if the context document has programming rights and no
-     * other job is in progress already.
+     * Start the asynchronous uninstall process for an extension if the context document has programming rights.
      * <p>
      * Uninstall from all namepspace.
      * 
@@ -492,33 +499,11 @@ public class ExtensionManagerScriptService implements ScriptService
      */
     public Job uninstall(ExtensionId extensionId)
     {
-        if (!this.documentAccessBridge.hasProgrammingRights()) {
-            setError(new JobException("Need programming right to uninstall an extension"));
-
-            return null;
-        }
-
-        setError(null);
-
-        UninstallRequest uninstallRequest = new UninstallRequest();
-        uninstallRequest.setId(EXTENSION_JOBID_PREFIX + extensionId.getId());
-        uninstallRequest.addExtension(extensionId);
-
-        Job job;
-        try {
-            job = this.jobManager.executeJob(UninstallJob.JOBTYPE, uninstallRequest);
-        } catch (Exception e) {
-            setError(e);
-
-            job = null;
-        }
-
-        return job;
+        return uninstall(extensionId.getId(), null);
     }
 
     /**
-     * Start the asynchronous uninstallation plan creation process for an extension if no other job is in progress
-     * already.
+     * Start the asynchronous uninstallation plan creation process for an extension.
      * <p>
      * Only uninstall from the provided namespace.
      * 
@@ -533,6 +518,7 @@ public class ExtensionManagerScriptService implements ScriptService
         setError(null);
 
         UninstallRequest uninstallRequest = new UninstallRequest();
+        uninstallRequest.setId(EXTENSIONPLAN_JOBID_PREFIX + id);
         uninstallRequest.addExtension(new ExtensionId(id, (Version) null));
         if (StringUtils.isNotBlank(namespace)) {
             uninstallRequest.addNamespace(namespace);
@@ -563,15 +549,31 @@ public class ExtensionManagerScriptService implements ScriptService
      */
     public ExtensionPlan createUninstallPlan(ExtensionId extensionId)
     {
+        return createUninstallPlan(extensionId.getId(), null);
+    }
+
+    /**
+     * Start the asynchronous upgrade plan creation process.
+     * 
+     * @param namespace the (optional) namespace where to upgrade the extensions; if {@code null} or empty, the
+     *            extension will be installed globally
+     * @return the {@link Job} object which can be used to monitor the progress of the installation process, or
+     *         {@code null} in case of failure
+     */
+    public ExtensionPlan createUpgradePlan(String namespace)
+    {
         setError(null);
 
-        UninstallRequest uninstallRequest = new UninstallRequest();
-        uninstallRequest.addExtension(extensionId);
+        InstallRequest installRequest = new InstallRequest();
+        installRequest.setId(EXTENSIONPLAN_JOBID_PREFIX);
+        if (StringUtils.isNotBlank(namespace)) {
+            installRequest.addNamespace(namespace);
+        }
 
         ExtensionPlan status;
         try {
             status =
-                safe((ExtensionPlan) this.jobManager.executeJob(UninstallPlanJob.JOBTYPE, uninstallRequest).getStatus());
+                safe((ExtensionPlan) this.jobManager.executeJob(UpgradePlanJob.JOBTYPE, installRequest).getStatus());
         } catch (JobException e) {
             setError(e);
 
@@ -600,6 +602,17 @@ public class ExtensionManagerScriptService implements ScriptService
         return this.jobManager.getCurrentJob();
     }
 
+    private JobStatus getJobStatus(String jobId)
+    {
+        JobStatus jobStatus = this.jobManager.getJobStatus(jobId);
+
+        if (!this.documentAccessBridge.hasProgrammingRights()) {
+            jobStatus = safe(jobStatus);
+        }
+
+        return jobStatus;
+    }
+
     /**
      * Return job status corresponding to the provided extension id from the current executed job or stored history.
      * 
@@ -608,7 +621,18 @@ public class ExtensionManagerScriptService implements ScriptService
      */
     public JobStatus getExtensionJobStatus(String extensionId)
     {
-        return this.jobManager.getJobStatus(EXTENSION_JOBID_PREFIX + extensionId);
+        return getJobStatus(EXTENSION_JOBID_PREFIX + extensionId);
+    }
+
+    /**
+     * Return extension plan corresponding to the provided extension id from the current executed job or stored history.
+     * 
+     * @param extensionId the extension identifier
+     * @return the extension plan corresponding to the provided extension
+     */
+    public JobStatus getExtensionPlanJobStatus(String extensionId)
+    {
+        return getJobStatus(EXTENSIONPLAN_JOBID_PREFIX + extensionId);
     }
 
     /**
