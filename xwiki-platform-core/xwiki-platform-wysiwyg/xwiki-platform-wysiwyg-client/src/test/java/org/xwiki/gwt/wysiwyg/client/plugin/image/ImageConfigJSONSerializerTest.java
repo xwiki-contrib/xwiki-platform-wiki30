@@ -39,17 +39,6 @@ public class ImageConfigJSONSerializerTest extends WysiwygTestCase
     private final ImageConfigJSONSerializer imageConfigJSONSerializer = new ImageConfigJSONSerializer();
 
     /**
-     * Test the behaviour of the JSON parser for an empty string.
-     */
-    public void testParseEmptyString()
-    {
-        String imageJSON = "";
-        ImageConfig imgConfig = imageConfigJSONParser.parse(imageJSON);
-        assertNotNull(imgConfig);
-        assertNotNull(imgConfig.getReference());
-    }
-
-    /**
      * Tests if {@link ImageConfigJSONParser} and {@link ImageConfigJSONSerializer} are compatible.
      */
     public void testParseAndSerialize()
