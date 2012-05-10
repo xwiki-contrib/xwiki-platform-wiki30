@@ -36,6 +36,8 @@ import org.xwiki.gwt.wysiwyg.client.plugin.link.rt.RTLinkPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.list.ListPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.macro.MacroPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.readonly.ReadOnlyPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.symbol.SymbolPluginFactory;
+import org.xwiki.gwt.wysiwyg.client.plugin.link.LinkPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.rt.RealTimePluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.separator.RTSeparatorPluginFactory;
 import org.xwiki.gwt.wysiwyg.client.plugin.separator.SeparatorPluginFactory;
