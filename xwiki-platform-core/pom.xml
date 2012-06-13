@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.xwiki.platform</groupId>
     <artifactId>xwiki-platform</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.2-SNAPSHOT</version>
   </parent>
   <artifactId>xwiki-platform-core</artifactId>
   <name>XWiki Platform - Core - Parent POM</name>
@@ -98,7 +98,7 @@
       <dependency>
         <groupId>org.jgroups</groupId>
         <artifactId>jgroups</artifactId>
-        <version>3.0.9.Final</version>
+        <version>3.0.10.Final</version>
       </dependency>
       <!-- Standard dependencies used in GWT modules -->
       <dependency>
@@ -223,22 +223,24 @@
         <configuration>
           <excludes>
             <exclude>**/internal/**</exclude>
-            <!-- Remove the following exclude after the 4.0 final release and the update of clirr.previous.version -->
-            <exclude>org/xwiki/query/Query</exclude>
+            <exclude>**/test/**</exclude>
             <!-- Remove the following excludes after we release the current version as final -->
-            <exclude>com/xpn/xwiki/doc/merge/MergeUtils</exclude>
-            <exclude>org/xwiki/gwt/wysiwyg/client/diff/**</exclude>
-            <exclude>org/xwiki/gwt/wysiwyg/client/plugin/sync/**</exclude>
-            <exclude>org/xwiki/gwt/wysiwyg/client/Images</exclude>
-            <exclude>org/xwiki/gwt/wysiwyg/client/Strings</exclude>
-            <exclude>org/xwiki/wysiwyg/server/plugin/sync/**</exclude>
-            <exclude>com/xpn/xwiki/objects/ObjectInterface</exclude>
-            <exclude>com/xpn/xwiki/XWiki</exclude>
-            <exclude>com/xpn/xwiki/api/XWiki</exclude>
-            <exclude>com/xpn/xwiki/objects/BaseElement</exclude>
-            <exclude>com/xpn/xwiki/plugin/PluginApi</exclude>
-            <exclude>com/xpn/xwiki/plugin/autotag/**</exclude>
-            <exclude>org/xwiki/query/QueryFilter</exclude>
+            <!-- Add a method to the oldcore/wikimacro bridge -->
+            <exclude>org/xwiki/rendering/macro/wikibridge/WikiMacroFactory</exclude>
+            <!-- The following excludes are needed because we've upgraded from AspectJ 1.6.7 to AspectJ 1.6.11
+                 in 4.0-milestone-1 and AspectJ has changed the way they weave stuff in class files thus leading to
+                 false CLIRR errors (see http://www.eclipse.org/aspectj/doc/released/README-169.html - search for
+                 "Intertype fields preserve visibility and name" for details).
+
+                 Thus we have to add those excludes. However those excludes could hide real breakages and thus before
+                 the release is done the Release Manager must absolutely remove those excludes below and try running
+                 CLIRR with AspectJ 1.6.7 to verify that no breakages have been added. To do so simply edit the
+                 Legacy OldCore pom.xml and add <version>1.6.7</version> for aspectjrt and <version>1.3</version> for
+                 the AspectJ Maven plugin version.
+            -->
+            <exclude>com/xpn/xwiki/XWikiCompatibilityAspect</exclude>
+            <exclude>com/xpn/xwiki/api/XWikiCompatibilityAspect</exclude>
+            <!-- End of excludes required for the AspectJ 1.6.7 -> 1.6.11 upgrade -->
           </excludes>
         </configuration>
       </plugin>

@@ -19,10 +19,12 @@
  */
 package com.xpn.xwiki.render;
 
+import java.util.Map;
 import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.script.ScriptContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -30,6 +32,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.context.Execution;
 import org.xwiki.rendering.syntax.SyntaxFactory;
+import org.xwiki.script.ScriptContextManager;
 import org.xwiki.velocity.VelocityConfiguration;
 import org.xwiki.velocity.VelocityEngine;
 import org.xwiki.velocity.VelocityFactory;
@@ -62,13 +65,19 @@ public class DefaultVelocityManager implements VelocityManager
     private static final String RESOURCE_LOADER = "resource.loader";
 
     /**
-     * The name of the Velocity configuration property that specifies the ResourceLoader class to use to locate
-     * Velocity templates.
+     * The name of the Velocity configuration property that specifies the ResourceLoader class to use to locate Velocity
+     * templates.
      */
     private static final String RESOURCE_LOADER_CLASS = "xwiki.resource.loader.class";
 
     @Inject
     private Execution execution;
+
+    /**
+     * Used to get the current script context.
+     */
+    @Inject
+    private ScriptContextManager scriptContextManager;
 
     @Override
     public VelocityContext getVelocityContext()
@@ -118,6 +127,16 @@ public class DefaultVelocityManager implements VelocityManager
             // Save the Velocity Context in the XWiki context so that users can access the objects we've put in it
             // (xwiki, request, response, etc).
             xcontext.put("vcontext", vcontext);
+        }
+
+        // Copy current JSR223 ScriptContext binding
+        for (Map.Entry<String, Object> entry : this.scriptContextManager.getScriptContext()
+            .getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
+            // Not ideal since it does not allow to modify a binding but it's too dangerous for existing velocity script
+            // otherwise
+            if (!vcontext.containsKey(entry.getKey())) {
+                vcontext.put(entry.getKey(), entry.getValue());
+            }
         }
 
         return vcontext;
@@ -171,8 +190,17 @@ public class DefaultVelocityManager implements VelocityManager
         return cacheKey;
     }
 
-    public VelocityEngine getVelocityEngine() throws XWikiVelocityException
+    /**
+     * @return the Velocity Engine corresponding to the current execution context. More specifically returns
+     *         the Velocity Engine for the current skin since each skin has its own Velocity Engine so that each
+     *         skin can have global velocimacros defined
+     * @throws XWikiVelocityException in case of an error while creating a Velocity Engine
+     */
+    public synchronized VelocityEngine getVelocityEngine() throws XWikiVelocityException
     {
+        // Note: This method is synchronized to prevent several threads to create several instances of
+        // Velocity Engines (for the same skin).
+
         // Note: For improved performance we cache the Velocity Engines in order not to
         // recreate them all the time. The key we use is the location to the skin's macro.vm
         // file since caching on the skin would create more Engines than needed (some skins

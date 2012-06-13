@@ -71,6 +71,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -99,6 +100,7 @@ import org.xwiki.cache.eviction.LRUEvictionConfiguration;
 import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
+import org.xwiki.environment.Environment;
 import org.xwiki.model.EntityType;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -315,16 +317,6 @@ public class XWiki implements EventListener
      */
     private static String configPath = null;
 
-    /*
-     * Work directory
-     */
-    private static File workDir = null;
-
-    /*
-     * Temp directory
-     */
-    private static File tempDir = null;
-
     /**
      * List of configured syntax ids.
      */
@@ -355,6 +347,11 @@ public class XWiki implements EventListener
     private SyntaxFactory syntaxFactory = Utils.getComponent((Type) SyntaxFactory.class);
 
     private XWikiURLBuilder entityXWikiURLBuilder = Utils.getComponent((Type) XWikiURLBuilder.class, "entity");
+
+    /**
+     * Used to get the temporary and permanent directory.
+     */
+    private Environment environment = Utils.getComponent((Type) Environment.class);
 
     /**
      * Whether backlinks are enabled or not (cached for performance).
@@ -3030,6 +3027,7 @@ public class XWiki implements EventListener
             builder.append("  #end\n");
             builder.append("#end\n");
             builder.append("{{/velocity}}");
+            emailProperty.setCustomDisplay(builder.toString());
             needsUpdate = true;
         }
         needsUpdate |= bclass.addPasswordField("password", "Password", 10);
@@ -3046,6 +3044,33 @@ public class XWiki implements EventListener
         needsUpdate |= bclass.addStaticListField("usertype", "User type", "Simple|Advanced");
         needsUpdate |= bclass.addBooleanField("accessibility", "Enable extra accessibility features", "yesno");
         needsUpdate |= bclass.addBooleanField("displayHiddenDocuments", "Display Hidden Documents", "yesno");
+        needsUpdate |= bclass.addTextField("timezone", "Timezone", 30);
+        PropertyClass timezoneProperty = (PropertyClass) bclass.get("timezone");
+        if (!timezoneProperty.isCustomDisplayed(context)) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("{{velocity}}\n");
+            builder.append("#if ($xcontext.action == 'inline' || $xcontext.action == 'edit')\n");
+            builder.append("  {{html}}\n");
+            builder.append("    #if($xwiki.jodatime)\n");
+            builder.append("      <select id='$prefix$name' name='$prefix$name'>\n");
+            builder.append("        <option value=\"\" #if($value == $tz)selected=\"selected\"#end>" +
+                "$msg.get('XWiki.XWikiPreferences_timezone_default')</option>\n");
+            builder.append("        #foreach($tz in $xwiki.jodatime.getServerTimezone().getAvailableIDs())\n");
+            builder.append("          <option value=\"$tz\" #if($value == $tz)selected=\"selected\"#end>" +
+                "$tz</option>\n");
+            builder.append("        #end\n");
+            builder.append("      </select>\n");
+            builder.append("    #else\n");
+            builder.append("      <input id='$prefix$name' name='$prefix$name' type=\"text\" value=\"$!value\"/>\n");
+            builder.append("    #end\n");
+            builder.append("  {{/html}}\n");
+            builder.append("#else\n");
+            builder.append("  $value\n");
+            builder.append("#end\n");
+            builder.append("{{/velocity}}\n");
+            timezoneProperty.setCustomDisplay(builder.toString());
+            needsUpdate = true;
+        }
 
         // New fields for the XWiki 1.0 skin
         needsUpdate |= bclass.addTextField("skin", "skin", 30);
@@ -3942,9 +3967,7 @@ public class XWiki implements EventListener
 
         memberObject.setStringValue("member", userName);
 
-        this.saveDocument(groupDoc,
-                          context.getMessageTool().get("core.comment.addedUserToGroup"),
-                          context);
+        this.saveDocument(groupDoc, context.getMessageTool().get("core.comment.addedUserToGroup"), context);
 
         try {
             XWikiGroupService gservice = getGroupService(context);
@@ -5628,7 +5651,9 @@ public class XWiki implements EventListener
     public String getUserTimeZone(XWikiContext context)
     {
         String tz = getUserPreference("timezone", context);
-        if ((tz == null) || (tz.equals(""))) {
+        // We perform this verification ourselves since TimeZone#getTimeZone(String) with an invalid parameter returns
+        // GMT and not the system default.
+        if (!ArrayUtils.contains(TimeZone.getAvailableIDs(), tz)) {
             String defaultTz = TimeZone.getDefault().getID();
             return Param("xwiki.timezone", defaultTz);
         } else {
@@ -5949,7 +5974,7 @@ public class XWiki implements EventListener
     {
         try {
             return getStore().getQueryManager().getNamedQuery("getSpaces")
-                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden")).execute();
+                .addFilter(Utils.<QueryFilter> getComponent(QueryFilter.class, "hidden")).execute();
         } catch (QueryException ex) {
             throw new XWikiException(0, 0, ex.getMessage(), ex);
         }
@@ -5959,8 +5984,8 @@ public class XWiki implements EventListener
     {
         try {
             return getStore().getQueryManager().getNamedQuery("getSpaceDocsName")
-                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden"))
-                    .bindValue("space", spaceName).execute();
+                .addFilter(Utils.<QueryFilter> getComponent(QueryFilter.class, "hidden")).bindValue("space", spaceName)
+                .execute();
         } catch (QueryException ex) {
             throw new XWikiException(0, 0, ex.getMessage(), ex);
         }
@@ -6040,8 +6065,9 @@ public class XWiki implements EventListener
     {
         try {
             // refreshes all Links of each doc of the wiki
-            List<String> docs = getStore().getQueryManager().getNamedQuery("getAllDocuments")
-                    .addFilter(Utils.<QueryFilter>getComponent(QueryFilter.class, "hidden")).execute();
+            List<String> docs =
+                getStore().getQueryManager().getNamedQuery("getAllDocuments")
+                    .addFilter(Utils.<QueryFilter> getComponent(QueryFilter.class, "hidden")).execute();
             for (int i = 0; i < docs.size(); i++) {
                 XWikiDocument myDoc = this.getDocument(docs.get(i), context);
                 myDoc.getStore().saveLinks(myDoc, context, true);
@@ -6651,128 +6677,6 @@ public class XWiki implements EventListener
         }
     }
 
-    /**
-     * Get the XWiki temporary filesystem directory (deleted on exit)
-     * 
-     * @param context
-     * @return temporary directory
-     * @since 1.1 Milestone 4
-     */
-    public File getTempDirectory(XWikiContext context)
-    {
-        // if tempDir has already been set, return it
-        if (tempDir != null) {
-            return tempDir;
-        }
-
-        // xwiki.cfg
-        String dirPath = context.getWiki().Param("xwiki.temp.dir");
-        if (dirPath != null) {
-            try {
-                tempDir = new File(dirPath.replaceAll("\\s+$", ""));
-                if (tempDir.isDirectory() && tempDir.canWrite()) {
-                    tempDir.deleteOnExit();
-                    return tempDir;
-                }
-            } catch (Exception e) {
-                tempDir = null;
-                LOGGER.warn("xwiki.temp.dir set in xwiki.cfg : " + dirPath + " does not exist or is not writable", e);
-            }
-        }
-
-        Object jsct = context.getEngineContext().getAttribute("javax.servlet.context.tempdir");
-
-        // javax.servlet.context.tempdir (File)
-        if (jsct != null && (jsct instanceof File)) {
-            tempDir = (File) jsct;
-            if (tempDir.isDirectory() && tempDir.canWrite()) {
-                return tempDir;
-            }
-        }
-
-        // javax.servlet.context.tempdir (String)
-        if (jsct != null && (jsct instanceof String)) {
-            tempDir = new File((String) jsct);
-
-            if (tempDir.isDirectory() && tempDir.canWrite()) {
-                return tempDir;
-            }
-        }
-
-        // Let's make a tempdir in java.io.tmpdir
-        tempDir = new File(System.getProperty("java.io.tmpdir"), "xwikiTemp");
-
-        if (tempDir.exists()) {
-            tempDir.deleteOnExit();
-        } else {
-            tempDir.mkdir();
-            tempDir.deleteOnExit();
-        }
-
-        return tempDir;
-    }
-
-    /**
-     * Get a new directory in the xwiki work directory
-     * 
-     * @param subdir desired directory name
-     * @param context
-     * @return work subdirectory
-     * @since 1.1 Milestone 4
-     */
-    public File getWorkSubdirectory(String subdir, XWikiContext context)
-    {
-        File fdir = new File(this.getWorkDirectory(context).getAbsolutePath(), subdir);
-        if (!fdir.exists()) {
-            fdir.mkdir();
-        }
-
-        return fdir;
-    }
-
-    /**
-     * Get the XWiki work directory
-     * 
-     * @param context
-     * @return work directory
-     * @since 1.1 Milestone 4
-     */
-    public File getWorkDirectory(XWikiContext context)
-    {
-        String dirPath;
-
-        // if workDir has already been set, return it
-        if (workDir != null) {
-            return workDir;
-        }
-
-        // xwiki.cfg
-        dirPath = context.getWiki().Param("xwiki.work.dir");
-        if (dirPath != null) {
-            try {
-                workDir = new File(dirPath.replaceAll("\\s+$", ""));
-                if (workDir.exists()) {
-                    if (workDir.isDirectory() && workDir.canWrite()) {
-                        return workDir;
-                    }
-                } else {
-                    workDir.mkdir();
-
-                    return workDir;
-                }
-            } catch (Exception e) {
-                LOGGER.warn("xwiki.work.dir set in xwiki.cfg : " + dirPath + " does not exist or is not writable", e);
-
-                workDir = null;
-            }
-        }
-
-        // No choices left, retreiving the temp directory
-        this.workDir = this.getTempDirectory(context);
-
-        return this.workDir;
-    }
-
     public XWikiDocument rollback(final XWikiDocument tdoc, String rev, XWikiContext context) throws XWikiException
     {
         LOGGER.debug("Rolling back [" + tdoc + "] to version " + rev);
@@ -7151,5 +7055,32 @@ public class XWiki implements EventListener
     public String getName()
     {
         return "xwiki-core";
+    }
+
+    /**
+     * @deprecated use {@link XWikiMessageTool#get(String, List)} instead. You can access message tool using
+     *             {@link XWikiContext#getMessageTool()}.
+     */
+    @Deprecated
+    public String parseMessage(XWikiContext context)
+    {
+        String message = (String) context.get("message");
+        if (message == null) {
+            return null;
+        }
+
+        return parseMessage(message, context);
+    }
+
+    /**
+     * @deprecated use {@link XWikiMessageTool#get(String, List)} instead. You can access message tool using
+     *             {@link XWikiContext#getMessageTool()}.
+     */
+    @Deprecated
+    public String parseMessage(String id, XWikiContext context)
+    {
+        XWikiMessageTool msg = context.getMessageTool();
+
+        return parseContent(msg.get(id), context);
     }
 }

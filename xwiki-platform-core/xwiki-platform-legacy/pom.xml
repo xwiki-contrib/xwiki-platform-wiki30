@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.xwiki.platform</groupId>
     <artifactId>xwiki-platform-core</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.2-SNAPSHOT</version>
   </parent>
   <artifactId>xwiki-platform-legacy</artifactId>
   <name>XWiki Platform - Legacy</name>
@@ -87,25 +87,6 @@
               <configuration>
                 <aspectDirectory>src/main/aspect/compatibility</aspectDirectory>
               </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <executions>
-            <execution>
-              <phase>process-classes</phase>
-              <configuration>
-                <target>
-                  <concat destfile="${project.build.directory}/classes/META-INF/components.txt" append="true">
-                    <filelist dir="${basedir}/src/main/resources/META-INF/" files="components.txt" />
-                  </concat>
-                </target>
-              </configuration>
-              <goals>
-                <goal>run</goal>
-              </goals>
             </execution>
           </executions>
         </plugin>

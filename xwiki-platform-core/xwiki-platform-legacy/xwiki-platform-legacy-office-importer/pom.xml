@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.xwiki.platform</groupId>
     <artifactId>xwiki-platform-legacy</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.2-SNAPSHOT</version>
   </parent>
   <artifactId>xwiki-platform-legacy-office-importer</artifactId>
   <name>XWiki Platform - Legacy - Office Importer</name>
@@ -89,24 +89,22 @@
         <!-- Merge components.txt files -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <configuration>
+              <target>
+                <concat destfile="${project.build.directory}/classes/META-INF/components.txt" append="true">
+                  <filelist dir="${basedir}/src/main/resources/META-INF/" files="components.txt" />
+                </concat>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
-      <!-- We need to compare against the xwiki-platform-office-importer since this module is new in 4.1M1 and thus
-           there's no previous version of it.
-           TODO: Remove this after 4.1M1 is released!
-      -->
-      <plugin>
-         <groupId>org.codehaus.mojo</groupId>
-         <artifactId>clirr-maven-plugin</artifactId>
-         <configuration>
-           <comparisonArtifacts>
-             <comparisonArtifact>
-               <groupId>org.xwiki.platform</groupId>
-               <artifactId>xwiki-platform-office-importer</artifactId>
-               <version>${xwiki.clirr.previous.version}</version>
-             </comparisonArtifact>
-           </comparisonArtifacts>
-         </configuration>
-       </plugin>
     </plugins>
   </build>
 </project>

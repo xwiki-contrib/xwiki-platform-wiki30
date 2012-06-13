@@ -32,7 +32,8 @@ import org.xwiki.rendering.transformation.MacroTransformationContext;
 /**
  * Decide if Groovy script execution is allowed. Allow execution if one of the following conditions is met:
  * <ul>
- *   <li>if the Secure Groovy Customizer is active</li>
+ *   <li>if the Secure Groovy Customizer is active and the transformation context
+ *       is <strong>not</strong> restricted</li>
  *   <li>if the current document has programming rights</li>
  * </ul>
  *
@@ -55,8 +56,9 @@ public class GroovyMacroPermissionPolicy extends AbstractScriptMacroPermissionPo
     {
         boolean hasPermission;
         if (this.configuration.getCompilationCustomizerNames().contains("secure")) {
-            // Security is delegated to Groovy Secure Customizer
-            hasPermission = true;
+            // If we are not running in a restricted context, the macro may run, but security will be delegated to
+            // Groovy Secure Customizer
+            hasPermission = !context.getTransformationContext().isRestricted();
         } else {
             hasPermission = super.hasPermission(parameters, context);
         }

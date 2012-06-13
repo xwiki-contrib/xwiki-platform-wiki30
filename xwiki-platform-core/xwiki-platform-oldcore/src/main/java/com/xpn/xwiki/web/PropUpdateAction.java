@@ -32,6 +32,7 @@ import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
+import com.xpn.xwiki.util.Util;
 
 public class PropUpdateAction extends XWikiAction
 {
@@ -57,7 +58,7 @@ public class PropUpdateAction extends XWikiAction
             newProperty.getXClass(context).fromMap(map, newProperty);
             String newName = newProperty.getName();
 
-            if (StringUtils.isBlank(newName) || !newName.matches("[\\w\\.\\-\\_]+")) {
+            if (!Util.isValidXMLElementName(newName)) {
                 context.put("message", "propertynamenotcorrect");
                 return true;
             }
